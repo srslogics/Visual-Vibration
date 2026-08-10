@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Independent stock market analysis and trading analytics web application." />
+  <title>Orbit Signal — Market Intelligence Desk</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="subscription.css" />
+  <link rel="stylesheet" href="premium.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">O.</span><div><strong>ORBIT</strong><small>MARKET INTELLIGENCE</small></div></div>
+      <nav aria-label="Primary navigation">
+        <button class="nav-item active" data-view="dashboard"><span>⌂</span>Dashboard</button>
+        <button class="nav-item" data-view="markets"><span>⌁</span>Markets</button>
+        <button class="nav-item" data-view="watchlist"><span>☆</span>Watchlist</button>
+        <button class="nav-item" data-view="scanner"><span>⌕</span>Scanner</button>
+        <button class="nav-item" data-view="derivatives"><span>Δ</span>F&amp;O Analytics</button>
+        <button class="nav-item" data-view="alerts"><span>◉</span>Alerts <b id="alertBadge">3</b></button>
+        <button class="nav-item" data-view="subscription"><span>◇</span>Subscription</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="data-status"><i></i><div><strong>Mock market feed</strong><small>Ready for licensed API</small></div></div>
+        <button class="profile" data-jump="subscription"><span>DJ</span><div><strong>Deepak Jummnani</strong><small id="profilePlan">Pro workspace</small></div></button>
+      </div>
+    </aside>
+    <button class="nav-scrim" id="navScrim" aria-label="Close navigation"></button>
+
+    <main>
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+        <label class="search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Jump to a stock, index or contract…" /><kbd>/</kbd></label>
+        <div class="top-actions"><span class="market-pill"><i></i>NSE OPEN</span><button class="tour-trigger" aria-label="Open product tour">▶ <span>Demo tour</span></button><button class="notification-button" aria-label="Notifications">♢<b>3</b></button><button aria-label="Settings">⚙</button></div>
+      </header>
+      <div class="market-tape" aria-label="Live market ticker"><span>Gift Nifty <b class="up">+0.42%</b></span><span>India VIX <b class="down">-2.11%</b></span><span>USD/INR <b>83.94</b></span><span>Brent <b class="up">+0.28%</b></span><span>Gold <b class="down">-0.17%</b></span><span class="tape-note">DEMO DATA · 2 SEC REFRESH</span></div>
+
+      <section class="view active" id="dashboard">
+        <div class="page-heading dashboard-heading"><div><p class="eyebrow">THE OPENING DESK / 11 AUG 2026</p><h1 id="greeting">Good morning, Deepak.</h1><p>Your market in one sentence: <strong>risk-on, but selective.</strong></p></div><div class="heading-actions"><button class="ghost-action" id="refreshMarket">↻ Recalculate desk</button><div class="as-of">INDIA / LIVE SIMULATION<br><strong id="clock">10:24:36 IST</strong></div></div></div>
+        <div class="index-strip" id="indexStrip"></div>
+        <div class="signal-ribbon"><div class="ribbon-icon">01</div><div><span class="eyebrow">ORBIT READ / 08:52</span><strong>Momentum stays constructive above NIFTY 24,780.</strong><p>IT and pharma lead while banks absorb supply. A clean 24,900 break changes the day from constructive to expansion.</p></div><button data-jump="scanner">OPEN THE RADAR ↗</button></div>
+        <div class="dashboard-grid">
+          <article class="panel chart-panel">
+            <div class="panel-head"><div><p class="eyebrow">PRIMARY TAPE / NSE</p><h2>NIFTY 50 <span class="up">+0.74%</span></h2></div><div class="range-tabs"><button>1D</button><button class="active">1W</button><button>1M</button><button>1Y</button></div></div>
+            <div class="chart-stats"><strong>24,847.15</strong><span class="up">+183.40 today</span></div>
+            <canvas id="marketChart" height="230" aria-label="NIFTY 50 line chart"></canvas>
+          </article>
+          <article class="panel breadth-panel">
+            <div class="panel-head"><div><p class="eyebrow">REGIME METER</p><h2>Buyers control<br>two-thirds of the tape.</h2></div><span class="signal">RISK ON</span></div>
+            <div class="breadth-ring" style="--value:66"><div><strong>1,827</strong><span>of 2,761 stocks</span></div></div>
+            <div class="breadth-bar"><span style="width:66%"></span><i style="width:9%"></i></div>
+            <div class="legend"><span><b class="green"></b>Advances 1,827</span><span><b class="gray"></b>Unchanged 241</span><span><b class="red"></b>Declines 693</span></div>
+          </article>
+          <article class="panel watch-panel">
+            <div class="panel-head"><div><p class="eyebrow">PERSONAL TAPE / 04</p><h2>Deepak's focus list</h2></div><button class="text-button" data-jump="watchlist">EDIT LIST ↗</button></div>
+            <div class="stock-list" id="watchStocks"></div>
+          </article>
+          <article class="panel movers-panel">
+            <div class="panel-head"><div><p class="eyebrow">VELOCITY BOARD</p><h2>Where money is moving</h2></div><div class="mini-tabs"><button class="active" data-movers="gainers">UP</button><button data-movers="losers">DOWN</button></div></div>
+            <div class="movers-list" id="moversList"></div>
+          </article>
+          <article class="panel intelligence-panel"><div class="panel-head"><div><p class="eyebrow">THREE THINGS THAT MATTER NOW</p><h2>The decision queue</h2></div><span>DESK UPDATED / JUST NOW</span></div><div class="insight-grid"><button data-jump="scanner"><span class="insight-icon breakout">A</span><div><strong>Three names entered expansion</strong><small>INFY, TCS and SUNPHARMA crossed both price and volume thresholds.</small></div><b>OPEN RADAR ↗</b></button><button data-jump="derivatives"><span class="insight-icon options">B</span><div><strong>Protection is getting cheaper</strong><small>NIFTY PCR is 1.18 with put writing building at the 24,800 strike.</small></div><b>READ OPTIONS ↗</b></button><button data-jump="alerts"><span class="insight-icon alert">C</span><div><strong>TCS is one move from trigger</strong><small>RSI sits at 68.4 against your configured momentum level of 70.</small></div><b>REVIEW ALERT ↗</b></button></div></article>
+        </div>
+      </section>
+
+      <section class="view" id="markets"><div class="page-heading"><div><p class="eyebrow">MARKETS</p><h1>Indian market board</h1><p>Indices, sectors and market-wide momentum.</p></div></div><div class="index-strip" id="marketIndices"></div><div class="panel"><div class="panel-head"><h2>Sector performance</h2><span>1-day change</span></div><div class="sector-grid" id="sectorGrid"></div></div></section>
+
+      <section class="view" id="watchlist"><div class="page-heading"><div><p class="eyebrow">WATCHLIST</p><h1>Your tracked instruments</h1><p>Saved locally on this device for the MVP.</p></div><button class="primary-button" id="addStock">+ Add symbol</button></div><div class="panel table-panel"><table><thead><tr><th>Instrument</th><th>LTP</th><th>Change</th><th>Volume</th><th>Signal</th><th></th></tr></thead><tbody id="watchTable"></tbody></table></div></section>
+
+      <section class="view" id="scanner"><div class="page-heading"><div><p class="eyebrow">TECHNICAL SCANNER</p><h1>Find high-conviction setups</h1><p>Combine price, volume and indicator conditions.</p></div><button class="primary-button" id="runScan">Run scanner</button></div><div class="scanner-layout"><div class="panel filters"><h2>Scan conditions</h2><label>Price above<input type="number" id="minPrice" value="100" /></label><label>Minimum change<select id="minChange"><option value="0">Any positive</option><option value="1">Above 1%</option><option value="2">Above 2%</option></select></label><label>Signal<select id="signalFilter"><option>Any</option><option>Breakout</option><option>Bullish</option><option>Oversold</option></select></label><label class="check"><input type="checkbox" id="volumeFilter" checked />Volume above average</label></div><div class="panel table-panel"><div class="panel-head"><h2>Scanner results</h2><span id="resultCount">6 matches</span></div><table><thead><tr><th>Symbol</th><th>LTP</th><th>Change</th><th>RSI</th><th>Volume</th><th>Signal</th></tr></thead><tbody id="scannerTable"></tbody></table></div></div></section>
+
+      <section class="view" id="derivatives"><div class="page-heading"><div><p class="eyebrow">F&amp;O ANALYTICS</p><h1>NIFTY options intelligence</h1><p>Open interest, PCR, max pain and option-chain signals.</p></div><select class="contract-select"><option>NIFTY · 14 AUG 2026</option><option>BANKNIFTY · 14 AUG 2026</option></select></div><div class="metric-grid"><div class="metric"><span>Put–Call Ratio</span><strong>1.18</strong><small class="up">Mildly bullish</small></div><div class="metric"><span>Max Pain</span><strong>24,800</strong><small>Near spot price</small></div><div class="metric"><span>ATM IV</span><strong>12.6%</strong><small class="down">-0.8 today</small></div><div class="metric"><span>Futures Basis</span><strong>+32.85</strong><small>0.13% premium</small></div></div><div class="panel table-panel"><div class="panel-head"><h2>Option chain</h2><span>Spot 24,847.15</span></div><table class="option-table"><thead><tr><th>Call OI</th><th>Call LTP</th><th>Strike</th><th>Put LTP</th><th>Put OI</th></tr></thead><tbody id="optionTable"></tbody></table></div></section>
+
+      <section class="view" id="alerts"><div class="page-heading"><div><p class="eyebrow">ALERTS</p><h1>Signal centre</h1><p>Price and technical alerts for instruments you follow.</p></div><button class="primary-button" id="newAlert">+ New alert</button></div><div class="alert-grid" id="alertList"></div></section>
+
+      <section class="view" id="subscription">
+        <div class="page-heading subscription-heading"><div><p class="eyebrow">SUBSCRIPTION</p><h1>Choose the right market edge.</h1><p>Upgrade or change your plan at any time. Prices shown include platform access only.</p></div><div class="billing-toggle" role="group" aria-label="Billing frequency"><button class="active" data-billing="monthly">Monthly</button><button data-billing="annual">Annual <span>Save 20%</span></button></div></div>
+        <article class="current-plan"><div><span class="plan-kicker">CURRENT PLAN</span><h2><span id="currentPlanName">Pro</span> workspace</h2><p id="renewalCopy">Renews on September 11, 2026 · ₹999/month</p></div><div class="plan-usage"><div><span>Watchlists</span><strong>4 / 20</strong><i><b style="width:20%"></b></i></div><div><span>Active alerts</span><strong>3 / 100</strong><i><b style="width:3%"></b></i></div><div><span>Saved scanners</span><strong>6 / 25</strong><i><b style="width:24%"></b></i></div></div><button class="secondary-button" id="manageBilling">Manage billing</button></article>
+        <div class="pricing-grid">
+          <article class="price-card" data-plan="Starter"><div class="price-top"><span class="plan-icon">S</span><div><h2>Starter</h2><p>For market monitoring</p></div></div><div class="price"><strong data-monthly="0" data-annual="0">₹0</strong><span>/ month</span></div><button class="secondary-button choose-plan" data-plan="Starter">Choose Starter</button><ul><li>1 watchlist · 20 symbols</li><li>Market dashboard</li><li>Basic interactive charts</li><li>5 price alerts</li><li>End-of-day scanner</li></ul></article>
+          <article class="price-card featured" data-plan="Pro"><span class="popular">MOST POPULAR</span><div class="price-top"><span class="plan-icon">P</span><div><h2>Pro</h2><p>For active traders</p></div></div><div class="price"><strong data-monthly="999" data-annual="799">₹999</strong><span>/ month</span></div><button class="primary-button choose-plan" data-plan="Pro">Current plan</button><ul><li>20 watchlists · 500 symbols</li><li>Advanced charts &amp; indicators</li><li>100 price &amp; technical alerts</li><li>Real-time technical scanner</li><li>F&amp;O, OI, PCR &amp; Greeks</li><li>Priority support</li></ul></article>
+          <article class="price-card" data-plan="Elite"><div class="price-top"><span class="plan-icon">E</span><div><h2>Elite</h2><p>For professional workflows</p></div></div><div class="price"><strong data-monthly="1999" data-annual="1599">₹1,999</strong><span>/ month</span></div><button class="secondary-button choose-plan" data-plan="Elite">Upgrade to Elite</button><ul><li>Unlimited watchlists</li><li>Unlimited alerts &amp; scanners</li><li>Strategy workspaces</li><li>Advanced derivatives analytics</li><li>Data export &amp; API access</li><li>Dedicated onboarding</li></ul></article>
+        </div>
+        <div class="subscription-bottom"><article class="panel table-panel"><div class="panel-head"><div><p class="eyebrow">BILLING HISTORY</p><h2>Recent invoices</h2></div><button class="text-button">View all →</button></div><table><thead><tr><th>Invoice</th><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody><tr><td>ORB-2026-0811</td><td>11 Aug 2026</td><td>Pro · Monthly</td><td>₹999</td><td><span class="paid-pill">Paid</span></td><td><button class="text-button download-invoice">Download</button></td></tr><tr><td>ORB-2026-0711</td><td>11 Jul 2026</td><td>Pro · Monthly</td><td>₹999</td><td><span class="paid-pill">Paid</span></td><td><button class="text-button download-invoice">Download</button></td></tr></tbody></table></article><article class="panel subscription-note"><span>i</span><div><h3>Third-party charges</h3><p>Broker APIs, licensed market data, exchange fees, cloud services, SMS/WhatsApp, and payment-gateway charges are billed separately where applicable.</p></div></article></div>
+      </section>
+    </main>
+  </div>
+  <dialog id="stockDialog"><form method="dialog"><div class="dialog-head"><h2>Add to watchlist</h2><button value="cancel" aria-label="Close">×</button></div><label>Symbol<input id="symbolInput" placeholder="e.g. INFY" maxlength="12" /></label><label>Company name<input id="nameInput" placeholder="e.g. Infosys Limited" /></label><div class="dialog-actions"><button value="cancel" class="secondary-button">Cancel</button><button value="default" id="saveStock" class="primary-button">Add stock</button></div></form></dialog>
+  <dialog id="tourDialog" class="tour-dialog"><form method="dialog"><div class="tour-visual"><span>ORBIT MARKETS</span><strong>From market noise<br>to clear decisions.</strong><p>A guided walkthrough of the complete trading analytics workspace.</p><div class="tour-orbits"><i></i><i></i><i></i></div></div><div class="tour-content"><div class="dialog-head"><span class="eyebrow">CLIENT DEMO</span><button value="cancel" aria-label="Close">×</button></div><h2>Everything an active trader needs.</h2><ol><li><b>01</b><div><strong>See the market clearly</strong><span>Live dashboards, breadth, movers and sector momentum.</span></div></li><li><b>02</b><div><strong>Find opportunities faster</strong><span>Advanced charts, technical scanners and alerts.</span></div></li><li><b>03</b><div><strong>Understand derivatives</strong><span>Option chain, OI, PCR, max pain and Greeks.</span></div></li><li><b>04</b><div><strong>Build recurring revenue</strong><span>Plans, entitlements, billing and administration.</span></div></li></ol><button value="default" class="primary-button start-tour">Start interactive tour →</button></div></form></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
