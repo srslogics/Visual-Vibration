@@ -80,6 +80,8 @@ kbd { padding: 2px 6px; border: 1px solid var(--line); background: var(--surface
 .top-actions button, .menu-button { height: 34px; min-width: 34px; border: 1px solid var(--line); background: var(--surface); border-radius: 7px; cursor: pointer; }
 .market-pill { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: #dfeee5; color: #115a43; font: 800 8px monospace; letter-spacing: .06em; }
 .tour-trigger { width: auto!important; padding: 0 11px; font: 800 8px monospace; text-transform: uppercase; }
+.install-trigger { width: auto!important; padding: 0 11px; align-items: center; gap: 6px; color: #285c48; font: 800 8px monospace; text-transform: uppercase; }
+.install-trigger:not([hidden]) { display: inline-flex; }
 .notification-button { position: relative; }
 .notification-button b { position: absolute; top: -6px; right: -5px; width: 15px; height: 15px; display: grid; place-items: center; background: var(--orange); color: #111; font-size: 7px; border-radius: 50%; }
 .market-tape {
@@ -295,6 +297,8 @@ dialog label { display: grid; gap: 7px; font: 8px monospace; }
   .search input { min-width: 0; padding: 0 7px; text-overflow: ellipsis; }
   .top-actions { margin-left: 0; }
   .top-actions .notification-button { display: grid; place-items: center; width: 40px; height: 40px; }
+  .top-actions .install-trigger:not([hidden]) { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; }
+  .top-actions .install-trigger span { display: none; }
   .market-tape {
     top: 58px; height: 32px; padding: 0 14px; gap: 22px; overflow-x: auto; overscroll-behavior-x: contain;
     scrollbar-width: none; scroll-snap-type: x proximity;

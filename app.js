@@ -63,3 +63,21 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNavigation();if
 function tick(){const now=new Date(),hour=+now.toLocaleString('en-US',{timeZone:'Asia/Kolkata',hour:'numeric',hour12:false});$('#clock').textContent=now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:false})+' IST';$('#greeting').textContent=`Good ${hour<12?'morning':hour<17?'afternoon':'evening'}, Deepak.`}tick();setInterval(tick,1000);
 setInterval(()=>{indices.forEach(x=>{x[1]+=Math.random()*2.6-1.3;x[2]+=Math.random()*.012-.006});renderIndices('#indexStrip');renderIndices('#marketIndices')},2000);
 addEventListener('resize',drawChart);requestAnimationFrame(drawChart);
+
+let deferredInstallPrompt=null;
+const installButton=$('#installApp');
+addEventListener('beforeinstallprompt',event=>{
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  installButton.hidden=false;
+});
+installButton.onclick=async()=>{
+  if(!deferredInstallPrompt)return;
+  deferredInstallPrompt.prompt();
+  const {outcome}=await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  installButton.hidden=true;
+  showToast(outcome==='accepted'?'Orbit Signal installed':'Installation cancelled');
+};
+addEventListener('appinstalled',()=>{deferredInstallPrompt=null;installButton.hidden=true;showToast('Orbit Signal is ready on your device')});
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
