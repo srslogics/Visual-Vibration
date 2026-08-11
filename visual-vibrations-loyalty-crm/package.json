@@ -1,0 +1,14 @@
+{
+  "name": "visual-vibrations-vv-one",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "node build-static.mjs",
+    "start": "node dev-server.mjs",
+    "test": "npm run build && node --test tests/rendered-html.test.mjs"
+  },
+  "type": "module"
+}
