@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('.', import.meta.url).pathname;
-const port = Number(process.env.PORT || 8020);
+const requestedPort = Number(process.env.PORT || 8020);
+let activePort = requestedPort;
 const assets = new Map([
   ['/styles.css', ['text/css; charset=utf-8', readFileSync(join(root, 'styles.css'))]],
   ['/app.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'app.js'))]],
@@ -12,7 +13,7 @@ const assets = new Map([
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 
 const server = createServer((request, response) => {
-  const origin = `http://${request.headers.host || `localhost:${port}`}`;
+  const origin = `http://${request.headers.host || `localhost:${activePort}`}`;
   const path = new URL(request.url || '/', origin).pathname;
   response.setHeader('X-Content-Type-Options', 'nosniff');
 
@@ -35,6 +36,16 @@ const server = createServer((request, response) => {
   response.end('Not found');
 });
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`Visual Vibrations Customer Loyalty + CRM is running at http://localhost:${port}/`);
+const announce = () => console.log(`Visual Vibrations Customer Loyalty + CRM is running at http://localhost:${activePort}/`);
+
+server.once('error', error => {
+  if (error.code === 'EADDRINUSE' && !process.env.PORT) {
+    activePort = requestedPort + 1;
+    server.listen(activePort, '0.0.0.0');
+    return;
+  }
+  throw error;
 });
+
+server.once('listening', announce);
+server.listen(activePort, '0.0.0.0');

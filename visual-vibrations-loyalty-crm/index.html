@@ -54,7 +54,7 @@
 
     <main>
       <header class="topbar">
-        <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+        <button class="menu-button" id="menuButton" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
         <div class="workspace-title"><small>VISUAL VIBRATIONS PVT. LTD.</small><strong id="viewTitle">Customer command centre</strong></div>
         <div class="global-search-wrap">
           <label class="global-search"><span>⌕</span><input id="globalSearch" placeholder="Search customer, phone, project…" autocomplete="off" /><kbd>⌘ K</kbd></label>
@@ -164,9 +164,9 @@
 
   <dialog id="formDialog">
     <form method="dialog" id="dynamicForm">
-      <div class="dialog-head"><div><p class="eyebrow" id="dialogKicker">NEW RECORD</p><h2 id="dialogTitle">Add customer</h2></div><button value="cancel" class="close-button" aria-label="Close">×</button></div>
+      <div class="dialog-head"><div><p class="eyebrow" id="dialogKicker">NEW RECORD</p><h2 id="dialogTitle">Add customer</h2></div><button value="cancel" class="close-button" aria-label="Close" formnovalidate>×</button></div>
       <div id="dialogFields" class="dialog-fields"></div>
-      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancel</button><button value="default" class="primary-button" id="saveDialog">Save</button></div>
+      <div class="dialog-actions"><button value="cancel" class="secondary-button" formnovalidate>Cancel</button><button value="default" class="primary-button" id="saveDialog">Save</button></div>
     </form>
   </dialog>
 

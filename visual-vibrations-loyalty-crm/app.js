@@ -78,7 +78,7 @@ function renderCustomers(){
   document.getElementById('customerCount').textContent=`${list.length === store.customers.length ? 248 + Math.max(0,store.customers.length-baseCustomers.length) : list.length} customers`;
   document.getElementById('customerNavCount').textContent=248+Math.max(0,store.customers.length-baseCustomers.length);
   document.getElementById('memberCount').textContent=248+Math.max(0,store.customers.length-baseCustomers.length);
-  document.getElementById('customerTable').innerHTML=list.map(c=>`<tr><td><div class="customer-cell"><span class="avatar">${e(c.initials)}</span><div><strong>${e(c.name)}</strong><small>${e(c.phone)} · ${e(c.city)}</small></div></div></td><td>Since ${e(c.since)}</td><td><div class="vertical-chips" title="${e(c.verticals.join(', '))}">${c.verticals.map(v=>`<i class="vertical-chip ${verticalClass(v)}"></i>`).join('')}</div></td><td><strong>${money(c.ltv)}</strong></td><td><span class="tier-badge ${c.tier.toLowerCase()}">${e(c.tier)} · ${c.points.toLocaleString('en-IN')} pts</span></td><td>${e(c.last)}</td><td><button class="row-action" data-customer="${c.id}" aria-label="Open ${e(c.name)}">→</button></td></tr>`).join('')||`<tr><td colspan="7">No customers match these filters.</td></tr>`;
+  document.getElementById('customerTable').innerHTML=list.map(c=>`<tr><td data-label="Customer"><div class="customer-cell"><span class="avatar">${e(c.initials)}</span><div><strong>${e(c.name)}</strong><small>${e(c.phone)} · ${e(c.city)}</small></div></div></td><td data-label="Relationship">Since ${e(c.since)}</td><td data-label="Verticals"><div class="vertical-chips" title="${e(c.verticals.join(', '))}">${c.verticals.map(v=>`<i class="vertical-chip ${verticalClass(v)}"></i>`).join('')}</div></td><td data-label="Lifetime value"><strong>${money(c.ltv)}</strong></td><td data-label="Loyalty"><span class="tier-badge ${c.tier.toLowerCase()}">${e(c.tier)} · ${c.points.toLocaleString('en-IN')} pts</span></td><td data-label="Last contact">${e(c.last)}</td><td class="mobile-row-action"><button class="row-action" data-customer="${c.id}" aria-label="Open ${e(c.name)}">Open profile →</button></td></tr>`).join('')||`<tr class="empty-row"><td colspan="7">No customers match these filters.</td></tr>`;
 }
 
 function renderKanban(){
@@ -115,7 +115,7 @@ function openView(id){
   document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===id));
   document.querySelectorAll('.nav-item').forEach(item=>item.classList.toggle('active',item.dataset.view===id));
   document.getElementById('viewTitle').textContent=viewTitles[id]||'Visual Vibrations CRM';
-  document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.remove('open');
+  document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.remove('open'); document.body.classList.remove('nav-open'); document.getElementById('menuButton').setAttribute('aria-expanded','false');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -178,8 +178,8 @@ document.addEventListener('click',event=>{
 });
 
 document.getElementById('saveDialog').addEventListener('click',saveDialog);
-document.getElementById('menuButton').addEventListener('click',()=>{document.getElementById('sidebar').classList.add('open');document.getElementById('scrim').classList.add('open');});
-document.getElementById('scrim').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('scrim').classList.remove('open');});
+document.getElementById('menuButton').addEventListener('click',()=>{document.getElementById('sidebar').classList.add('open');document.getElementById('scrim').classList.add('open');document.body.classList.add('nav-open');document.getElementById('menuButton').setAttribute('aria-expanded','true');});
+document.getElementById('scrim').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('open');document.getElementById('scrim').classList.remove('open');document.body.classList.remove('nav-open');document.getElementById('menuButton').setAttribute('aria-expanded','false');});
 document.getElementById('globalSearch').addEventListener('input',event=>handleSearch(event.target.value));
 document.getElementById('customerSearch').addEventListener('input',renderCustomers);
 document.getElementById('verticalFilter').addEventListener('change',renderCustomers);
