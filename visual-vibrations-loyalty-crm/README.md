@@ -1,4 +1,4 @@
-# VV One — Visual Vibrations CRM
+# Visual Vibrations — Customer Loyalty + CRM
 
 Customer loyalty, CRM, sales and service workspace for **Visual Vibrations Pvt. Ltd., Nagpur**.
 

@@ -59,4 +59,4 @@ export default {
 writeFileSync(join(serverDir, 'index.js'), worker);
 for (const file of ['index.html', 'styles.css', 'app.js']) cpSync(join(root, file), join(clientDir, file));
 cpSync(join(root, 'public/og.png'), join(clientDir, 'og.png'));
-console.log(`Built VV One to ${dist}`);
+console.log(`Built Visual Vibrations Customer Loyalty + CRM to ${dist}`);

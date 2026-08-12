@@ -36,5 +36,5 @@ const server = createServer((request, response) => {
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.log(`VV One is running at http://localhost:${port}/`);
+  console.log(`Visual Vibrations Customer Loyalty + CRM is running at http://localhost:${port}/`);
 });

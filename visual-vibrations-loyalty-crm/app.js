@@ -114,7 +114,7 @@ function renderAnalytics(){
 function openView(id){
   document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===id));
   document.querySelectorAll('.nav-item').forEach(item=>item.classList.toggle('active',item.dataset.view===id));
-  document.getElementById('viewTitle').textContent=viewTitles[id]||'VV One';
+  document.getElementById('viewTitle').textContent=viewTitles[id]||'Visual Vibrations CRM';
   document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.remove('open');
   window.scrollTo({top:0,behavior:'smooth'});
 }
