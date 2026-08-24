@@ -403,3 +403,144 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto!important; animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; }
 }
+
+/* Readable product type scale
+   The original presentation used micro type. These sizes are intended for
+   sustained use on laptops, tablets and phones. */
+body { font-size: 16px; }
+.eyebrow, .experience-seal, .breadcrumb, .primary-nav p,
+.partner-topbar>p, .member-service, .reward-card>span,
+.portal-reward-card>span, .tier-card>span, .partner-types span,
+.summary-strip small, .table-head, .points-chip small,
+.mobile-tier-card span, .report-kpis small, .risk-pill,
+.confirm-record span, .step-kicker small { font-size: 11px!important; line-height: 1.45; }
+
+.brand small, .partner-brand small, .integrity-card small,
+.integrity-card p, .user-chip small, .partner-help small,
+.sidebar-profile small { font-size: 10px!important; line-height: 1.5; }
+.brand b, .partner-brand b { font-size: 25px; }
+.integrity-card strong, .user-chip b, .partner-help b,
+.sidebar-profile b { font-size: 13px!important; }
+.nav-link, .partner-sidebar nav button { font-size: 14px!important; }
+.nav-link span, .nav-link i, .partner-sidebar nav button>i { font-size: 11px!important; }
+
+.global-search input, .table-search input, .heading-actions select,
+.partner-toolbar select, .filter-pills button, .secondary-button,
+.primary-button, .text-button, .new-referral-button,
+.referral-filter-row button { font-size: 13px!important; }
+.primary-button, .secondary-button, .new-referral-button { min-height: 46px; }
+
+.score-ring small, .trust-score>div:last-child span,
+.trust-score>div:last-child small, .metric-card>div:first-child span,
+.metric-split span, .protected p, .proof-steps small,
+.summary-strip small, .table-head { font-size: 11px!important; }
+.trust-score>div:last-child b { font-size: 17px; }
+.metric-card>p, .hero-copy { font-size: 13px!important; line-height: 1.65; }
+.verification-item strong, .leader-row p b, .leader-row>strong,
+.activity-item b { font-size: 13px!important; }
+.verification-item p, .verification-item>div:nth-child(3)>small,
+.verification-item>button, .proof>small, .leader-row p small,
+.leader-row>strong small, .activity-item small, .attribution-score span,
+.proof-steps b, .proof-steps>div>i { font-size: 11px!important; line-height: 1.5; }
+.verification-item>button { min-width: 94px; height: 38px; }
+
+.table-row b { font-size: 13px!important; }
+.table-row small, .status-badge { font-size: 11px!important; line-height: 1.45; }
+.table-row { min-height: 82px; }
+.empty-state { font-size: 13px!important; }
+.verification-card-head h3 { font-size: 18px; }
+.verification-card-head p, .verification-card-head time,
+.verification-route small, .verification-route b,
+.verification-checks span, .verification-actions button,
+.control-policy>p:not(.eyebrow), .prevention-panel>p:not(.eyebrow),
+.policy-step b, .policy-step small, .policy-step i,
+.policy-note b, .policy-note p { font-size: 11px!important; line-height: 1.5; }
+.verification-actions button { min-height: 38px; padding-inline: 14px; }
+
+.partner-types span, .partner-card-metrics small,
+.tier-card>span, .earning-rule small, .liability-bars span,
+.liability-bars strong { font-size: 10px!important; }
+.partner-types small, .partner-card-top p, .partner-progress span,
+.tier-card>p, .tier-card>div, .earning-rule small,
+.liability-number span, .points-liability>p { font-size: 12px!important; line-height: 1.5; }
+.partner-card-top h3 { font-size: 18px; }
+.partner-card-metrics b, .earning-rule b, .earning-rule>strong { font-size: 13px!important; }
+.partner-card>button { height: 40px; font-size: 12px; }
+.earning-rule { min-height: 64px; }
+
+.reward-grid { gap: 14px; }
+.reward-card { min-height: 320px; padding: 22px; }
+.reward-visual { height: 112px; }
+.reward-card>span { font-size: 10px!important; }
+.reward-card h3 { margin-top: 12px; font-size: 19px; line-height: 1.25; }
+.reward-card p { font-size: 12px!important; line-height: 1.6; }
+.reward-card footer strong { font-size: 13px; }
+.reward-card footer button { min-height: 38px; padding: 0 12px; font-size: 12px; }
+
+.fraud-hero>div:first-child>p:last-child, .shield-stats span,
+.fraud-case p, .fraud-case-tags span, .control-row small,
+.audit-event small, .report-kpis p, .legend,
+.report-chart span, .mix-legend span, .mix-legend small { font-size: 11px!important; line-height: 1.5; }
+.shield-score small, .audit-event time, .audit-event>i,
+.report-kpis small, .mix-donut small { font-size: 10px!important; }
+.fraud-case h3, .control-row b, .audit-event b,
+.mix-legend b { font-size: 13px!important; }
+.fraud-case>button { height: 38px; font-size: 12px; }
+
+.modal-intro>p:last-child, .form-grid label, .form-footer p,
+.drawer-profile p, .timeline-event small, .action-modal-card form>label,
+.case-note { font-size: 11px!important; line-height: 1.5; }
+.form-grid input:not([type=checkbox]), .form-grid select,
+.action-modal-card textarea, .case-note textarea { min-height: 46px; font-size: 13px!important; }
+.form-section>span, .timeline-event>span, .toast>span { font-size: 10px; }
+.form-section h3, .drawer-proof h3 { font-size: 17px; }
+.timeline-event b, .toast b { font-size: 13px!important; }
+.toast small { font-size: 11px!important; }
+
+.entry-card form>label, .profile-form label, .portal-modal-card label,
+.flow-card form>label, .sign-in, .secure-note b, .secure-note small,
+.resend-button, .demo-hint, .auto-checks span { font-size: 12px!important; }
+.role-card b { font-size: 14px; }
+.role-card small { font-size: 11px; }
+.continue-button { font-size: 14px; }
+.confirm-record small, .confirm-consent span { font-size: 13px; }
+
+.tier-hero p, .tier-hero small, .tier-progress>div span,
+.tier-progress>div b, .partner-metrics span, .partner-metrics p,
+.partner-panel-head button, .portal-referral-row p b,
+.portal-referral-row small, .portal-status, .next-reward>span,
+.next-reward>p, .next-reward>div:last-child button,
+.next-reward>div:last-child strong, .my-referral-card p,
+.referral-journey-copy, .my-referral-actions button,
+.wallet-overview article>small, .wallet-overview article>p,
+.wallet-balance>p, .wallet-balance>small, .ledger-row small,
+.identity-head p, .identity-head i, .profile-field span,
+.profile-field i, .assurance-card small, .portal-modal-head>p:last-child,
+.result-card>p, .automatic-strip b, .automatic-strip small,
+.auto-result-list span, .portal-toast small { font-size: 11px!important; line-height: 1.5; }
+.portal-referral-row p b, .ledger-row p b, .ledger-row>strong,
+.profile-field b, .assurance-card b, .portal-toast b { font-size: 13px!important; }
+.portal-reward-card>span { font-size: 10px!important; }
+.portal-reward-card p { font-size: 12px!important; line-height: 1.6; }
+.portal-reward-card footer button, .portal-reward-card .reward-lock,
+.portal-reward-card footer strong { font-size: 12px!important; }
+.portal-reward-card footer button { min-height: 38px; padding-inline: 12px; }
+
+@media (max-width: 1180px) {
+  .reward-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .portal-reward-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 760px) {
+  .eyebrow, .experience-seal, .breadcrumb { font-size: 10px!important; }
+  .nav-link, .partner-sidebar nav button { font-size: 15px!important; }
+  .partner-bottom-nav button { font-size: 11px!important; }
+  .reward-card, .portal-reward-card { min-height: 300px; }
+  .reward-card h3, .portal-reward-card h3 { font-size: 20px; }
+}
+
+@media (max-width: 520px) {
+  .reward-grid, .portal-reward-grid { grid-template-columns: 1fr; }
+  .reward-card, .portal-reward-card { min-height: 0; }
+  .table-row small, .status-badge { font-size: 12px!important; }
+}
