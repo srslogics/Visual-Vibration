@@ -62,6 +62,34 @@ let activePartnerType = 'all';
 let activeRewardFilter = 'all';
 let activeRedemptionFilter = 'all';
 
+const STAFF_STORAGE_KEY = 'vantage_staff_accounts_v1';
+const STAFF_SESSION_KEY = 'vantage_staff_session_v1';
+const accessModules = [
+  {id:'overview',label:'Control centre',actions:['view']},
+  {id:'referrals',label:'Referrals',actions:['view','add','edit']},
+  {id:'verification',label:'Exceptions',actions:['view','edit']},
+  {id:'partners',label:'Partners',actions:['view','add','edit']},
+  {id:'rewards',label:'Tiers & rewards',actions:['view','add','edit']},
+  {id:'redemptions',label:'Redemptions',actions:['view','edit']},
+  {id:'fraud',label:'Fraud watch',actions:['view','edit']},
+  {id:'reports',label:'Reports',actions:['view']}
+];
+const accessPresets = {
+  referral:{overview:['view'],referrals:['view','add','edit'],verification:['view','edit'],partners:['view'],rewards:['view'],redemptions:['view'],fraud:['view'],reports:['view']},
+  loyalty:{overview:['view'],referrals:['view'],partners:['view'],rewards:['view','add','edit'],redemptions:['view','edit'],reports:['view']},
+  audit:{overview:['view'],referrals:['view'],verification:['view'],partners:['view'],rewards:['view'],redemptions:['view'],fraud:['view'],reports:['view']},
+  sales:{overview:['view'],referrals:['view','add','edit'],partners:['view','add','edit'],reports:['view']}
+};
+const seedStaffAccounts = [
+  {id:'staff-aditi',name:'Aditi Mehra',email:'aditi@visualvibrations.in',title:'Referral operations',status:'Active',pinHash:'a9edfb8451c4089632be3be3d832c924a9f0f7e72c058abd02808dab9714aabd',lastActive:'Today · 10:42',permissions:accessPresets.referral},
+  {id:'staff-kunal',name:'Kunal Rao',email:'kunal@visualvibrations.in',title:'Loyalty manager',status:'Active',pinHash:'cef68bfff75d5d84328ec6380b5786037804dc2ef11adecd5a0199512edb7976',lastActive:'Today · 09:18',permissions:accessPresets.loyalty}
+];
+let staffAccounts = JSON.parse(localStorage.getItem(STAFF_STORAGE_KEY) || 'null') || seedStaffAccounts;
+if (!localStorage.getItem(STAFF_STORAGE_KEY)) localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffAccounts));
+const directorUser = {id:'director-vikas',name:'Vikas Kothari',email:'director@visualvibrations.in',title:'Director',status:'Active',isDirector:true,permissions:'all'};
+const restoredStaffId = sessionStorage.getItem(STAFF_SESSION_KEY);
+let currentStaffUser = staffAccounts.find(account => account.id === restoredStaffId && account.status === 'Active') || directorUser;
+
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
@@ -70,6 +98,173 @@ const statusClass = status => status.toLowerCase().replace(/\s+/g,'-');
 const formatINR = value => value >= 100000 ? `₹${(value/100000).toFixed(value % 100000 ? 1 : 0)} L` : `₹${Number(value).toLocaleString('en-IN')}`;
 const getRewards = () => [...customRewards, ...seedRewards];
 const rewardMark = type => ({Trip:'✦',Gadget:'G',Experience:'◇',Service:'S',Voucher:'₹',Other:'V'}[type] || 'V');
+const accessActionLabel = action => ({view:'View',add:'Add',edit:'Edit'}[action] || action);
+
+function canAccess(moduleId, action = 'view') {
+  if (currentStaffUser?.isDirector) return true;
+  if (!currentStaffUser || currentStaffUser.status !== 'Active') return false;
+  return (currentStaffUser.permissions?.[moduleId] || []).includes(action);
+}
+
+function requirePermission(moduleId, action = 'view') {
+  if (canAccess(moduleId, action)) return true;
+  const module = accessModules.find(item => item.id === moduleId)?.label || 'This module';
+  showToast('Access restricted', `${accessActionLabel(action)} access for ${module} has not been assigned to this account.`, '!');
+  return false;
+}
+
+function persistStaffAccounts() {
+  localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(staffAccounts));
+}
+
+async function hashAccessCode(code) {
+  const bytes = new TextEncoder().encode(String(code));
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2,'0')).join('');
+}
+
+function generateAccessCode() {
+  const value = new Uint32Array(1);
+  crypto.getRandomValues(value);
+  return String(100000 + (value[0] % 900000));
+}
+
+function firstAvailableView() {
+  return accessModules.find(module => canAccess(module.id, 'view'))?.id || 'overview';
+}
+
+function setCurrentStaff(account) {
+  currentStaffUser = account || directorUser;
+  if (currentStaffUser.isDirector) sessionStorage.removeItem(STAFF_SESSION_KEY);
+  else sessionStorage.setItem(STAFF_SESSION_KEY, currentStaffUser.id);
+  applyAccessControl();
+  switchView(firstAvailableView());
+}
+
+function permissionChips(account) {
+  return accessModules.flatMap(module => {
+    const actions = account.permissions?.[module.id] || [];
+    return actions.length ? [`<span class="permission-chip"><b>${escapeHtml(module.label)}</b> · ${actions.map(accessActionLabel).join(' / ')}</span>`] : [];
+  }).join('');
+}
+
+function renderStaffAccounts() {
+  const active = staffAccounts.filter(account => account.status === 'Active');
+  const suspended = staffAccounts.filter(account => account.status !== 'Active');
+  $('#activeStaffCount').textContent = String(active.length).padStart(2,'0');
+  $('#customAccessCount').textContent = String(staffAccounts.length).padStart(2,'0');
+  $('#suspendedStaffCount').textContent = String(suspended.length).padStart(2,'0');
+  $('#teamCount').textContent = String(active.length).padStart(2,'0');
+  $('#teamList').innerHTML = staffAccounts.length ? staffAccounts.map(account => `
+    <article class="staff-card">
+      <span class="staff-avatar">${initials(account.name)}</span>
+      <div class="staff-identity"><h3>${escapeHtml(account.name)}</h3><p>${escapeHtml(account.title)} · ${escapeHtml(account.email)}<br>Last active: ${escapeHtml(account.lastActive || 'Not signed in yet')}</p></div>
+      <span class="staff-state ${account.status === 'Active' ? '' : 'suspended'}">${escapeHtml(account.status)}</span>
+      <div class="staff-permissions">${permissionChips(account) || '<span class="permission-chip">No modules assigned</span>'}</div>
+      <div class="staff-actions"><button class="primary" data-preview-staff="${escapeHtml(account.id)}" ${account.status === 'Active' ? '' : 'disabled'}>Preview access</button><button data-edit-staff="${escapeHtml(account.id)}">Edit permissions</button><button class="danger" data-toggle-staff="${escapeHtml(account.id)}">${account.status === 'Active' ? 'Suspend account' : 'Restore account'}</button></div>
+    </article>`).join('') : '<div class="empty-state">No employee accounts have been created.</div>';
+}
+
+function applyAccessControl() {
+  const director = Boolean(currentStaffUser?.isDirector);
+  $$('[data-director-only]').forEach(node => { node.hidden = !director; });
+  $$('.nav-link[data-view-link]').forEach(link => {
+    const viewId = link.dataset.viewLink;
+    link.hidden = viewId === 'team' ? !director : !canAccess(viewId, 'view');
+  });
+  const actionBindings = [
+    ['#registerReferral','referrals','add'],
+    ['#invitePartner','partners','add'],
+    ['#addReward','rewards','add'],
+    ['#editRules','rewards','edit'],
+    ['#editEarning','rewards','edit']
+  ];
+  actionBindings.forEach(([selector,moduleId,action]) => { const node = $(selector); if (node) node.hidden = !canAccess(moduleId, action); });
+  const globalSearch = $('#globalSearch')?.closest('label');
+  if (globalSearch) globalSearch.hidden = !canAccess('referrals','view');
+  $('#currentUserInitials').textContent = initials(currentStaffUser.name);
+  $('#currentUserName').textContent = currentStaffUser.name;
+  $('#currentUserRole').textContent = currentStaffUser.isDirector ? 'Director · Full access' : `${currentStaffUser.title} · Restricted`;
+  document.body.classList.toggle('employee-session', !director);
+  renderRewards();
+  renderRedemptions();
+  renderFraudCases();
+}
+
+function buildPermissionRows(account) {
+  return accessModules.map(module => `<div class="permission-row"><span>${escapeHtml(module.label)}</span>${['view','add','edit'].map(action => module.actions.includes(action) ? `<label aria-label="${accessActionLabel(action)} ${escapeHtml(module.label)}"><input type="checkbox" name="permission_${module.id}_${action}" data-permission-module="${module.id}" data-permission-action="${action}" ${(account?.permissions?.[module.id] || []).includes(action) ? 'checked' : ''}></label>` : '<i class="permission-na">—</i>').join('')}</div>`).join('');
+}
+
+function openEmployeeEditor(id = '') {
+  if (!currentStaffUser.isDirector) return requirePermission('team','edit');
+  const existing = staffAccounts.find(account => account.id === id);
+  const status = existing?.status || 'Active';
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">${existing ? 'EDIT EMPLOYEE ACCESS' : 'CREATE EMPLOYEE ACCOUNT'}</p><h2 id="actionModalTitle">${existing ? 'Control exactly what they can do.' : 'Give only the access they need.'}</h2></div><form id="employeeAccessForm"><div class="form-grid"><label>Full name<input name="name" required maxlength="60" value="${escapeHtml(existing?.name || '')}" placeholder="Employee name"></label><label>Work email<input name="email" type="email" required value="${escapeHtml(existing?.email || '')}" placeholder="name@visualvibrations.in"></label><label>Role / designation<input name="title" required maxlength="60" value="${escapeHtml(existing?.title || '')}" placeholder="Example: Referral coordinator"></label><label>Account status<select name="status"><option ${status === 'Active' ? 'selected' : ''}>Active</option><option ${status === 'Suspended' ? 'selected' : ''}>Suspended</option></select></label></div><div class="permission-preset"><p>Choose a starting profile, then adjust individual permissions below.</p><label>Access profile<select id="accessPreset"><option value="custom">Custom access</option><option value="referral">Referral operations</option><option value="loyalty">Loyalty manager</option><option value="sales">Sales coordinator</option><option value="audit">Audit viewer</option></select></label></div><div class="permission-matrix"><div class="permission-row permission-head"><span>Module</span><label>View</label><label>Add</label><label>Edit</label></div>${buildPermissionRows(existing)}</div>${existing ? '<label class="consent-label reset-access-code"><input type="checkbox" name="resetCode"><span>Generate a new six-digit access code after saving.</span></label>' : ''}<div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">${existing ? 'Save access' : 'Create account'}</button></div></form>`);
+  $('#accessPreset').addEventListener('change', event => {
+    const preset = accessPresets[event.currentTarget.value];
+    if (!preset) return;
+    $$('[data-permission-module]', $('#employeeAccessForm')).forEach(input => { input.checked = (preset[input.dataset.permissionModule] || []).includes(input.dataset.permissionAction); });
+  });
+  $$('[data-permission-action="add"], [data-permission-action="edit"]', $('#employeeAccessForm')).forEach(input => input.addEventListener('change', event => {
+    if (!event.currentTarget.checked) return;
+    const view = $(`[data-permission-module="${event.currentTarget.dataset.permissionModule}"][data-permission-action="view"]`, $('#employeeAccessForm'));
+    if (view) view.checked = true;
+  }));
+  $('#employeeAccessForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get('email')).trim().toLowerCase();
+    if (staffAccounts.some(account => account.email.toLowerCase() === email && account.id !== existing?.id)) return showToast('Email already in use','Choose a different employee email address.','!');
+    const permissions = {};
+    accessModules.forEach(module => {
+      const actions = module.actions.filter(action => data.get(`permission_${module.id}_${action}`));
+      if (actions.length) permissions[module.id] = actions;
+    });
+    if (!Object.keys(permissions).length) return showToast('Choose at least one module','Every active employee needs View access to at least one module.','!');
+    const shouldGenerateCode = !existing || data.get('resetCode');
+    const accessCode = shouldGenerateCode ? generateAccessCode() : '';
+    const account = {
+      id: existing?.id || `staff-${Date.now()}`,
+      name:String(data.get('name')).trim(),
+      email,
+      title:String(data.get('title')).trim(),
+      status:String(data.get('status')),
+      pinHash:shouldGenerateCode ? await hashAccessCode(accessCode) : existing.pinHash,
+      lastActive:existing?.lastActive || 'Not signed in yet',
+      permissions
+    };
+    staffAccounts = existing ? staffAccounts.map(item => item.id === existing.id ? account : item) : [account,...staffAccounts];
+    persistStaffAccounts();
+    renderStaffAccounts();
+    closeActionModal();
+    if (shouldGenerateCode) openStaffInvitation(account, accessCode);
+    else showToast('Employee access updated', `${account.name}'s permissions are active.`);
+  });
+}
+
+function openStaffInvitation(account, accessCode) {
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">ACCOUNT READY</p><h2 id="actionModalTitle">Share these sign-in details privately.</h2><p>The employee can sign in from the account menu. The code can be reset at any time.</p></div><div class="access-invite"><div><span>WORK EMAIL</span><b>${escapeHtml(account.email)}</b></div><div><span>EMPLOYEE</span><b>${escapeHtml(account.name)}</b></div><b class="code">${escapeHtml(accessCode)}</b></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Done</button><button class="primary-button" id="copyStaffInvite" type="button">Copy access details</button></div>`);
+  $('#copyStaffInvite').addEventListener('click', () => copyText(`Vantage employee access\nEmail: ${account.email}\nAccess code: ${accessCode}`).then(() => showToast('Access details copied','Share them privately with the employee.','↗')));
+}
+
+function openAccountMenu() {
+  const director = currentStaffUser.isDirector;
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">CURRENT ACCOUNT</p><h2 id="actionModalTitle">Your Vantage access.</h2></div><div class="account-sheet"><div class="account-sheet-profile"><span class="staff-avatar">${initials(currentStaffUser.name)}</span><div><b>${escapeHtml(currentStaffUser.name)}</b><small>${escapeHtml(currentStaffUser.title)} · ${director ? 'Full director access' : 'Custom employee access'}</small></div></div>${director ? '<button class="primary-button" id="manageTeamAccess">Manage team access</button><button class="secondary-button" id="openStaffSignIn">Employee sign-in</button>' : '<button class="primary-button" id="returnDirectorAccess">Return to director account</button>'}</div>`);
+}
+
+function showStaffLogin() {
+  closeActionModal();
+  $('#staffLoginError').textContent = '';
+  $('#staffLoginForm').reset();
+  $('#staffAccessGate').classList.add('open');
+  $('#staffAccessGate').setAttribute('aria-hidden','false');
+  setTimeout(() => $('#staffLoginForm [name="email"]')?.focus(), 80);
+}
+
+function hideStaffLogin() {
+  $('#staffAccessGate').classList.remove('open');
+  $('#staffAccessGate').setAttribute('aria-hidden','true');
+}
 
 function optimiseRewardImage(file) {
   const allowed = ['image/jpeg','image/png','image/webp'];
@@ -164,6 +359,8 @@ function applyProgramRules() {
 }
 
 function switchView(viewId) {
+  if (viewId === 'team' && !currentStaffUser.isDirector) return requirePermission('team','view');
+  if (viewId !== 'team' && !canAccess(viewId,'view')) return requirePermission(viewId,'view');
   const target = document.getElementById(viewId);
   if (!target) return;
   $$('.view').forEach(view => view.classList.toggle('active', view.id === viewId));
@@ -231,18 +428,18 @@ function renderRewards() {
     const validity = reward.validUntil ? `Until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}` : 'No expiry';
     const isCustom = customRewards.some(item => item.id === reward.id);
     const visual = reward.image ? `<img src="${escapeHtml(reward.image)}" alt="">` : escapeHtml(reward.mark);
-    return `<article class="reward-card ${reward.status === 'Draft' ? 'draft' : ''}"><div class="reward-visual ${reward.image ? 'has-image' : ''}">${visual}<span class="reward-publish-state ${reward.status.toLowerCase()}">${escapeHtml(reward.status)}</span></div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type)} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><div class="reward-card-meta"><span>${escapeHtml(inventory)}</span><span>${escapeHtml(validity)}</span></div><footer><strong>${Number(reward.points).toLocaleString('en-IN')} points</strong><div class="reward-card-actions"><button data-reward-info="${escapeHtml(reward.id)}">View rule</button>${isCustom ? `<button class="manage" data-manage-reward="${escapeHtml(reward.id)}">Manage</button>` : ''}</div></footer></article>`;
+    return `<article class="reward-card ${reward.status === 'Draft' ? 'draft' : ''}"><div class="reward-visual ${reward.image ? 'has-image' : ''}">${visual}<span class="reward-publish-state ${reward.status.toLowerCase()}">${escapeHtml(reward.status)}</span></div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type)} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><div class="reward-card-meta"><span>${escapeHtml(inventory)}</span><span>${escapeHtml(validity)}</span></div><footer><strong>${Number(reward.points).toLocaleString('en-IN')} points</strong><div class="reward-card-actions"><button data-reward-info="${escapeHtml(reward.id)}">View rule</button>${isCustom && canAccess('rewards','edit') ? `<button class="manage" data-manage-reward="${escapeHtml(reward.id)}">Manage</button>` : ''}</div></footer></article>`;
   }).join('') || '<div class="panel empty-state">No rewards match this tier.</div>';
 }
 
 function renderRedemptions() {
   const filtered = redemptions.filter(item => activeRedemptionFilter === 'all' || item.status === activeRedemptionFilter);
-  $('#redemptionRows').innerHTML = filtered.map(item => `<div class="table-row"><span><b>${escapeHtml(item.id)}</b><small>${escapeHtml(item.date)}</small></span><span><b>${escapeHtml(item.partner)}</b><small>${escapeHtml(item.tier)} tier</small></span><span><b>${escapeHtml(item.reward)}</b><small>Catalogue reward</small></span><span><b>${item.points.toLocaleString('en-IN')}</b><small>points</small></span><span><small class="eligibility">Tier & balance confirmed</small></span><span class="table-action">${item.status === 'Pending' ? `<button data-reject-redemption="${item.id}">Hold</button><button class="approve" data-approve-redemption="${item.id}">Approve</button>` : `<b class="status-badge ${statusClass(item.status)}">${item.status.toUpperCase()}</b>`}</span></div>`).join('');
+  $('#redemptionRows').innerHTML = filtered.map(item => `<div class="table-row"><span><b>${escapeHtml(item.id)}</b><small>${escapeHtml(item.date)}</small></span><span><b>${escapeHtml(item.partner)}</b><small>${escapeHtml(item.tier)} tier</small></span><span><b>${escapeHtml(item.reward)}</b><small>Catalogue reward</small></span><span><b>${item.points.toLocaleString('en-IN')}</b><small>points</small></span><span><small class="eligibility">Tier & balance confirmed</small></span><span class="table-action">${item.status === 'Pending' ? (canAccess('redemptions','edit') ? `<button data-reject-redemption="${item.id}">Hold</button><button class="approve" data-approve-redemption="${item.id}">Approve</button>` : '<small class="access-read-only">View only</small>') : `<b class="status-badge ${statusClass(item.status)}">${item.status.toUpperCase()}</b>`}</span></div>`).join('');
 }
 
 function renderFraudCases() {
   const openCases = fraudCases.filter(item => item.status === 'Open');
-  $('#fraudCases').innerHTML = openCases.length ? openCases.map(item => `<article class="fraud-case"><span class="risk-icon">${item.icon}</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p><div class="fraud-case-tags">${item.tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div><button data-resolve-case="${escapeHtml(item.id)}">Investigate →</button></article>`).join('') : '<article class="panel empty-state">No unresolved fraud cases.</article>';
+  $('#fraudCases').innerHTML = openCases.length ? openCases.map(item => `<article class="fraud-case"><span class="risk-icon">${item.icon}</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p><div class="fraud-case-tags">${item.tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div><button data-resolve-case="${escapeHtml(item.id)}">${canAccess('fraud','edit') ? 'Investigate' : 'Review evidence'} →</button></article>`).join('') : '<article class="panel empty-state">No unresolved fraud cases.</article>';
   const fraudBadge = $('.nav-link[data-view-link="fraud"] .alert-count');
   if (fraudBadge) fraudBadge.textContent = String(openCases.length).padStart(2,'0');
   const riskPill = $('#fraud .risk-pill');
@@ -261,7 +458,7 @@ function openReferral(id) {
     <div class="drawer-profile"><div class="partner-avatar">${initials(item.partner)}</div><div><h3>${escapeHtml(item.partner)}</h3><p>${escapeHtml(item.partnerType)} · ${escapeHtml(item.studio || 'Verified partner')}</p></div><span class="tier-chip ${item.status === 'Conflict' ? 'member' : 'gold'}">${escapeHtml(item.status).toUpperCase()}</span></div>
     <div class="drawer-proof"><h3>${escapeHtml(item.partner)} → ${escapeHtml(item.customer)}</h3><div class="verification-checks"><span>✓ Partner identity</span><span class="${item.proof < 2 ? 'missing' : ''}">${item.proof >= 2 ? '✓' : '○'} Customer consent</span><span class="${item.proof < 3 ? 'missing' : ''}">${item.proof >= 3 ? '✓' : '○'} Opportunity match</span></div></div>
     <div class="drawer-timeline"><div class="timeline-event"><span>✓</span><p><b>Referral registered</b><small>${escapeHtml(item.partner)} created this referral with customer and project details.</small></p></div><div class="timeline-event ${item.proof < 2 ? 'pending' : ''}"><span>${item.proof >= 2 ? '✓' : '02'}</span><p><b>Customer consent</b><small>${item.proof >= 2 ? `${escapeHtml(item.customer)} confirmed through secure OTP.` : `Verification sent to ${escapeHtml(item.mobile)}. Awaiting response.`}</small></p></div><div class="timeline-event ${item.proof < 3 ? 'pending' : ''}"><span>${item.proof >= 3 ? '✓' : '03'}</span><p><b>Opportunity ownership</b><small>${item.proof >= 3 ? `${escapeHtml(item.vertical)} opportunity linked at ${formatINR(item.value)}.` : 'Lead and project match pending review.'}</small></p></div><div class="timeline-event pending"><span>04</span><p><b>Invoice & points</b><small>Points release after payment clearance and the 15-day cooling period.</small></p></div></div>
-    <div class="drawer-actions"><button class="secondary-button" data-send-otp="${escapeHtml(item.id)}">Copy verification link</button>${item.proof >= 3 && item.status !== 'Verified' ? `<button class="primary-button" data-quick-verify="${escapeHtml(item.id)}">Approve & lock</button>` : `<button class="primary-button" data-view-link="referrals">Open registry</button>`}</div>`;
+    <div class="drawer-actions">${canAccess('referrals','edit') ? `<button class="secondary-button" data-send-otp="${escapeHtml(item.id)}">Copy verification link</button>` : ''}${item.proof >= 3 && item.status !== 'Verified' && canAccess('referrals','edit') ? `<button class="primary-button" data-quick-verify="${escapeHtml(item.id)}">Approve & lock</button>` : `<button class="primary-button" data-view-link="referrals">Open registry</button>`}</div>`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
@@ -296,12 +493,13 @@ function openRewardRule(id) {
   const validity = reward.validUntil ? `Available until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}` : 'No expiry date';
   const isCustom = customRewards.some(item => item.id === reward.id);
   const drawerVisual = reward.image ? `<div class="partner-avatar reward-thumb"><img src="${escapeHtml(reward.image)}" alt=""></div>` : `<div class="partner-avatar">${escapeHtml(reward.mark)}</div>`;
-  $('#drawerContent').innerHTML = `<div class="drawer-profile">${drawerVisual}<div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.type)} · ${escapeHtml(reward.tier)} · ${Number(reward.points).toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${Number(reward.points).toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span><span>◆ ${escapeHtml(inventory)}</span><span>◆ ${escapeHtml(validity)}</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="secondary-button" data-view-link="partners">View partners</button>${isCustom ? `<button class="primary-button" data-manage-reward="${escapeHtml(reward.id)}">Manage reward</button>` : ''}</div>`;
+  $('#drawerContent').innerHTML = `<div class="drawer-profile">${drawerVisual}<div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.type)} · ${escapeHtml(reward.tier)} · ${Number(reward.points).toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${Number(reward.points).toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span><span>◆ ${escapeHtml(inventory)}</span><span>◆ ${escapeHtml(validity)}</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="secondary-button" data-view-link="partners">View partners</button>${isCustom && canAccess('rewards','edit') ? `<button class="primary-button" data-manage-reward="${escapeHtml(reward.id)}">Manage reward</button>` : ''}</div>`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
 
 function openPartnerForm() {
+  if (!requirePermission('partners','add')) return;
   openActionModal(`<div class="modal-intro"><p class="eyebrow">NEW PARTNER</p><h2 id="actionModalTitle">Add a verified partner.</h2></div><form id="partnerForm"><div class="form-grid"><label>Full name<input name="name" required placeholder="Partner name"></label><label>Partner type<select name="type" required><option>Architect</option><option>Interior designer</option><option>Customer advocate</option></select></label><label>Studio / organisation<input name="studio" required placeholder="Studio or organisation"></label><label>Mobile number<input name="mobile" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required placeholder="10-digit mobile"></label><label class="span-2">Email address<input name="email" type="email" required placeholder="name@studio.com"></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Add partner</button></div></form>`);
   $('#partnerForm').addEventListener('submit', event => {
     event.preventDefault();
@@ -319,6 +517,7 @@ function openPartnerForm() {
 
 function openRewardEditor(id = '') {
   const existing = customRewards.find(item => item.id === id);
+  if (!requirePermission('rewards', existing ? 'edit' : 'add')) return;
   const type = existing?.type || 'Trip';
   const tier = existing?.tier || 'Gold';
   const status = existing?.status || 'Published';
@@ -400,6 +599,7 @@ function openRewardEditor(id = '') {
 }
 
 function openRuleEditor() {
+  if (!requirePermission('rewards','edit')) return;
   openActionModal(`<div class="modal-intro"><p class="eyebrow">PROGRAMME RULES</p><h2 id="actionModalTitle">Edit tiers and earning logic.</h2></div><form id="programRulesForm"><div class="form-grid"><label>Silver threshold<input name="Silver" type="number" min="1" step="1000" value="${programRules.Silver}" required></label><label>Gold threshold<input name="Gold" type="number" min="1" step="1000" value="${programRules.Gold}" required></label><label>Black threshold<input name="Black" type="number" min="1" step="1000" value="${programRules.Black}" required></label><label>Base points per ₹100<input name="baseRate" type="number" min="0.1" step="0.1" value="${programRules.baseRate}" required></label><label>Automation multiplier<input name="automationMultiplier" type="number" min="1" step="0.1" value="${programRules.automationMultiplier}" required></label><label>Cross-vertical bonus<input name="crossBonus" type="number" min="0" step="500" value="${programRules.crossBonus}" required></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Save rules</button></div></form>`);
   $('#programRulesForm').addEventListener('submit', event => {
     event.preventDefault();
@@ -414,6 +614,7 @@ function openRuleEditor() {
 }
 
 function openRedemptionHold(id) {
+  if (!requirePermission('redemptions','edit')) return;
   const item = redemptions.find(row => row.id === id);
   if (!item) return;
   openActionModal(`<div class="modal-intro"><p class="eyebrow">HOLD REDEMPTION</p><h2 id="actionModalTitle">Record the reason.</h2><p>${escapeHtml(item.id)} · ${escapeHtml(item.partner)} · ${escapeHtml(item.reward)}</p></div><form id="redemptionHoldForm"><label>Reason for hold<textarea name="reason" rows="4" required placeholder="Enter the specific reason"></textarea></label><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Place on hold</button></div></form>`);
@@ -433,12 +634,13 @@ function openFraudCase(id) {
   const item = fraudCases.find(row => row.id === id);
   if (!item) return;
   $('#drawerReferralId').textContent = item.id;
-  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${item.icon}</div><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p></div><span class="tier-chip member">OPEN</span></div><div class="drawer-proof"><h3>Recorded evidence</h3><div class="verification-checks evidence-list">${item.evidence.map(value => `<span>◆ ${escapeHtml(value)}</span>`).join('')}</div></div><label class="case-note">Decision note<textarea id="caseDecisionNote" rows="3" placeholder="Optional internal note"></textarea></label><div class="drawer-actions"><button class="secondary-button" data-case-action="clear" data-case-id="${escapeHtml(item.id)}">Clear claim</button><button class="primary-button" data-case-action="block" data-case-id="${escapeHtml(item.id)}">Block claim</button></div>`;
+  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${item.icon}</div><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p></div><span class="tier-chip member">OPEN</span></div><div class="drawer-proof"><h3>Recorded evidence</h3><div class="verification-checks evidence-list">${item.evidence.map(value => `<span>◆ ${escapeHtml(value)}</span>`).join('')}</div></div>${canAccess('fraud','edit') ? `<label class="case-note">Decision note<textarea id="caseDecisionNote" rows="3" placeholder="Optional internal note"></textarea></label><div class="drawer-actions"><button class="secondary-button" data-case-action="clear" data-case-id="${escapeHtml(item.id)}">Clear claim</button><button class="primary-button" data-case-action="block" data-case-id="${escapeHtml(item.id)}">Block claim</button></div>` : '<div class="drawer-proof"><h3>View-only access</h3><p>Your account can review this evidence. A fraud-control editor must record the final decision.</p></div>'}`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
 
 function resolveFraudCase(id, action) {
+  if (!requirePermission('fraud','edit')) return;
   const item = fraudCases.find(row => row.id === id);
   if (!item) return;
   item.status = action === 'block' ? 'Blocked' : 'Cleared';
@@ -459,7 +661,7 @@ function resolveFraudCase(id, action) {
 }
 
 function closeDrawer() { $('#referralDrawer').classList.remove('open'); $('#referralDrawer').setAttribute('aria-hidden','true'); }
-function openRegister() { $('#registerModal').classList.add('open'); $('#registerModal').setAttribute('aria-hidden','false'); setTimeout(() => $('#partnerName')?.focus(), 100); }
+function openRegister() { if (!requirePermission('referrals','add')) return; $('#registerModal').classList.add('open'); $('#registerModal').setAttribute('aria-hidden','false'); setTimeout(() => $('#partnerName')?.focus(), 100); }
 function closeModal() { $('#registerModal').classList.remove('open'); $('#registerModal').setAttribute('aria-hidden','true'); }
 
 function downloadCsv(filename, rows) {
@@ -479,12 +681,25 @@ document.addEventListener('click', event => {
   if (event.target.closest('[data-close-action-modal]')) { closeActionModal(); return; }
   if (event.target.closest('[data-close-drawer]')) { closeDrawer(); return; }
   if (event.target.closest('[data-close-menu]')) { document.body.classList.remove('menu-open'); return; }
+  if (event.target.closest('[data-close-staff-login]')) { hideStaffLogin(); return; }
+  if (event.target.closest('#accountMenuButton')) { openAccountMenu(); return; }
+  if (event.target.closest('#addEmployee')) { openEmployeeEditor(); return; }
+  if (event.target.closest('#manageTeamAccess')) { closeActionModal(); switchView('team'); return; }
+  if (event.target.closest('#openStaffSignIn')) { showStaffLogin(); return; }
+  if (event.target.closest('#returnDirectorAccess')) { closeActionModal(); setCurrentStaff(directorUser); showToast('Director access restored','All modules and actions are available again.'); return; }
+  const previewStaff = event.target.closest('[data-preview-staff]');
+  if (previewStaff) { const account = staffAccounts.find(item => item.id === previewStaff.dataset.previewStaff && item.status === 'Active'); if (account) { setCurrentStaff(account); showToast('Employee access preview', `You are viewing Vantage as ${account.name}.`,'○'); } return; }
+  const editStaff = event.target.closest('[data-edit-staff]');
+  if (editStaff) { openEmployeeEditor(editStaff.dataset.editStaff); return; }
+  const toggleStaff = event.target.closest('[data-toggle-staff]');
+  if (toggleStaff) { const account = staffAccounts.find(item => item.id === toggleStaff.dataset.toggleStaff); if (account) { account.status = account.status === 'Active' ? 'Suspended' : 'Active'; persistStaffAccounts(); renderStaffAccounts(); showToast(account.status === 'Active' ? 'Account restored' : 'Account suspended', `${account.name} ${account.status === 'Active' ? 'can sign in again' : 'can no longer sign in'}.`, account.status === 'Active' ? '✓' : '!'); } return; }
   const openButton = event.target.closest('[data-open-referral]');
-  if (openButton) { openReferral(openButton.dataset.openReferral); return; }
+  if (openButton) { if (requirePermission('referrals','view')) openReferral(openButton.dataset.openReferral); return; }
   const partnerButton = event.target.closest('[data-partner-profile]');
-  if (partnerButton) { openPartner(partnerButton.dataset.partnerProfile); return; }
+  if (partnerButton) { if (requirePermission('partners','view')) openPartner(partnerButton.dataset.partnerProfile); return; }
   const verifyButton = event.target.closest('[data-quick-verify]');
   if (verifyButton) {
+    if (!requirePermission('referrals','edit')) return;
     const id = verifyButton.dataset.quickVerify;
     const item = referrals.find(referral => referral.id === id);
     if (item) { item.status = 'Verified'; item.proof = 3; saveReferralOverride(id,{status:'Verified',proof:3}); renderReferrals(); renderVerification(); closeDrawer(); showToast('Ownership verified', `${id} is now locked to ${item.partner}.`); }
@@ -492,6 +707,7 @@ document.addEventListener('click', event => {
   }
   const otpButton = event.target.closest('[data-send-otp]');
   if (otpButton) {
+    if (!requirePermission('referrals','edit')) return;
     const id = otpButton.dataset.sendOtp;
     const item = referrals.find(referral => referral.id === id);
     if (!item) return;
@@ -512,7 +728,7 @@ document.addEventListener('click', event => {
   const redemptionFilter = event.target.closest('[data-redemption-filter]');
   if (redemptionFilter) { activeRedemptionFilter = redemptionFilter.dataset.redemptionFilter; $$('[data-redemption-filter]').forEach(button => button.classList.toggle('active', button === redemptionFilter)); renderRedemptions(); return; }
   const approve = event.target.closest('[data-approve-redemption]');
-  if (approve) { const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';persistRedemptions();renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
+  if (approve) { if (!requirePermission('redemptions','edit')) return; const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';persistRedemptions();renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
   const hold = event.target.closest('[data-reject-redemption]');
   if (hold) { openRedemptionHold(hold.dataset.rejectRedemption); return; }
   const fraudCase = event.target.closest('[data-resolve-case]');
@@ -522,23 +738,23 @@ document.addEventListener('click', event => {
   const manageReward = event.target.closest('[data-manage-reward]');
   if (manageReward) { openRewardEditor(manageReward.dataset.manageReward); return; }
   const rewardInfo = event.target.closest('[data-reward-info]');
-  if (rewardInfo) { openRewardRule(rewardInfo.dataset.rewardInfo); return; }
+  if (rewardInfo) { if (requirePermission('rewards','view')) openRewardRule(rewardInfo.dataset.rewardInfo); return; }
   if (event.target.closest('#invitePartner')) { openPartnerForm(); return; }
   if (event.target.closest('#addReward')) { openRewardEditor(); return; }
   if (event.target.closest('#editRules') || event.target.closest('#editEarning')) { openRuleEditor(); return; }
   if (event.target.closest('#openNotifications')) { openNotifications(); return; }
-  if (event.target.closest('#exportReferrals')) { downloadCsv('vantage-referrals.csv',[['Referral ID','Customer','Partner','Partner type','Vertical','Value','Proof','Status'],...referrals.map(r=>[r.id,r.customer,r.partner,r.partnerType,r.vertical,r.value,`${r.proof}/3`,r.status])]); showToast('Referral register exported','The complete referral register is downloading.','⇩'); return; }
-  if (event.target.closest('#downloadSettlement')) { downloadCsv('vantage-settlement-report.csv',[['Request','Date','Partner','Tier','Reward','Points','Status','Hold reason'],...redemptions.map(r=>[r.id,r.date,r.partner,r.tier,r.reward,r.points,r.status,r.holdReason || ''])]); showToast('Settlement report downloaded','The current redemption register is in the CSV file.','⇩'); return; }
-  if (event.target.closest('#downloadReport')) { const period = $('#reportPeriod').value; downloadCsv('vantage-programme-report.csv',[['Period','Metric','Value'],[period,'Referral-attributed revenue','₹4.82 Cr'],[period,'Partner ROI','8.4×'],[period,'Average referred project','₹9.6 L'],[period,'Fraud loss rate','0.18%'],[period,'Referral records',referrals.length],...partners.map(p=>[period,`${p.name} attributed revenue`,p.revenue])]); showToast('Programme report downloaded',`${period} report is in the CSV file.`,'⇩'); return; }
-  if (event.target.closest('#exportAudit')) { downloadCsv('vantage-ownership-audit.csv',[['Time','Event','Record','Status'],['11:42','Customer confirmation and opportunity match','VV-260824-0183','Verified'],['11:18','Duplicate customer mobile detected','VV-260824-0179','Blocked'],['10:56','Customer confirmation received','VV-260824-0184','Locked'],...fraudCases.filter(item=>item.resolvedAt).map(item=>[new Date(item.resolvedAt).toLocaleString('en-IN'),item.decisionNote || item.title,item.id,item.status])]); showToast('Audit exported','The ownership history is in the CSV file.','⇩'); return; }
+  if (event.target.closest('#exportReferrals')) { if (!requirePermission('referrals','view')) return; downloadCsv('vantage-referrals.csv',[['Referral ID','Customer','Partner','Partner type','Vertical','Value','Proof','Status'],...referrals.map(r=>[r.id,r.customer,r.partner,r.partnerType,r.vertical,r.value,`${r.proof}/3`,r.status])]); showToast('Referral register exported','The complete referral register is downloading.','⇩'); return; }
+  if (event.target.closest('#downloadSettlement')) { if (!requirePermission('redemptions','view')) return; downloadCsv('vantage-settlement-report.csv',[['Request','Date','Partner','Tier','Reward','Points','Status','Hold reason'],...redemptions.map(r=>[r.id,r.date,r.partner,r.tier,r.reward,r.points,r.status,r.holdReason || ''])]); showToast('Settlement report downloaded','The current redemption register is in the CSV file.','⇩'); return; }
+  if (event.target.closest('#downloadReport')) { if (!requirePermission('reports','view')) return; const period = $('#reportPeriod').value; downloadCsv('vantage-programme-report.csv',[['Period','Metric','Value'],[period,'Referral-attributed revenue','₹4.82 Cr'],[period,'Partner ROI','8.4×'],[period,'Average referred project','₹9.6 L'],[period,'Fraud loss rate','0.18%'],[period,'Referral records',referrals.length],...partners.map(p=>[period,`${p.name} attributed revenue`,p.revenue])]); showToast('Programme report downloaded',`${period} report is in the CSV file.`,'⇩'); return; }
+  if (event.target.closest('#exportAudit')) { if (!requirePermission('fraud','view')) return; downloadCsv('vantage-ownership-audit.csv',[['Time','Event','Record','Status'],['11:42','Customer confirmation and opportunity match','VV-260824-0183','Verified'],['11:18','Duplicate customer mobile detected','VV-260824-0179','Blocked'],['10:56','Customer confirmation received','VV-260824-0184','Locked'],...fraudCases.filter(item=>item.resolvedAt).map(item=>[new Date(item.resolvedAt).toLocaleString('en-IN'),item.decisionNote || item.title,item.id,item.status])]); showToast('Audit exported','The ownership history is in the CSV file.','⇩'); return; }
 });
 
 $('#menuButton').addEventListener('click', () => document.body.classList.toggle('menu-open'));
 $('#referralSearch').addEventListener('input', renderReferrals);
 $('#partnerSearch').addEventListener('input', renderPartners);
 $('#partnerTierFilter').addEventListener('change', renderPartners);
-$('#globalSearch').addEventListener('keydown', event => { if (event.key === 'Enter') { switchView('referrals'); $('#referralSearch').value = event.currentTarget.value; renderReferrals(); }});
-document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeActionModal(); closeDrawer(); document.body.classList.remove('menu-open'); }});
+$('#globalSearch').addEventListener('keydown', event => { if (event.key === 'Enter' && requirePermission('referrals','view')) { switchView('referrals'); $('#referralSearch').value = event.currentTarget.value; renderReferrals(); }});
+document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeActionModal(); closeDrawer(); hideStaffLogin(); document.body.classList.remove('menu-open'); }});
 window.addEventListener('storage', event => {
   if (event.key === 'vantage_custom_rewards') {
     customRewards = JSON.parse(event.newValue || '[]').map(reward => ({type:'Other',status:'Published',stock:10,validUntil:'',mark:'V',...reward}));
@@ -549,10 +765,15 @@ window.addEventListener('storage', event => {
     redemptions = [...partnerRedemptions, ...programmeRedemptions];
     renderRedemptions();
   }
+  if (event.key === STAFF_STORAGE_KEY) {
+    staffAccounts = JSON.parse(event.newValue || '[]');
+    renderStaffAccounts();
+  }
 });
 
 $('#referralForm').addEventListener('submit', event => {
   event.preventDefault();
+  if (!requirePermission('referrals','add')) return;
   const data = Object.fromEntries(new FormData(event.currentTarget));
   const rawPartner = data.partner.split('·').map(value => value.trim());
   const sequence = String(Date.now()).slice(-4);
@@ -571,6 +792,27 @@ $('#referralForm').addEventListener('submit', event => {
   setTimeout(() => openReferral(id), 450);
 });
 
+$('#staffLoginForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.currentTarget));
+  const email = String(data.email || '').trim().toLowerCase();
+  const codeHash = await hashAccessCode(String(data.code || ''));
+  const account = staffAccounts.find(item => item.email.toLowerCase() === email && item.pinHash === codeHash);
+  if (!account) {
+    $('#staffLoginError').textContent = 'Email or access code is incorrect.';
+    return;
+  }
+  if (account.status !== 'Active') {
+    $('#staffLoginError').textContent = 'This account has been suspended. Contact the director.';
+    return;
+  }
+  account.lastActive = 'Just now';
+  persistStaffAccounts();
+  hideStaffLogin();
+  setCurrentStaff(account);
+  showToast('Signed in', `Welcome, ${account.name}. Your assigned workspace is ready.`);
+});
+
 const today = new Intl.DateTimeFormat('en-IN', {weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
 $('#todayLabel').textContent = today.toUpperCase();
 renderReferrals();
@@ -580,3 +822,5 @@ renderRewards();
 renderRedemptions();
 renderFraudCases();
 applyProgramRules();
+renderStaffAccounts();
+applyAccessControl();

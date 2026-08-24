@@ -117,6 +117,24 @@ test('lets the owner create and publish rewards to the partner catalogue', async
   assert.match(partnerJs, /vantage_partner_redemptions/);
 });
 
+test('provides director-managed employee access control', async () => {
+  const [directorHtml, directorJs] = await Promise.all([
+    (await request('/')).text(),
+    (await request('/app.js')).text()
+  ]);
+  assert.match(directorHtml, /data-view-link="team"/);
+  assert.match(directorHtml, /Create employee account/);
+  assert.match(directorHtml, /id="staffLoginForm"/);
+  assert.match(directorHtml, /View, add and edit are granted separately/);
+  assert.match(directorJs, /const accessModules =/);
+  assert.match(directorJs, /function canAccess/);
+  assert.match(directorJs, /function requirePermission/);
+  assert.match(directorJs, /function applyAccessControl/);
+  assert.match(directorJs, /async function hashAccessCode/);
+  assert.match(directorJs, /STAFF_STORAGE_KEY/);
+  assert.match(directorJs, /currentStaffUser\.isDirector/);
+});
+
 test('returns safe responses for unsupported routes and methods', async () => {
   assert.equal((await request('/missing')).status, 404);
   assert.equal((await request('/', 'POST')).status, 405);

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="premium.css?v=20260825-10" />
+  <link rel="stylesheet" href="premium.css?v=20260825-12" />
 </head>
 <body>
   <div class="app-shell">
@@ -46,9 +46,11 @@
         <p>ASSURANCE</p>
         <button class="nav-link" data-view-link="fraud"><span>07</span>Fraud watch <i class="alert-count">03</i></button>
         <button class="nav-link" data-view-link="reports"><span>08</span>Reports</button>
+        <p data-director-only>ADMINISTRATION</p>
+        <button class="nav-link" data-view-link="team" data-director-only><span>09</span>Team access <i id="teamCount">02</i></button>
       </nav>
       <div class="integrity-card"><span class="pulse"></span><small>SYSTEM INTEGRITY</small><strong>All controls active</strong><p>Last audit · 4 min ago</p></div>
-      <div class="user-chip"><span>VK</span><span><b>Vikas Kothari</b><small>Director</small></span></div>
+      <button class="user-chip" id="accountMenuButton" type="button"><span id="currentUserInitials">VK</span><span><b id="currentUserName">Vikas Kothari</b><small id="currentUserRole">Director</small></span><i>•••</i></button>
     </aside>
 
     <main>
@@ -104,7 +106,7 @@
         </section>
 
         <section class="view" id="referrals">
-          <div class="page-heading"><div><p class="eyebrow">REFERRAL REGISTRY</p><h1>A single source of ownership.</h1></div><a class="primary-button partner-app-link" href="partner.html" target="_blank" rel="noopener">Open partner app ↗</a></div>
+          <div class="page-heading"><div><p class="eyebrow">REFERRAL REGISTRY</p><h1>A single source of ownership.</h1></div><div class="heading-actions"><a class="secondary-button partner-app-link" href="partner.html" target="_blank" rel="noopener">Open partner app ↗</a><button class="primary-button" id="registerReferral" data-open-register>＋ Register referral</button></div></div>
           <div class="summary-strip"><div><small>ALL REFERRALS</small><strong id="allReferralTotal">248</strong></div><div><small>AWAITING CONFIRMATION</small><strong>07</strong></div><div><small>ACTIVE OPPORTUNITIES</small><strong>38</strong></div><div><small>CONVERTED</small><strong>106</strong></div><div><small>REJECTED / DUPLICATE</small><strong>12</strong></div></div>
           <article class="panel table-panel">
             <div class="table-tools"><label class="table-search"><span>⌕</span><input id="referralSearch" type="search" placeholder="Search customer, partner or referral ID" /></label><div class="filter-pills"><button class="active" data-referral-filter="all">All</button><button data-referral-filter="Pending">Pending</button><button data-referral-filter="Verified">Verified</button><button data-referral-filter="Conflict">Conflict</button><button data-referral-filter="Converted">Converted</button></div><button class="secondary-button" id="exportReferrals">⇩ Export</button></div>
@@ -158,6 +160,15 @@
           <div class="report-kpis"><article><small>REFERRAL-ATTRIBUTED REVENUE</small><strong>₹4.82 Cr</strong><p>↑ 24% year over year</p></article><article><small>PARTNER ROI</small><strong>8.4×</strong><p>Revenue per reward rupee</p></article><article><small>AVERAGE REFERRED PROJECT</small><strong>₹9.6 L</strong><p>↑ ₹1.2 L versus direct</p></article><article><small>FRAUD LOSS RATE</small><strong>0.18%</strong><p>↓ 62% after verification</p></article></div>
           <div class="reports-grid"><article class="panel revenue-report"><div class="panel-heading"><div><p class="eyebrow">VERIFIED REVENUE</p><h2>Referral value by month</h2></div><div class="legend"><span><i></i>Verified</span><span><i></i>Pending</span></div></div><div class="report-chart"><div style="--v:43%;--p:12%"><span>SEP</span></div><div style="--v:52%;--p:15%"><span>OCT</span></div><div style="--v:47%;--p:18%"><span>NOV</span></div><div style="--v:64%;--p:10%"><span>DEC</span></div><div style="--v:69%;--p:14%"><span>JAN</span></div><div style="--v:81%;--p:12%"><span>FEB</span></div><div style="--v:76%;--p:17%"><span>MAR</span></div><div style="--v:92%;--p:8%"><span>APR</span></div></div></article><article class="panel mix-report"><div class="panel-heading"><div><p class="eyebrow">PARTNER MIX</p><h2>Revenue contribution</h2></div></div><div class="mix-donut"><div><strong>₹4.82</strong><small>CRORE</small></div></div><div class="mix-legend"><p><i class="architect"></i><span>Architects<small>86 partners</small></span><b>44%</b></p><p><i class="designer"></i><span>Interior designers<small>112 partners</small></span><b>38%</b></p><p><i class="customer"></i><span>Customer advocates<small>120 partners</small></span><b>18%</b></p></div></article></div>
         </section>
+
+        <section class="view" id="team">
+          <div class="page-heading"><div><p class="eyebrow">TEAM ACCESS</p><h1>Give access without giving everything.</h1></div><button class="primary-button" id="addEmployee">＋ Create employee account</button></div>
+          <div class="summary-strip access-summary"><div><small>ACTIVE ACCOUNTS</small><strong id="activeStaffCount">02</strong></div><div><small>CUSTOM ACCESS PROFILES</small><strong id="customAccessCount">02</strong></div><div><small>SUSPENDED</small><strong id="suspendedStaffCount">00</strong></div><div><small>DIRECTOR CONTROL</small><strong>100%</strong></div></div>
+          <div class="team-access-layout">
+            <article class="panel team-directory"><div class="panel-heading"><div><p class="eyebrow">EMPLOYEE ACCOUNTS</p><h2>People with system access</h2></div><span class="access-live"><i></i> Permissions enforced</span></div><div class="team-list" id="teamList"></div></article>
+            <aside class="panel access-principles"><p class="eyebrow">ACCESS POLICY</p><h2>Least access by default</h2><div><span>01</span><p><b>Module visibility</b><small>Employees only see modules assigned to them.</small></p></div><div><span>02</span><p><b>Action-level control</b><small>View, add and edit are granted separately.</small></p></div><div><span>03</span><p><b>Instant suspension</b><small>Director can remove access without deleting history.</small></p></div><div><span>04</span><p><b>Director oversight</b><small>Vikas Kothari retains complete access.</small></p></div></aside>
+          </div>
+        </section>
       </div>
     </main>
   </div>
@@ -186,7 +197,11 @@
 
   <aside class="detail-drawer" id="referralDrawer" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">REFERRAL RECORD</p><h2 id="drawerReferralId">VV-260824-0184</h2></div><button data-close-drawer>×</button></div><div id="drawerContent"></div></aside><div class="drawer-scrim" data-close-drawer></div>
   <div class="toast" id="toast"><span>✓</span><p><b id="toastTitle">Saved</b><small id="toastMessage">Your change has been recorded.</small></p></div>
-  <script src="app.js?v=20260825-1"></script>
+  <div class="staff-access-gate" id="staffAccessGate" aria-hidden="true">
+    <div class="staff-access-backdrop" data-close-staff-login></div>
+    <section class="staff-access-card" role="dialog" aria-modal="true" aria-labelledby="staffAccessTitle"><button class="modal-close" data-close-staff-login aria-label="Close">×</button><a class="flow-brand" href="#"><span><img src="/visual-vibrations-logo.jpg" alt=""></span><b>Vantage</b></a><p class="eyebrow">EMPLOYEE ACCESS</p><h2 id="staffAccessTitle">Sign in to your workspace.</h2><form id="staffLoginForm"><label>Work email<input name="email" type="email" autocomplete="username" placeholder="name@visualvibrations.in" required></label><label>Six-digit access code<input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="Enter access code" required></label><p class="staff-login-error" id="staffLoginError" role="alert"></p><button class="primary-button" type="submit">Sign in securely →</button></form><small>Access is limited to modules approved by the director.</small></section>
+  </div>
+  <script src="app.js?v=20260825-3"></script>
   <script src="pwa.js" defer></script>
 </body>
 </html>
