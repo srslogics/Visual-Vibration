@@ -17,6 +17,14 @@ const files = {
   '/partner.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css')).toString('base64')],
   '/partner-app.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css')).toString('base64')],
   '/partner.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js')).toString('base64')],
+  '/pwa.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'pwa.js')).toString('base64')],
+  '/sw.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'sw.js')).toString('base64')],
+  '/manifest.webmanifest': ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'manifest.webmanifest')).toString('base64')],
+  '/partner.webmanifest': ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'partner.webmanifest')).toString('base64')],
+  '/icon-192.png': ['image/png', readFileSync(join(root, 'public/icon-192.png')).toString('base64')],
+  '/icon-512.png': ['image/png', readFileSync(join(root, 'public/icon-512.png')).toString('base64')],
+  '/icon-maskable-512.png': ['image/png', readFileSync(join(root, 'public/icon-maskable-512.png')).toString('base64')],
+  '/apple-touch-icon.png': ['image/png', readFileSync(join(root, 'public/apple-touch-icon.png')).toString('base64')],
   '/og.png': ['image/png', readFileSync(join(root, 'public/og.png')).toString('base64')],
 };
 const html = readFileSync(join(root, 'index.html'), 'utf8');
@@ -60,7 +68,7 @@ export default {
     const asset = ASSETS[url.pathname];
     if (asset) {
       return new Response(request.method === 'HEAD' ? null : decode(asset[1]), {
-        headers: { ...securityHeaders, 'Content-Type': asset[0], 'Cache-Control': 'public, max-age=86400' },
+        headers: { ...securityHeaders, 'Content-Type': asset[0], 'Cache-Control': url.pathname === '/sw.js' ? 'no-cache' : 'public, max-age=86400' },
       });
     }
     return new Response('Not found', { status: 404, headers: { ...securityHeaders, 'Content-Type': 'text/plain; charset=utf-8' } });
@@ -69,6 +77,6 @@ export default {
 `;
 
 writeFileSync(join(serverDir, 'index.js'), worker);
-for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js']) cpSync(join(root, file), join(clientDir, file));
-cpSync(join(root, 'public/og.png'), join(clientDir, 'og.png'));
+for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js', 'pwa.js', 'sw.js', 'manifest.webmanifest', 'partner.webmanifest']) cpSync(join(root, file), join(clientDir, file));
+for (const file of ['og.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png']) cpSync(join(root, 'public', file), join(clientDir, file));
 console.log(`Built Vantage Referral Intelligence to ${dist}`);

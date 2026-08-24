@@ -12,6 +12,14 @@ const assets = new Map([
   ['/partner.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css'))]],
   ['/partner-app.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css'))]],
   ['/partner.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js'))]],
+  ['/pwa.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'pwa.js'))]],
+  ['/sw.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'sw.js'))]],
+  ['/manifest.webmanifest', ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'manifest.webmanifest'))]],
+  ['/partner.webmanifest', ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'partner.webmanifest'))]],
+  ['/icon-192.png', ['image/png', readFileSync(join(root, 'public/icon-192.png'))]],
+  ['/icon-512.png', ['image/png', readFileSync(join(root, 'public/icon-512.png'))]],
+  ['/icon-maskable-512.png', ['image/png', readFileSync(join(root, 'public/icon-maskable-512.png'))]],
+  ['/apple-touch-icon.png', ['image/png', readFileSync(join(root, 'public/apple-touch-icon.png'))]],
   ['/og.png', ['image/png', readFileSync(join(root, 'public/og.png'))]],
 ]);
 const html = readFileSync(join(root, 'index.html'), 'utf8');
@@ -39,6 +47,7 @@ const server = createServer((request, response) => {
   const asset = assets.get(path);
   if (asset) {
     response.setHeader('Content-Type', asset[0]);
+    response.setHeader('Cache-Control', path === '/sw.js' ? 'no-cache' : 'public, max-age=3600');
     response.end(asset[1]);
     return;
   }

@@ -20,6 +20,9 @@ test('serves the complete Vantage referral product shell', async () => {
   assert.match(html, /Fraud watch/);
   assert.match(html, /Create the first proof/);
   assert.match(html, /https:\/\/visual-vibrations\.example\/og\.png/);
+  assert.match(html, /href="\/manifest\.webmanifest"/);
+  assert.match(html, /apple-mobile-web-app-capable/);
+  assert.match(html, /src="pwa\.js"/);
   assert.doesNotMatch(html, /__SITE_ORIGIN__|codex-preview|taking shape/i);
 });
 
@@ -34,17 +37,41 @@ test('serves the self-service partner registration and referral app', async () =
   assert.match(html, /SECURE REFERRAL CONFIRMATION/);
   assert.match(html, /Points wallet/);
   assert.match(html, /partner-app\.css/);
+  assert.match(html, /href="\/partner\.webmanifest"/);
+  assert.match(html, /apple-mobile-web-app-title" content="Vantage Circle"/);
 });
 
 test('serves application assets with correct content types', async () => {
-  const [css, premiumCss, js, partnerCss, partnerJs, image] = await Promise.all([request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'), request('/og.png')]);
+  const [css, premiumCss, js, partnerCss, partnerJs, pwa, serviceWorker, manifest, icon, image] = await Promise.all([
+    request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'),
+    request('/pwa.js'), request('/sw.js'), request('/manifest.webmanifest'), request('/icon-192.png'), request('/og.png')
+  ]);
   assert.match(css.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(premiumCss.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(js.headers.get('content-type') ?? '', /^text\/javascript/);
   assert.match(partnerCss.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(partnerJs.headers.get('content-type') ?? '', /^text\/javascript/);
+  assert.match(pwa.headers.get('content-type') ?? '', /^text\/javascript/);
+  assert.match(serviceWorker.headers.get('content-type') ?? '', /^text\/javascript/);
+  assert.equal(serviceWorker.headers.get('cache-control'), 'no-cache');
+  assert.match(manifest.headers.get('content-type') ?? '', /^application\/manifest\+json/);
+  assert.equal(icon.headers.get('content-type'), 'image/png');
+  assert.ok((await icon.arrayBuffer()).byteLength > 1_000);
   assert.equal(image.headers.get('content-type'), 'image/png');
   assert.ok((await image.arrayBuffer()).byteLength > 50_000);
+});
+
+test('provides installable director and partner PWA identities', async () => {
+  const directorManifest = await (await request('/manifest.webmanifest')).json();
+  const partnerManifest = await (await request('/partner.webmanifest')).json();
+  const serviceWorker = await (await request('/sw.js')).text();
+  assert.equal(directorManifest.name, 'Vantage Referral Intelligence');
+  assert.equal(directorManifest.start_url, '/');
+  assert.equal(partnerManifest.name, 'Vantage Circle');
+  assert.equal(partnerManifest.start_url, '/partner.html');
+  assert.ok(directorManifest.icons.some(icon => icon.sizes === '512x512' && icon.purpose === 'maskable'));
+  assert.match(serviceWorker, /caches\.open\(CACHE_NAME\)/);
+  assert.match(serviceWorker, /request\.mode === 'navigate'/);
 });
 
 test('returns safe responses for unsupported routes and methods', async () => {

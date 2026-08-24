@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#102a24" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vantage" />
   <meta name="description" content="Verified referral attribution, partner rewards and fraud control for Visual Vibrations." />
   <meta property="og:site_name" content="Visual Vibrations" />
   <meta property="og:title" content="Vantage · Referral Intelligence" />
@@ -16,6 +20,9 @@
   <meta name="twitter:description" content="Every referral. Clearly owned." />
   <meta name="twitter:image" content="__SITE_ORIGIN__/og.png" />
   <title>Vantage · Private Referral Intelligence</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
@@ -172,5 +179,6 @@
   <aside class="detail-drawer" id="referralDrawer" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">REFERRAL RECORD</p><h2 id="drawerReferralId">VV-260824-0184</h2></div><button data-close-drawer>×</button></div><div id="drawerContent"></div></aside><div class="drawer-scrim" data-close-drawer></div>
   <div class="toast" id="toast"><span>✓</span><p><b id="toastTitle">Saved</b><small id="toastMessage">Your change has been recorded.</small></p></div>
   <script src="app.js"></script>
+  <script src="pwa.js" defer></script>
 </body>
 </html>

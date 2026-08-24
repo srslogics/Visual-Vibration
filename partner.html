@@ -4,8 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#102a24" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vantage Circle" />
   <meta name="description" content="A private recognition and rewards experience for the Visual Vibrations partner circle." />
   <title>Vantage Circle · Private Partner Experience</title>
+  <link rel="manifest" href="/partner.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
@@ -88,5 +95,6 @@
 
   <div class="portal-toast" id="portalToast" role="status" aria-live="polite"><span>✓</span><p><b id="portalToastTitle">Done</b><small id="portalToastMessage">Your update is saved.</small></p></div>
   <script src="partner.js"></script>
+  <script src="pwa.js" defer></script>
 </body>
 </html>

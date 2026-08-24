@@ -7,6 +7,7 @@
   },
   "scripts": {
     "build": "node build-static.mjs",
+    "generate:pwa-icons": "node scripts/generate-pwa-icons.mjs",
     "start": "node dev-server.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs"
   },
