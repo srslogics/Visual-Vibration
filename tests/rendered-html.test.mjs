@@ -104,8 +104,12 @@ test('lets the owner create and publish rewards to the partner catalogue', async
   assert.match(directorJs, /vantage_custom_rewards/);
   assert.match(directorJs, /Available quantity/);
   assert.match(directorJs, /Catalogue status/);
+  assert.match(directorJs, /function optimiseRewardImage/);
+  assert.match(directorJs, /accept="image\/jpeg,image\/png,image\/webp"/);
+  assert.match(directorJs, /image:rewardImage/);
   assert.match(partnerJs, /CUSTOM_REWARD_KEY/);
   assert.match(partnerJs, /availableRewards\(\)/);
+  assert.match(partnerJs, /reward\.image/);
   assert.match(partnerJs, /vantage_partner_redemptions/);
 });
 

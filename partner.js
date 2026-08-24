@@ -162,7 +162,8 @@ function renderRewards() {
   $('#portalRewardGrid').innerHTML = availableRewards().map(reward => {
     const unlocked = points >= reward.points && tierRank(tier) >= tierRank(reward.tier);
     const action = unlocked ? `<button data-redeem-reward="${escapeHtml(reward.id)}">Redeem</button>` : `<span class="reward-lock">Need ${formatPoints(Math.max(0,reward.points - points))} pts</span>`;
-    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type || 'Reward')} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong>${action}</footer></article>`;
+    const visual = reward.image ? `<img src="${escapeHtml(reward.image)}" alt="">` : escapeHtml(reward.mark);
+    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art ${reward.image ? 'has-image' : ''}">${visual}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type || 'Reward')} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong>${action}</footer></article>`;
   }).join('');
 }
 function renderLedger() {

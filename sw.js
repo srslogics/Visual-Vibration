@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vantage-shell-2026-08-24-5';
+const CACHE_NAME = 'vantage-shell-2026-08-24-6';
 const APP_SHELL = [
   '/',
   '/index.html',

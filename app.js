@@ -71,6 +71,51 @@ const formatINR = value => value >= 100000 ? `₹${(value/100000).toFixed(value 
 const getRewards = () => [...customRewards, ...seedRewards];
 const rewardMark = type => ({Trip:'✦',Gadget:'G',Experience:'◇',Service:'S',Voucher:'₹',Other:'V'}[type] || 'V');
 
+function optimiseRewardImage(file) {
+  const allowed = ['image/jpeg','image/png','image/webp'];
+  if (!allowed.includes(file.type)) return Promise.reject(new Error('Use a JPG, PNG or WebP image.'));
+  if (file.size > 10 * 1024 * 1024) return Promise.reject(new Error('Choose an image smaller than 10 MB.'));
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      try {
+        const targetWidth = 1200;
+        const targetHeight = 750;
+        const targetRatio = targetWidth / targetHeight;
+        const sourceRatio = image.naturalWidth / image.naturalHeight;
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = image.naturalWidth;
+        let sourceHeight = image.naturalHeight;
+        if (sourceRatio > targetRatio) {
+          sourceWidth = image.naturalHeight * targetRatio;
+          sourceX = (image.naturalWidth - sourceWidth) / 2;
+        } else {
+          sourceHeight = image.naturalWidth / targetRatio;
+          sourceY = (image.naturalHeight - sourceHeight) / 2;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
+        const webp = canvas.toDataURL('image/webp', .82);
+        resolve(webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', .84));
+      } catch (error) {
+        reject(error);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('This image could not be opened.'));
+    };
+    image.src = objectUrl;
+  });
+}
+
 function persistRedemptions() {
   partnerRedemptions = redemptions.filter(item => item.source === 'partner-app');
   programmeRedemptions = redemptions.filter(item => item.source !== 'partner-app');
@@ -185,7 +230,8 @@ function renderRewards() {
     const inventory = reward.stock == null ? 'Open inventory' : `${Number(reward.stock).toLocaleString('en-IN')} available`;
     const validity = reward.validUntil ? `Until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}` : 'No expiry';
     const isCustom = customRewards.some(item => item.id === reward.id);
-    return `<article class="reward-card ${reward.status === 'Draft' ? 'draft' : ''}"><div class="reward-visual">${escapeHtml(reward.mark)}<span class="reward-publish-state ${reward.status.toLowerCase()}">${escapeHtml(reward.status)}</span></div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type)} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><div class="reward-card-meta"><span>${escapeHtml(inventory)}</span><span>${escapeHtml(validity)}</span></div><footer><strong>${Number(reward.points).toLocaleString('en-IN')} points</strong><div class="reward-card-actions"><button data-reward-info="${escapeHtml(reward.id)}">View rule</button>${isCustom ? `<button class="manage" data-manage-reward="${escapeHtml(reward.id)}">Manage</button>` : ''}</div></footer></article>`;
+    const visual = reward.image ? `<img src="${escapeHtml(reward.image)}" alt="">` : escapeHtml(reward.mark);
+    return `<article class="reward-card ${reward.status === 'Draft' ? 'draft' : ''}"><div class="reward-visual ${reward.image ? 'has-image' : ''}">${visual}<span class="reward-publish-state ${reward.status.toLowerCase()}">${escapeHtml(reward.status)}</span></div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type)} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><div class="reward-card-meta"><span>${escapeHtml(inventory)}</span><span>${escapeHtml(validity)}</span></div><footer><strong>${Number(reward.points).toLocaleString('en-IN')} points</strong><div class="reward-card-actions"><button data-reward-info="${escapeHtml(reward.id)}">View rule</button>${isCustom ? `<button class="manage" data-manage-reward="${escapeHtml(reward.id)}">Manage</button>` : ''}</div></footer></article>`;
   }).join('') || '<div class="panel empty-state">No rewards match this tier.</div>';
 }
 
@@ -249,7 +295,8 @@ function openRewardRule(id) {
   const inventory = reward.stock == null ? 'No inventory limit' : `${Number(reward.stock).toLocaleString('en-IN')} redemptions available`;
   const validity = reward.validUntil ? `Available until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}` : 'No expiry date';
   const isCustom = customRewards.some(item => item.id === reward.id);
-  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${escapeHtml(reward.mark)}</div><div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.type)} · ${escapeHtml(reward.tier)} · ${Number(reward.points).toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${Number(reward.points).toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span><span>◆ ${escapeHtml(inventory)}</span><span>◆ ${escapeHtml(validity)}</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="secondary-button" data-view-link="partners">View partners</button>${isCustom ? `<button class="primary-button" data-manage-reward="${escapeHtml(reward.id)}">Manage reward</button>` : ''}</div>`;
+  const drawerVisual = reward.image ? `<div class="partner-avatar reward-thumb"><img src="${escapeHtml(reward.image)}" alt=""></div>` : `<div class="partner-avatar">${escapeHtml(reward.mark)}</div>`;
+  $('#drawerContent').innerHTML = `<div class="drawer-profile">${drawerVisual}<div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.type)} · ${escapeHtml(reward.tier)} · ${Number(reward.points).toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${Number(reward.points).toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span><span>◆ ${escapeHtml(inventory)}</span><span>◆ ${escapeHtml(validity)}</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="secondary-button" data-view-link="partners">View partners</button>${isCustom ? `<button class="primary-button" data-manage-reward="${escapeHtml(reward.id)}">Manage reward</button>` : ''}</div>`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
@@ -276,10 +323,48 @@ function openRewardEditor(id = '') {
   const tier = existing?.tier || 'Gold';
   const status = existing?.status || 'Published';
   const today = new Date().toISOString().slice(0,10);
+  let rewardImage = existing?.image || '';
+  let imageProcessing = false;
   const option = (value, selected) => `<option${value === selected ? ' selected' : ''}>${value}</option>`;
-  openActionModal(`<div class="modal-intro"><p class="eyebrow">${existing ? 'MANAGE REWARD' : 'NEW REWARD'}</p><h2 id="actionModalTitle">${existing ? 'Update catalogue reward.' : 'Create a reward partners can earn.'}</h2></div><form id="rewardForm"><div class="form-grid"><label class="span-2">Reward name<input name="title" required maxlength="70" value="${escapeHtml(existing?.title || '')}" placeholder="Example: Dubai design experience"></label><label>Reward type<select name="type" required>${['Trip','Gadget','Experience','Service','Voucher','Other'].map(value => option(value,type)).join('')}</select></label><label>Eligible tier<select name="tier" required>${['Member','Silver','Gold','Black'].map(value => option(value,tier)).join('')}</select></label><label>Points required<input name="points" type="number" min="1" step="100" required value="${existing?.points || 30000}" placeholder="30,000"></label><label>Available quantity<input name="stock" type="number" min="1" step="1" required value="${existing?.stock || 10}" placeholder="10"></label><label>Available until<input name="validUntil" type="date" min="${today}" value="${escapeHtml(existing?.validUntil || '')}"></label><label>Catalogue status<select name="status" required>${['Published','Draft'].map(value => option(value,status)).join('')}</select></label><label class="span-2">What the partner receives<textarea name="copy" rows="4" maxlength="220" required placeholder="Describe the reward and fulfilment clearly.">${escapeHtml(existing?.copy || '')}</textarea></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">${existing ? 'Save reward' : 'Add to catalogue'}</button></div></form>`);
+  const preview = rewardImage ? `<img src="${escapeHtml(rewardImage)}" alt="Reward cover preview">` : `<span>${rewardMark(type)}</span>`;
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">${existing ? 'MANAGE REWARD' : 'NEW REWARD'}</p><h2 id="actionModalTitle">${existing ? 'Update catalogue reward.' : 'Create a reward partners can earn.'}</h2></div><form id="rewardForm"><div class="form-grid"><div class="reward-image-field span-2"><span class="reward-field-label">Reward cover image</span><div class="reward-image-uploader"><div class="reward-image-preview ${rewardImage ? 'has-image' : ''}" id="rewardImagePreview">${preview}</div><div class="reward-upload-copy"><b>Upload a premium cover</b><small>JPG, PNG or WebP · up to 10 MB</small></div><label class="reward-image-button" for="rewardImageInput">Choose image</label><input class="visually-hidden" id="rewardImageInput" type="file" accept="image/jpeg,image/png,image/webp"></div><button class="reward-image-remove" id="removeRewardImage" type="button" ${rewardImage ? '' : 'hidden'}>Remove image</button></div><label class="span-2">Reward name<input name="title" required maxlength="70" value="${escapeHtml(existing?.title || '')}" placeholder="Example: Dubai design experience"></label><label>Reward type<select name="type" required>${['Trip','Gadget','Experience','Service','Voucher','Other'].map(value => option(value,type)).join('')}</select></label><label>Eligible tier<select name="tier" required>${['Member','Silver','Gold','Black'].map(value => option(value,tier)).join('')}</select></label><label>Points required<input name="points" type="number" min="1" step="100" required value="${existing?.points || 30000}" placeholder="30,000"></label><label>Available quantity<input name="stock" type="number" min="1" step="1" required value="${existing?.stock || 10}" placeholder="10"></label><label>Available until<input name="validUntil" type="date" min="${today}" value="${escapeHtml(existing?.validUntil || '')}"></label><label>Catalogue status<select name="status" required>${['Published','Draft'].map(value => option(value,status)).join('')}</select></label><label class="span-2">What the partner receives<textarea name="copy" rows="4" maxlength="220" required placeholder="Describe the reward and fulfilment clearly.">${escapeHtml(existing?.copy || '')}</textarea></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">${existing ? 'Save reward' : 'Add to catalogue'}</button></div></form>`);
+  const renderImagePreview = () => {
+    const previewNode = $('#rewardImagePreview');
+    const selectedType = $('#rewardForm [name="type"]')?.value || type;
+    previewNode.classList.toggle('has-image', Boolean(rewardImage));
+    previewNode.innerHTML = rewardImage ? `<img src="${escapeHtml(rewardImage)}" alt="Reward cover preview">` : `<span>${rewardMark(selectedType)}</span>`;
+    $('#removeRewardImage').hidden = !rewardImage;
+  };
+  $('#rewardImageInput').addEventListener('change', async event => {
+    const file = event.currentTarget.files?.[0];
+    if (!file) return;
+    const submit = $('#rewardForm button[type="submit"]');
+    const choose = $('.reward-image-button', $('#rewardForm'));
+    imageProcessing = true;
+    submit.disabled = true;
+    choose.textContent = 'Preparing…';
+    try {
+      rewardImage = await optimiseRewardImage(file);
+      renderImagePreview();
+    } catch (error) {
+      event.currentTarget.value = '';
+      showToast('Image not added', error.message || 'Choose another image.','!');
+    } finally {
+      imageProcessing = false;
+      submit.disabled = false;
+      choose.textContent = rewardImage ? 'Replace image' : 'Choose image';
+    }
+  });
+  $('#removeRewardImage').addEventListener('click', () => {
+    rewardImage = '';
+    $('#rewardImageInput').value = '';
+    $('.reward-image-button', $('#rewardForm')).textContent = 'Choose image';
+    renderImagePreview();
+  });
+  $('#rewardForm [name="type"]').addEventListener('change', () => { if (!rewardImage) renderImagePreview(); });
   $('#rewardForm').addEventListener('submit', event => {
     event.preventDefault();
+    if (imageProcessing) return showToast('Image is still processing','Please wait a moment before saving.','!');
     const data = Object.fromEntries(new FormData(event.currentTarget));
     if (data.validUntil && data.validUntil < today) return showToast('Check reward validity','The availability date cannot be in the past.','!');
     const now = new Date().toISOString();
@@ -295,12 +380,17 @@ function openRewardEditor(id = '') {
       validUntil:data.validUntil,
       status:data.status,
       mark:rewardMark(data.type),
+      image:rewardImage,
       createdAt:existing?.createdAt || now,
       updatedAt:now
     };
-    if (existing) Object.assign(existing,reward);
-    else customRewards.unshift(reward);
-    localStorage.setItem('vantage_custom_rewards', JSON.stringify(customRewards));
+    const nextRewards = existing ? customRewards.map(item => item.id === existing.id ? reward : item) : [reward, ...customRewards];
+    try {
+      localStorage.setItem('vantage_custom_rewards', JSON.stringify(nextRewards));
+    } catch {
+      return showToast('Image could not be saved','Choose a smaller image or remove older reward images.','!');
+    }
+    customRewards = nextRewards;
     renderRewards();
     closeActionModal();
     closeDrawer();
