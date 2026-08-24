@@ -21,11 +21,14 @@ Customer OTP/WhatsApp delivery, KYC, invoice/payment confirmation and durable sh
 
 ## Render deployment
 
-Create a **Web Service** from the repository and use:
+Use a **Static Site**. The included `render.yaml` can configure it automatically as a Render Blueprint.
 
-- Root Directory: `visual-vibrations-loyalty-crm`
-- Runtime: `Node`
-- Build Command: `npm install`
-- Start Command: `npm start`
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fsrslogics%2Fstock-market-app)
 
-The service uses Render's assigned `PORT` automatically.
+- Repository: `https://github.com/srslogics/stock-market-app`
+- Branch: `main`
+- Root Directory: leave blank
+- Build Command: `npm ci && npm run build`
+- Publish Directory: `dist/client`
+
+Every push to `main` triggers a new deployment. The `/partner` route is rewritten to the self-service partner application.

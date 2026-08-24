@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const workerUrl = new URL('../dist/server/index.js', import.meta.url);
@@ -51,4 +52,12 @@ test('returns safe responses for unsupported routes and methods', async () => {
   const head = await request('/', 'HEAD');
   assert.equal(head.status, 200);
   assert.equal(await head.text(), '');
+});
+
+test('includes a Render static-site blueprint', async () => {
+  const blueprint = await readFile(new URL('../render.yaml', import.meta.url), 'utf8');
+  assert.match(blueprint, /runtime:\s*static/);
+  assert.match(blueprint, /staticPublishPath:\s*\.\/dist\/client/);
+  assert.match(blueprint, /source:\s*\/partner/);
+  assert.match(blueprint, /destination:\s*\/partner\.html/);
 });
