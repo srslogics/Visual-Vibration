@@ -134,7 +134,7 @@ function referralJourney(referral) {
   return `<div class="referral-journey-wrap"><div class="referral-journey">${[1,2,3,4].map(step => `<span class="${step <= count ? 'on' : ''}"></span>`).join('')}</div><p class="referral-journey-copy">${copy}</p></div>`;
 }
 function emptyReferralState() {
-  return '<div class="portal-empty"><span>↗</span><h3>No referrals here yet.</h3><p>Register an introduction and Vantage will protect its timestamp immediately.</p><button class="new-referral-button" data-open-partner-referral>Register first referral</button></div>';
+  return '<div class="portal-empty"><span>↗</span><h3>No referrals yet.</h3><button class="new-referral-button" data-open-partner-referral>Register referral</button></div>';
 }
 function renderReferrals() {
   const visible = partnerReferrals.filter(item => activeReferralFilter === 'all' || item.status === activeReferralFilter);
