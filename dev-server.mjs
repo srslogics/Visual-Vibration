@@ -8,9 +8,13 @@ let activePort = requestedPort;
 const assets = new Map([
   ['/styles.css', ['text/css; charset=utf-8', readFileSync(join(root, 'styles.css'))]],
   ['/app.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'app.js'))]],
+  ['/partner.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css'))]],
+  ['/partner-app.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css'))]],
+  ['/partner.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js'))]],
   ['/og.png', ['image/png', readFileSync(join(root, 'public/og.png'))]],
 ]);
 const html = readFileSync(join(root, 'index.html'), 'utf8');
+const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');
 
 const server = createServer((request, response) => {
   const origin = `http://${request.headers.host || `localhost:${activePort}`}`;
@@ -21,6 +25,13 @@ const server = createServer((request, response) => {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.setHeader('Cache-Control', 'no-cache');
     response.end(html.replaceAll('__SITE_ORIGIN__', origin));
+    return;
+  }
+
+  if (path === '/partner' || path === '/partner.html') {
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.setHeader('Cache-Control', 'no-cache');
+    response.end(partnerHtml.replaceAll('__SITE_ORIGIN__', origin));
     return;
   }
 

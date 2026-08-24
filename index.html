@@ -3,121 +3,173 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Orbit Signal brings charts, scanners, F&amp;O analytics and alerts together in one focused market intelligence desk." />
-  <link rel="canonical" href="https://stock-market-app-e5b0.onrender.com/" />
-
+  <meta name="theme-color" content="#17362f" />
+  <meta name="description" content="Verified referral attribution, partner rewards and fraud control for Visual Vibrations." />
+  <meta property="og:site_name" content="Visual Vibrations" />
+  <meta property="og:title" content="Vantage · Referral Intelligence" />
+  <meta property="og:description" content="Every referral. Clearly owned." />
   <meta property="og:type" content="website" />
-  <meta property="og:locale" content="en_IN" />
-  <meta property="og:site_name" content="Orbit Signal" />
-  <meta property="og:title" content="Orbit Signal — Market Intelligence, Distilled" />
-  <meta property="og:description" content="Charts, scanners, F&amp;O analytics and alerts—brought together in one focused market intelligence desk." />
-  <meta property="og:url" content="https://stock-market-app-e5b0.onrender.com/" />
-  <meta property="og:image" content="https://stock-market-app-e5b0.onrender.com/og-image.png" />
-  <meta property="og:image:secure_url" content="https://stock-market-app-e5b0.onrender.com/og-image.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Orbit Signal market intelligence dashboard preview" />
-
+  <meta property="og:url" content="__SITE_ORIGIN__/" />
+  <meta property="og:image" content="__SITE_ORIGIN__/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Orbit Signal — Market Intelligence, Distilled" />
-  <meta name="twitter:description" content="Charts, scanners, F&amp;O analytics and alerts in one focused market intelligence desk." />
-  <meta name="twitter:image" content="https://stock-market-app-e5b0.onrender.com/og-image.png" />
-  <meta name="twitter:image:alt" content="Orbit Signal market intelligence dashboard preview" />
-  <meta name="theme-color" content="#101915" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Orbit Signal" />
-  <title>Orbit Signal — Market Intelligence Desk</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="twitter:title" content="Vantage · Referral Intelligence" />
+  <meta name="twitter:description" content="Every referral. Clearly owned." />
+  <meta name="twitter:image" content="__SITE_ORIGIN__/og.png" />
+  <title>Vantage · Referral Control Centre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="subscription.css" />
-  <link rel="stylesheet" href="premium.css" />
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand"><span class="brand-mark">O.</span><div><strong>ORBIT</strong><small>MARKET INTELLIGENCE</small></div></div>
-      <nav aria-label="Primary navigation">
-        <button class="nav-item active" data-view="dashboard"><span>⌂</span>Dashboard</button>
-        <button class="nav-item" data-view="markets"><span>⌁</span>Markets</button>
-        <button class="nav-item" data-view="watchlist"><span>☆</span>Watchlist</button>
-        <button class="nav-item" data-view="scanner"><span>⌕</span>Scanner</button>
-        <button class="nav-item" data-view="derivatives"><span>Δ</span>F&amp;O Analytics</button>
-        <button class="nav-item" data-view="alerts"><span>◉</span>Alerts <b id="alertBadge">3</b></button>
-        <button class="nav-item" data-view="subscription"><span>◇</span>Subscription</button>
+    <div class="sidebar-scrim" data-close-menu></div>
+    <aside class="sidebar">
+      <a class="brand" href="#" data-view-link="overview" aria-label="Vantage home"><span class="brand-mark">VV</span><span><b>Vantage</b><small>REFERRAL INTELLIGENCE</small></span></a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <p>WORKSPACE</p>
+        <button class="nav-link active" data-view-link="overview"><span>01</span>Control centre</button>
+        <button class="nav-link" data-view-link="referrals"><span>02</span>Referrals <i id="referralCount">24</i></button>
+        <button class="nav-link" data-view-link="verification"><span>03</span>Exceptions <i class="alert-count">03</i></button>
+        <button class="nav-link" data-view-link="partners"><span>04</span>Partners</button>
+        <p>LOYALTY</p>
+        <button class="nav-link" data-view-link="rewards"><span>05</span>Tiers & rewards</button>
+        <button class="nav-link" data-view-link="redemptions"><span>06</span>Redemptions</button>
+        <p>ASSURANCE</p>
+        <button class="nav-link" data-view-link="fraud"><span>07</span>Fraud watch <i class="alert-count">03</i></button>
+        <button class="nav-link" data-view-link="reports"><span>08</span>Reports</button>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="data-status"><i></i><div><strong>Mock market feed</strong><small>Ready for licensed API</small></div></div>
-        <button class="profile" data-jump="subscription"><span>DJ</span><div><strong>Deepak Jummnani</strong><small id="profilePlan">Pro workspace</small></div></button>
-      </div>
+      <div class="integrity-card"><span class="pulse"></span><small>SYSTEM INTEGRITY</small><strong>All controls active</strong><p>Last audit · 4 min ago</p></div>
+      <button class="user-chip"><span>VK</span><span><b>Vikas Kothari</b><small>Director</small></span><i>•••</i></button>
     </aside>
-    <button class="nav-scrim" id="navScrim" aria-label="Close navigation"></button>
 
     <main>
       <header class="topbar">
-        <button class="menu-button" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
-        <label class="search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Jump to a stock, index or contract…" /><kbd>/</kbd></label>
-        <div class="top-actions"><span class="market-pill"><i></i>NSE OPEN</span><button class="install-trigger" id="installApp" aria-label="Install Orbit Signal app" hidden>↓ <span>Install app</span></button><button class="tour-trigger" aria-label="Open product tour">▶ <span>Demo tour</span></button><button class="notification-button" aria-label="Notifications">♢<b>3</b></button><button aria-label="Settings">⚙</button></div>
+        <button class="menu-button" id="menuButton" aria-label="Open menu">☰</button>
+        <div class="breadcrumb"><span>VANTAGE</span><b>/</b> <span id="viewTitle">CONTROL CENTRE</span></div>
+        <div class="top-actions">
+          <label class="global-search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Search ID, partner or customer" /></label>
+          <button class="icon-button" aria-label="Notifications">◌<span></span></button>
+          <a class="primary-button partner-app-link" href="partner.html" target="_blank" rel="noopener">Open partner app ↗</a>
+        </div>
       </header>
-      <div class="market-tape" aria-label="Live market ticker"><span>Gift Nifty <b class="up">+0.42%</b></span><span>India VIX <b class="down">-2.11%</b></span><span>USD/INR <b>83.94</b></span><span>Brent <b class="up">+0.28%</b></span><span>Gold <b class="down">-0.17%</b></span><span class="tape-note">DEMO DATA · 2 SEC REFRESH</span></div>
 
-      <section class="view active" id="dashboard">
-        <div class="page-heading dashboard-heading"><div><p class="eyebrow">THE OPENING DESK / 11 AUG 2026</p><h1 id="greeting">Good morning, Deepak.</h1><p>Your market in one sentence: <strong>risk-on, but selective.</strong></p></div><div class="heading-actions"><button class="ghost-action" id="refreshMarket">↻ Recalculate desk</button><div class="as-of">INDIA / LIVE SIMULATION<br><strong id="clock">10:24:36 IST</strong></div></div></div>
-        <div class="index-strip" id="indexStrip"></div>
-        <div class="signal-ribbon"><div class="ribbon-icon">01</div><div><span class="eyebrow">ORBIT READ / 08:52</span><strong>Momentum stays constructive above NIFTY 24,780.</strong><p>IT and pharma lead while banks absorb supply. A clean 24,900 break changes the day from constructive to expansion.</p></div><button data-jump="scanner">OPEN THE RADAR ↗</button></div>
-        <div class="dashboard-grid">
-          <article class="panel chart-panel">
-            <div class="panel-head"><div><p class="eyebrow">PRIMARY TAPE / NSE</p><h2>NIFTY 50 <span class="up">+0.74%</span></h2></div><div class="range-tabs"><button>1D</button><button class="active">1W</button><button>1M</button><button>1Y</button></div></div>
-            <div class="chart-stats"><strong>24,847.15</strong><span class="up">+183.40 today</span></div>
-            <canvas id="marketChart" height="230" aria-label="NIFTY 50 line chart"></canvas>
+      <div class="workspace">
+        <section class="view active" id="overview">
+          <section class="hero">
+            <div><p class="eyebrow" id="todayLabel">MONDAY · 24 AUGUST 2026</p><h1>Every referral.<br><em>Clearly owned.</em></h1><p class="hero-copy">A complete chain of proof—from introduction to reward—across architects, interior designers and customers.</p></div>
+            <div class="trust-score"><div class="score-ring"><strong>96.4</strong><small>TRUST SCORE</small></div><div><span>Attribution confidence</span><b>Excellent</b><small>↑ 2.8% this month</small></div></div>
+          </section>
+
+          <section class="metric-grid" aria-label="Referral performance">
+            <article class="metric-card dark"><div><span>VERIFIED PIPELINE</span><i>↗</i></div><strong>₹1.84 Cr</strong><p>Across 38 active opportunities</p><div class="micro-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+            <article class="metric-card"><div><span>REFERRALS THIS MONTH</span><i>↗</i></div><strong>124</strong><p><b>+18%</b> over last month</p><div class="metric-split"><span><i class="dot architect"></i> Architects <b>52</b></span><span><i class="dot designer"></i> Designers <b>41</b></span><span><i class="dot customer"></i> Customers <b>31</b></span></div></article>
+            <article class="metric-card"><div><span>VERIFIED CONVERSION</span><i>↗</i></div><strong>42.8%</strong><p><b>+4.1%</b> after dual confirmation</p><div class="progress"><i style="width:72%"></i></div></article>
+            <article class="metric-card warn"><div><span>VALUE PROTECTED</span><i>◆</i></div><strong>₹12.6 L</strong><p>From 9 blocked duplicate claims</p><div class="protected"><span>09</span><p>conflicts caught<br>before payout</p></div></article>
+          </section>
+
+          <section class="main-grid">
+            <article class="panel verification-panel">
+              <div class="panel-heading"><div><p class="eyebrow">AUTOMATIC ASSURANCE</p><h2>Verification health</h2></div><button class="text-button" data-view-link="verification">View 03 exceptions →</button></div>
+              <div class="verification-list">
+                <div class="verification-item"><div class="partner-avatar">AM</div><div><strong>Aarav Mehta</strong><p>Architect · Studio Arc</p></div><div><small>REFERRED</small><strong>Rohan Malhotra</strong><p>Modular kitchen · ₹14.5 L</p></div><div class="proof"><span>2/3</span><div><i></i><i></i><i></i></div><small>Customer response pending</small></div><button data-open-referral="VV-260824-0184">Auto pending</button></div>
+                <div class="verification-item"><div class="partner-avatar ochre">NS</div><div><strong>Naina Shah</strong><p>Interior designer · Form & Hue</p></div><div><small>REFERRED</small><strong>Vidit Kapoor</strong><p>Home automation · ₹8.2 L</p></div><div class="proof verified"><span>3/3</span><div><i></i><i></i><i></i></div><small>Automatically verified</small></div><button data-open-referral="VV-260824-0183">Auto locked</button></div>
+                <div class="verification-item"><div class="partner-avatar wine">RK</div><div><strong>Rhea Khanna</strong><p>Existing customer · Gold</p></div><div><small>REFERRED</small><strong>Manan Joshi</strong><p>Home theatre · ₹6.8 L</p></div><div class="proof conflict"><span>!</span><div><i></i><i></i><i></i></div><small>Possible duplicate</small></div><button data-view-link="fraud">Resolve</button></div>
+              </div>
+            </article>
+            <article class="panel attribution-panel">
+              <div class="panel-heading"><div><p class="eyebrow">PROOF CHAIN</p><h2>Attribution health</h2></div><span class="live-badge">● LIVE</span></div>
+              <div class="attribution-score"><strong>91%</strong><span>of active referrals have a complete proof chain</span></div>
+              <div class="proof-steps">
+                <div class="done"><span>01</span><p><b>Partner identity</b><small>124 of 124 verified</small></p><i>✓</i></div>
+                <div class="done"><span>02</span><p><b>Customer consent</b><small>116 of 124 confirmed</small></p><i>✓</i></div>
+                <div class="current"><span>03</span><p><b>Opportunity linked</b><small>109 of 124 linked</small></p><i>8 due</i></div>
+                <div><span>04</span><p><b>Invoice validation</b><small>52 converted referrals</small></p><i>—</i></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="bottom-grid">
+            <article class="panel partner-momentum"><div class="panel-heading"><div><p class="eyebrow">PARTNER MOMENTUM</p><h2>Relationships creating value</h2></div><button class="text-button" data-view-link="partners">Partner directory →</button></div><div class="leader-row"><span class="rank">01</span><div class="partner-avatar">AM</div><p><b>Aarav Mehta</b><small>Studio Arc · Architect</small></p><strong>₹42.8 L<small>verified revenue</small></strong><span class="tier-chip black">BLACK</span></div><div class="leader-row"><span class="rank">02</span><div class="partner-avatar ochre">NS</div><p><b>Naina Shah</b><small>Form & Hue · Interior designer</small></p><strong>₹31.4 L<small>verified revenue</small></strong><span class="tier-chip gold">GOLD</span></div><div class="leader-row"><span class="rank">03</span><div class="partner-avatar wine">RK</div><p><b>Rhea Khanna</b><small>Customer advocate</small></p><strong>₹18.6 L<small>verified revenue</small></strong><span class="tier-chip gold">GOLD</span></div></article>
+            <article class="panel activity-panel"><div class="panel-heading"><div><p class="eyebrow">AUDIT STREAM</p><h2>Latest confirmed events</h2></div></div><div class="activity-item"><span>✓</span><p><b>Customer consent captured</b><small>Vidit Kapoor confirmed Naina Shah · 4 min</small></p></div><div class="activity-item"><span>₹</span><p><b>Points released</b><small>12,500 points credited to Aarav Mehta · 18 min</small></p></div><div class="activity-item alert"><span>!</span><p><b>Duplicate claim blocked</b><small>Same customer mobile matched · 31 min</small></p></div></article>
+          </section>
+        </section>
+
+        <section class="view" id="referrals">
+          <div class="page-heading"><div><p class="eyebrow">REFERRAL REGISTRY</p><h1>A single source of ownership.</h1><p>Every introduction, confirmation, opportunity and reward in one traceable record.</p></div><a class="primary-button partner-app-link" href="partner.html" target="_blank" rel="noopener">Open partner app ↗</a></div>
+          <div class="summary-strip"><div><small>ALL REFERRALS</small><strong id="allReferralTotal">248</strong></div><div><small>AWAITING CONFIRMATION</small><strong>07</strong></div><div><small>ACTIVE OPPORTUNITIES</small><strong>38</strong></div><div><small>CONVERTED</small><strong>106</strong></div><div><small>REJECTED / DUPLICATE</small><strong>12</strong></div></div>
+          <article class="panel table-panel">
+            <div class="table-tools"><label class="table-search"><span>⌕</span><input id="referralSearch" type="search" placeholder="Search customer, partner or referral ID" /></label><div class="filter-pills"><button class="active" data-referral-filter="all">All</button><button data-referral-filter="Pending">Pending</button><button data-referral-filter="Verified">Verified</button><button data-referral-filter="Conflict">Conflict</button><button data-referral-filter="Converted">Converted</button></div><button class="secondary-button" id="exportReferrals">⇩ Export</button></div>
+            <div class="data-table referral-table"><div class="table-head"><span>REFERRAL</span><span>REFERRED BY</span><span>INTEREST / VALUE</span><span>PROOF</span><span>STATUS</span><span></span></div><div id="referralRows"></div></div>
           </article>
-          <article class="panel breadth-panel">
-            <div class="panel-head"><div><p class="eyebrow">REGIME METER</p><h2>Buyers control<br>two-thirds of the tape.</h2></div><span class="signal">RISK ON</span></div>
-            <div class="breadth-ring" style="--value:66"><div><strong>1,827</strong><span>of 2,761 stocks</span></div></div>
-            <div class="breadth-bar"><span style="width:66%"></span><i style="width:9%"></i></div>
-            <div class="legend"><span><b class="green"></b>Advances 1,827</span><span><b class="gray"></b>Unchanged 241</span><span><b class="red"></b>Declines 693</span></div>
-          </article>
-          <article class="panel watch-panel">
-            <div class="panel-head"><div><p class="eyebrow">PERSONAL TAPE / 04</p><h2>Deepak's focus list</h2></div><button class="text-button" data-jump="watchlist">EDIT LIST ↗</button></div>
-            <div class="stock-list" id="watchStocks"></div>
-          </article>
-          <article class="panel movers-panel">
-            <div class="panel-head"><div><p class="eyebrow">VELOCITY BOARD</p><h2>Where money is moving</h2></div><div class="mini-tabs"><button class="active" data-movers="gainers">UP</button><button data-movers="losers">DOWN</button></div></div>
-            <div class="movers-list" id="moversList"></div>
-          </article>
-          <article class="panel intelligence-panel"><div class="panel-head"><div><p class="eyebrow">THREE THINGS THAT MATTER NOW</p><h2>The decision queue</h2></div><span>DESK UPDATED / JUST NOW</span></div><div class="insight-grid"><button data-jump="scanner"><span class="insight-icon breakout">A</span><div><strong>Three names entered expansion</strong><small>INFY, TCS and SUNPHARMA crossed both price and volume thresholds.</small></div><b>OPEN RADAR ↗</b></button><button data-jump="derivatives"><span class="insight-icon options">B</span><div><strong>Protection is getting cheaper</strong><small>NIFTY PCR is 1.18 with put writing building at the 24,800 strike.</small></div><b>READ OPTIONS ↗</b></button><button data-jump="alerts"><span class="insight-icon alert">C</span><div><strong>TCS is one move from trigger</strong><small>RSI sits at 68.4 against your configured momentum level of 70.</small></div><b>REVIEW ALERT ↗</b></button></div></article>
-        </div>
-      </section>
+        </section>
 
-      <section class="view" id="markets"><div class="page-heading"><div><p class="eyebrow">MARKETS</p><h1>Indian market board</h1><p>Indices, sectors and market-wide momentum.</p></div></div><div class="index-strip" id="marketIndices"></div><div class="panel"><div class="panel-head"><h2>Sector performance</h2><span>1-day change</span></div><div class="sector-grid" id="sectorGrid"></div></div></section>
+        <section class="view" id="verification">
+          <div class="page-heading"><div><p class="eyebrow">EXCEPTION DESK</p><h1>Automation handles the routine.</h1><p>Only duplicate claims, self-referrals, denied consent and mismatched project evidence reach this queue.</p></div><div class="heading-meta"><span class="live-badge">● 3 EXCEPTIONS</span><small>97.6% resolved automatically</small></div></div>
+          <div class="verification-layout">
+            <div class="verification-queue" id="verificationQueue"></div>
+            <aside class="panel control-policy"><p class="eyebrow">AUTOMATIC POLICY</p><h2>Five-point assurance</h2><p>Clear referrals are locked without director action. Only a failed rule creates an exception.</p><div class="policy-step done"><span>01</span><p><b>Partner identity</b><small>OTP + verified profile</small></p><i>Automatic</i></div><div class="policy-step done"><span>02</span><p><b>Duplicate & self-referral</b><small>Mobile, identity and address match</small></p><i>Automatic</i></div><div class="policy-step done"><span>03</span><p><b>Customer consent</b><small>Secure confirmation link</small></p><i>Automatic</i></div><div class="policy-note"><b>Attribution lock</b><p>Successful checks create an immutable timestamp. Ownership changes require a recorded exception and manager authorization.</p></div></aside>
+          </div>
+        </section>
 
-      <section class="view" id="watchlist"><div class="page-heading"><div><p class="eyebrow">WATCHLIST</p><h1>Your tracked instruments</h1><p>Saved locally on this device for the MVP.</p></div><button class="primary-button" id="addStock">+ Add symbol</button></div><div class="panel table-panel"><table><thead><tr><th>Instrument</th><th>LTP</th><th>Change</th><th>Volume</th><th>Signal</th><th></th></tr></thead><tbody id="watchTable"></tbody></table></div></section>
+        <section class="view" id="partners">
+          <div class="page-heading"><div><p class="eyebrow">PARTNER NETWORK</p><h1>The people behind the pipeline.</h1><p>Architects, interior designers and customer advocates—with verified contribution and reward histories.</p></div><button class="primary-button" id="invitePartner">＋ Invite partner</button></div>
+          <div class="partner-types"><button class="active" data-partner-filter="all"><span>ALL PARTNERS</span><strong>318</strong><small>₹4.82 Cr lifetime value</small></button><button data-partner-filter="Architect"><span>ARCHITECTS</span><strong>86</strong><small>44% of referred revenue</small></button><button data-partner-filter="Interior designer"><span>INTERIOR DESIGNERS</span><strong>112</strong><small>38% of referred revenue</small></button><button data-partner-filter="Customer advocate"><span>CUSTOMER ADVOCATES</span><strong>120</strong><small>18% of referred revenue</small></button></div>
+          <div class="partner-toolbar"><label class="table-search"><span>⌕</span><input id="partnerSearch" type="search" placeholder="Search partner or studio" /></label><select id="partnerTierFilter"><option value="all">All tiers</option><option>Black</option><option>Gold</option><option>Silver</option><option>Member</option></select></div>
+          <div class="partner-grid" id="partnerGrid"></div>
+        </section>
 
-      <section class="view" id="scanner"><div class="page-heading"><div><p class="eyebrow">TECHNICAL SCANNER</p><h1>Find high-conviction setups</h1><p>Combine price, volume and indicator conditions.</p></div><button class="primary-button" id="runScan">Run scanner</button></div><div class="scanner-layout"><div class="panel filters"><h2>Scan conditions</h2><label>Price above<input type="number" id="minPrice" value="100" /></label><label>Minimum change<select id="minChange"><option value="0">Any positive</option><option value="1">Above 1%</option><option value="2">Above 2%</option></select></label><label>Signal<select id="signalFilter"><option>Any</option><option>Breakout</option><option>Bullish</option><option>Oversold</option></select></label><label class="check"><input type="checkbox" id="volumeFilter" checked />Volume above average</label></div><div class="panel table-panel"><div class="panel-head"><h2>Scanner results</h2><span id="resultCount">6 matches</span></div><table><thead><tr><th>Symbol</th><th>LTP</th><th>Change</th><th>RSI</th><th>Volume</th><th>Signal</th></tr></thead><tbody id="scannerTable"></tbody></table></div></div></section>
+        <section class="view" id="rewards">
+          <div class="page-heading"><div><p class="eyebrow">TIER & REWARD ENGINE</p><h1>Recognition that follows value.</h1><p>Partners unlock relevant rewards only after verified points cross clearly governed thresholds.</p></div><button class="secondary-button" id="editRules">⚙ Edit programme rules</button></div>
+          <section class="tier-ladder"><article class="tier-card member"><span>01 · MEMBER</span><strong>0</strong><p>Starting points</p><div>Welcome catalogue</div></article><article class="tier-card silver"><span>02 · SILVER</span><strong>10,000</strong><p>Points required</p><div>Service & product rewards</div></article><article class="tier-card gold"><span>03 · GOLD</span><strong>30,000</strong><p>Points required</p><div>Premium catalogue</div></article><article class="tier-card black"><span>04 · BLACK</span><strong>75,000</strong><p>Points required</p><div>Signature privileges</div></article></section>
+          <section class="reward-layout">
+            <article class="panel"><div class="panel-heading"><div><p class="eyebrow">EARNING LOGIC</p><h2>Points by verified outcome</h2></div><button class="text-button" id="editEarning">Edit rules</button></div><div class="earning-rule"><span class="rule-icon">K</span><p><b>Modular kitchen conversion</b><small>After final payment clearance</small></p><strong>1 pt / ₹100</strong></div><div class="earning-rule"><span class="rule-icon">A</span><p><b>Home automation conversion</b><small>After installation sign-off</small></p><strong>1.2× points</strong></div><div class="earning-rule"><span class="rule-icon">AV</span><p><b>Audio / video conversion</b><small>After final payment clearance</small></p><strong>1 pt / ₹100</strong></div><div class="earning-rule"><span class="rule-icon">＋</span><p><b>Cross-vertical bonus</b><small>Second vertical within 12 months</small></p><strong>+5,000 pts</strong></div></article>
+            <article class="panel points-liability"><div class="panel-heading"><div><p class="eyebrow">POINTS POSITION</p><h2>Programme liability</h2></div><span>FY 2026</span></div><div class="liability-number"><strong>18.42 L</strong><span>points outstanding</span></div><div class="liability-bars"><div><span>Available</span><i><b style="width:68%"></b></i><strong>12.52 L</strong></div><div><span>Pending</span><i><b style="width:22%"></b></i><strong>4.06 L</strong></div><div><span>Expiring</span><i><b style="width:10%"></b></i><strong>1.84 L</strong></div></div><p>₹9.21 L estimated redemption value</p></article>
+          </section>
+          <div class="section-heading"><div><p class="eyebrow">REWARD CATALOGUE</p><h2>Eligible by tier</h2></div><div class="filter-pills"><button class="active" data-reward-filter="all">All</button><button data-reward-filter="Silver">Silver</button><button data-reward-filter="Gold">Gold</button><button data-reward-filter="Black">Black</button></div></div>
+          <div class="reward-grid" id="rewardGrid"></div>
+        </section>
 
-      <section class="view" id="derivatives"><div class="page-heading"><div><p class="eyebrow">F&amp;O ANALYTICS</p><h1>NIFTY options intelligence</h1><p>Open interest, PCR, max pain and option-chain signals.</p></div><select class="contract-select"><option>NIFTY · 14 AUG 2026</option><option>BANKNIFTY · 14 AUG 2026</option></select></div><div class="metric-grid"><div class="metric"><span>Put–Call Ratio</span><strong>1.18</strong><small class="up">Mildly bullish</small></div><div class="metric"><span>Max Pain</span><strong>24,800</strong><small>Near spot price</small></div><div class="metric"><span>ATM IV</span><strong>12.6%</strong><small class="down">-0.8 today</small></div><div class="metric"><span>Futures Basis</span><strong>+32.85</strong><small>0.13% premium</small></div></div><div class="panel table-panel"><div class="panel-head"><h2>Option chain</h2><span>Spot 24,847.15</span></div><table class="option-table"><thead><tr><th>Call OI</th><th>Call LTP</th><th>Strike</th><th>Put LTP</th><th>Put OI</th></tr></thead><tbody id="optionTable"></tbody></table></div></section>
+        <section class="view" id="redemptions">
+          <div class="page-heading"><div><p class="eyebrow">REDEMPTION CONTROL</p><h1>Every point accounted for.</h1><p>Eligibility, approval, issuance and settlement captured in one immutable trail.</p></div><button class="secondary-button" id="downloadSettlement">⇩ Settlement report</button></div>
+          <div class="summary-strip redemptions-summary"><div><small>REQUESTED THIS MONTH</small><strong>₹2.84 L</strong></div><div><small>AWAITING APPROVAL</small><strong>08</strong></div><div><small>ISSUED</small><strong>41</strong></div><div><small>AVG. FULFILMENT</small><strong>1.6 days</strong></div></div>
+          <article class="panel table-panel"><div class="table-tools"><div class="filter-pills"><button class="active" data-redemption-filter="all">All requests</button><button data-redemption-filter="Pending">Pending</button><button data-redemption-filter="Approved">Approved</button><button data-redemption-filter="Issued">Issued</button></div></div><div class="data-table redemption-table"><div class="table-head"><span>REQUEST</span><span>PARTNER</span><span>REWARD</span><span>POINTS</span><span>ELIGIBILITY</span><span>ACTION</span></div><div id="redemptionRows"></div></div></article>
+        </section>
 
-      <section class="view" id="alerts"><div class="page-heading"><div><p class="eyebrow">ALERTS</p><h1>Signal centre</h1><p>Price and technical alerts for instruments you follow.</p></div><button class="primary-button" id="newAlert">+ New alert</button></div><div class="alert-grid" id="alertList"></div></section>
+        <section class="view" id="fraud">
+          <div class="fraud-hero"><div><p class="eyebrow light">REFERRAL ASSURANCE</p><h1>Stop leakage<br><em>before reward.</em></h1><p>Vantage checks identity, timing, customer consent, project overlap and payment evidence before a single point is released.</p></div><div class="shield-score"><span>◆</span><strong>96.4</strong><small>TRUST SCORE</small></div><div class="shield-stats"><span><b>09</b>Claims blocked</span><span><b>₹12.6 L</b>Value protected</span><span><b>0</b>Critical breaches</span></div></div>
+          <div class="fraud-layout">
+            <div><div class="section-heading"><div><p class="eyebrow">OPEN FLAGS</p><h2>Cases requiring resolution</h2></div><span class="risk-pill">3 OPEN</span></div><div id="fraudCases"></div></div>
+            <aside class="panel prevention-panel"><p class="eyebrow">CONTROL COVERAGE</p><h2>Seven controls active</h2><div class="control-row"><span>✓</span><p><b>Duplicate customer detection</b><small>Mobile, email and project address</small></p></div><div class="control-row"><span>✓</span><p><b>First verified referral wins</b><small>Timestamped ownership lock</small></p></div><div class="control-row"><span>✓</span><p><b>Customer OTP consent</b><small>Verified directly with customer</small></p></div><div class="control-row"><span>✓</span><p><b>Self-referral prevention</b><small>PAN and mobile cross-check</small></p></div><div class="control-row"><span>✓</span><p><b>Invoice validation</b><small>Points tied to cleared payment</small></p></div><div class="control-row"><span>✓</span><p><b>Cooling period</b><small>15 days before redemption</small></p></div><div class="control-row"><span>✓</span><p><b>Manager-only override</b><small>Reason and evidence mandatory</small></p></div></aside>
+          </div>
+          <article class="panel audit-log"><div class="panel-heading"><div><p class="eyebrow">IMMUTABLE HISTORY</p><h2>Ownership audit log</h2></div><button class="secondary-button" id="exportAudit">⇩ Export audit</button></div><div class="audit-event"><time>11:42</time><span class="audit-dot"></span><p><b>Referral VV-260824-0183 approved</b><small>Customer OTP, partner identity and opportunity match confirmed automatically.</small></p><i>VERIFIED</i></div><div class="audit-event"><time>11:18</time><span class="audit-dot alert"></span><p><b>Duplicate claim VV-260824-0179 blocked</b><small>Customer mobile already linked to an earlier verified referral.</small></p><i>BLOCKED</i></div><div class="audit-event"><time>10:56</time><span class="audit-dot"></span><p><b>Attribution ownership locked</b><small>Aarav Mehta → Rohan Malhotra · Customer confirmation received.</small></p><i>LOCKED</i></div></article>
+        </section>
 
-      <section class="view" id="subscription">
-        <div class="page-heading subscription-heading"><div><p class="eyebrow">SUBSCRIPTION</p><h1>Choose the right market edge.</h1><p>Upgrade or change your plan at any time. Prices shown include platform access only.</p></div><div class="billing-toggle" role="group" aria-label="Billing frequency"><button class="active" data-billing="monthly">Monthly</button><button data-billing="annual">Annual <span>Save 20%</span></button></div></div>
-        <article class="current-plan"><div><span class="plan-kicker">CURRENT PLAN</span><h2><span id="currentPlanName">Pro</span> workspace</h2><p id="renewalCopy">Renews on September 11, 2026 · ₹999/month</p></div><div class="plan-usage"><div><span>Watchlists</span><strong>4 / 20</strong><i><b style="width:20%"></b></i></div><div><span>Active alerts</span><strong>3 / 100</strong><i><b style="width:3%"></b></i></div><div><span>Saved scanners</span><strong>6 / 25</strong><i><b style="width:24%"></b></i></div></div><button class="secondary-button" id="manageBilling">Manage billing</button></article>
-        <div class="pricing-grid">
-          <article class="price-card" data-plan="Starter"><div class="price-top"><span class="plan-icon">S</span><div><h2>Starter</h2><p>For market monitoring</p></div></div><div class="price"><strong data-monthly="0" data-annual="0">₹0</strong><span>/ month</span></div><button class="secondary-button choose-plan" data-plan="Starter">Choose Starter</button><ul><li>1 watchlist · 20 symbols</li><li>Market dashboard</li><li>Basic interactive charts</li><li>5 price alerts</li><li>End-of-day scanner</li></ul></article>
-          <article class="price-card featured" data-plan="Pro"><span class="popular">MOST POPULAR</span><div class="price-top"><span class="plan-icon">P</span><div><h2>Pro</h2><p>For active traders</p></div></div><div class="price"><strong data-monthly="999" data-annual="799">₹999</strong><span>/ month</span></div><button class="primary-button choose-plan" data-plan="Pro">Current plan</button><ul><li>20 watchlists · 500 symbols</li><li>Advanced charts &amp; indicators</li><li>100 price &amp; technical alerts</li><li>Real-time technical scanner</li><li>F&amp;O, OI, PCR &amp; Greeks</li><li>Priority support</li></ul></article>
-          <article class="price-card" data-plan="Elite"><div class="price-top"><span class="plan-icon">E</span><div><h2>Elite</h2><p>For professional workflows</p></div></div><div class="price"><strong data-monthly="1999" data-annual="1599">₹1,999</strong><span>/ month</span></div><button class="secondary-button choose-plan" data-plan="Elite">Upgrade to Elite</button><ul><li>Unlimited watchlists</li><li>Unlimited alerts &amp; scanners</li><li>Strategy workspaces</li><li>Advanced derivatives analytics</li><li>Data export &amp; API access</li><li>Dedicated onboarding</li></ul></article>
-        </div>
-        <div class="subscription-bottom"><article class="panel table-panel"><div class="panel-head"><div><p class="eyebrow">BILLING HISTORY</p><h2>Recent invoices</h2></div><button class="text-button">View all →</button></div><table><thead><tr><th>Invoice</th><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody><tr><td>ORB-2026-0811</td><td>11 Aug 2026</td><td>Pro · Monthly</td><td>₹999</td><td><span class="paid-pill">Paid</span></td><td><button class="text-button download-invoice">Download</button></td></tr><tr><td>ORB-2026-0711</td><td>11 Jul 2026</td><td>Pro · Monthly</td><td>₹999</td><td><span class="paid-pill">Paid</span></td><td><button class="text-button download-invoice">Download</button></td></tr></tbody></table></article><article class="panel subscription-note"><span>i</span><div><h3>Third-party charges</h3><p>Broker APIs, licensed market data, exchange fees, cloud services, SMS/WhatsApp, and payment-gateway charges are billed separately where applicable.</p></div></article></div>
-      </section>
+        <section class="view" id="reports">
+          <div class="page-heading"><div><p class="eyebrow">PROGRAMME INTELLIGENCE</p><h1>Reward the relationships<br>that create real value.</h1></div><div class="heading-actions"><select><option>FY 2026</option><option>Last quarter</option><option>Last 30 days</option></select><button class="secondary-button" id="downloadReport">⇩ Download report</button></div></div>
+          <div class="report-kpis"><article><small>REFERRAL-ATTRIBUTED REVENUE</small><strong>₹4.82 Cr</strong><p>↑ 24% year over year</p></article><article><small>PARTNER ROI</small><strong>8.4×</strong><p>Revenue per reward rupee</p></article><article><small>AVERAGE REFERRED PROJECT</small><strong>₹9.6 L</strong><p>↑ ₹1.2 L versus direct</p></article><article><small>FRAUD LOSS RATE</small><strong>0.18%</strong><p>↓ 62% after verification</p></article></div>
+          <div class="reports-grid"><article class="panel revenue-report"><div class="panel-heading"><div><p class="eyebrow">VERIFIED REVENUE</p><h2>Referral value by month</h2></div><div class="legend"><span><i></i>Verified</span><span><i></i>Pending</span></div></div><div class="report-chart"><div style="--v:43%;--p:12%"><span>SEP</span></div><div style="--v:52%;--p:15%"><span>OCT</span></div><div style="--v:47%;--p:18%"><span>NOV</span></div><div style="--v:64%;--p:10%"><span>DEC</span></div><div style="--v:69%;--p:14%"><span>JAN</span></div><div style="--v:81%;--p:12%"><span>FEB</span></div><div style="--v:76%;--p:17%"><span>MAR</span></div><div style="--v:92%;--p:8%"><span>APR</span></div></div></article><article class="panel mix-report"><div class="panel-heading"><div><p class="eyebrow">PARTNER MIX</p><h2>Revenue contribution</h2></div></div><div class="mix-donut"><div><strong>₹4.82</strong><small>CRORE</small></div></div><div class="mix-legend"><p><i class="architect"></i><span>Architects<small>86 partners</small></span><b>44%</b></p><p><i class="designer"></i><span>Interior designers<small>112 partners</small></span><b>38%</b></p><p><i class="customer"></i><span>Customer advocates<small>120 partners</small></span><b>18%</b></p></div></article></div>
+        </section>
+      </div>
     </main>
   </div>
-  <dialog id="stockDialog"><form method="dialog"><div class="dialog-head"><h2>Add to watchlist</h2><button value="cancel" aria-label="Close">×</button></div><label>Symbol<input id="symbolInput" placeholder="e.g. INFY" maxlength="12" /></label><label>Company name<input id="nameInput" placeholder="e.g. Infosys Limited" /></label><div class="dialog-actions"><button value="cancel" class="secondary-button">Cancel</button><button value="default" id="saveStock" class="primary-button">Add stock</button></div></form></dialog>
-  <dialog id="tourDialog" class="tour-dialog"><form method="dialog"><div class="tour-visual"><span>ORBIT MARKETS</span><strong>From market noise<br>to clear decisions.</strong><p>A guided walkthrough of the complete trading analytics workspace.</p><div class="tour-orbits"><i></i><i></i><i></i></div></div><div class="tour-content"><div class="dialog-head"><span class="eyebrow">CLIENT DEMO</span><button value="cancel" aria-label="Close">×</button></div><h2>Everything an active trader needs.</h2><ol><li><b>01</b><div><strong>See the market clearly</strong><span>Live dashboards, breadth, movers and sector momentum.</span></div></li><li><b>02</b><div><strong>Find opportunities faster</strong><span>Advanced charts, technical scanners and alerts.</span></div></li><li><b>03</b><div><strong>Understand derivatives</strong><span>Option chain, OI, PCR, max pain and Greeks.</span></div></li><li><b>04</b><div><strong>Build recurring revenue</strong><span>Plans, entitlements, billing and administration.</span></div></li></ol><button value="default" class="primary-button start-tour">Start interactive tour →</button></div></form></dialog>
-  <div class="toast" id="toast" role="status"></div>
+
+  <div class="modal" id="registerModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="modal-card register-card" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+      <button class="modal-close" data-close-modal aria-label="Close">×</button>
+      <div class="modal-intro"><p class="eyebrow">NEW REFERRAL</p><h2 id="registerTitle">Create the first proof.</h2><p>Capture the introduction before anyone else touches the opportunity. A secure confirmation will be sent to the customer.</p></div>
+      <form id="referralForm">
+        <div class="form-section"><span>01</span><div><h3>Who is referring?</h3><div class="form-grid"><label class="span-2">Partner<input id="partnerName" name="partner" list="partnerOptions" placeholder="Search verified partner" required /><datalist id="partnerOptions"><option value="Aarav Mehta · Studio Arc"><option value="Naina Shah · Form & Hue"><option value="Rhea Khanna · Customer advocate"><option value="Devika Batra · Line & Loom"></datalist></label><label>Partner type<select name="partnerType" required><option>Architect</option><option>Interior designer</option><option>Customer advocate</option></select></label><label>Partner mobile<input name="partnerMobile" inputmode="tel" placeholder="+91 98••• •••••" required /></label></div></div></div>
+        <div class="form-section"><span>02</span><div><h3>Who are they referring?</h3><div class="form-grid"><label>Customer name<input name="customer" placeholder="Full name" required /></label><label>Customer mobile<input name="mobile" inputmode="tel" placeholder="10-digit mobile" minlength="10" required /></label><label>Email<input name="email" type="email" placeholder="Optional" /></label><label>Project city<input name="city" value="Nagpur" required /></label></div></div></div>
+        <div class="form-section"><span>03</span><div><h3>What is the opportunity?</h3><div class="form-grid"><label>Interested vertical<select name="vertical" required><option>Modular kitchen</option><option>Home automation</option><option>Home theatre / AV</option><option>Architectural lighting</option><option>Multiple verticals</option></select></label><label>Estimated value<input name="value" type="number" min="0" step="1000" placeholder="₹ 0" /></label><label class="span-2">Project address<input name="address" placeholder="Site or project address" required /></label><label class="span-2 consent-label"><input name="consent" type="checkbox" required /><span>The customer has agreed to receive a verification message from Visual Vibrations.</span></label></div></div></div>
+        <div class="form-footer"><p><span>◆</span> Duplicate and self-referral checks run automatically.</p><button type="button" class="secondary-button" data-close-modal>Cancel</button><button type="submit" class="primary-button">Create & send verification →</button></div>
+      </form>
+    </section>
+  </div>
+
+  <aside class="detail-drawer" id="referralDrawer" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">REFERRAL RECORD</p><h2 id="drawerReferralId">VV-260824-0184</h2></div><button data-close-drawer>×</button></div><div id="drawerContent"></div></aside><div class="drawer-scrim" data-close-drawer></div>
+  <div class="toast" id="toast"><span>✓</span><p><b id="toastTitle">Saved</b><small id="toastMessage">Your change has been recorded.</small></p></div>
   <script src="app.js"></script>
 </body>
 </html>

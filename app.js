@@ -1,83 +1,259 @@
-const indices=[['NIFTY 50',24847.15,0.74],['SENSEX',81625.32,0.62],['BANK NIFTY',55410.80,-0.18],['NIFTY IT',37284.65,1.26]];
-let stocks=JSON.parse(localStorage.getItem('orbit-watchlist')||'null')||[
- {symbol:'RELIANCE',name:'Reliance Industries',price:1417.80,change:1.12,volume:'8.4M',signal:'Bullish'},
- {symbol:'HDFCBANK',name:'HDFC Bank',price:1992.40,change:-0.36,volume:'6.1M',signal:'Hold'},
- {symbol:'TCS',name:'Tata Consultancy',price:3094.10,change:1.84,volume:'3.8M',signal:'Breakout'},
- {symbol:'ICICIBANK',name:'ICICI Bank',price:1476.50,change:.67,volume:'4.2M',signal:'Bullish'}
+const seedReferrals = [
+  {id:'VV-260824-0184',customer:'Rohan Malhotra',mobile:'98••• 21490',partner:'Aarav Mehta',partnerType:'Architect',studio:'Studio Arc',vertical:'Modular kitchen',value:1450000,proof:2,status:'Pending',age:'12 min',city:'Nagpur',address:'Civil Lines, Nagpur'},
+  {id:'VV-260824-0183',customer:'Vidit Kapoor',mobile:'99••• 08742',partner:'Naina Shah',partnerType:'Interior designer',studio:'Form & Hue',vertical:'Home automation',value:820000,proof:3,status:'Verified',age:'28 min',city:'Nagpur',address:'Dharampeth, Nagpur'},
+  {id:'VV-260824-0179',customer:'Manan Joshi',mobile:'97••• 44218',partner:'Rhea Khanna',partnerType:'Customer advocate',studio:'Gold member',vertical:'Home theatre / AV',value:680000,proof:1,status:'Conflict',age:'1 hr',city:'Nagpur',address:'Ramdaspeth, Nagpur'},
+  {id:'VV-250824-0171',customer:'Priya Bhandari',mobile:'93••• 11082',partner:'Devika Batra',partnerType:'Interior designer',studio:'Line & Loom',vertical:'Architectural lighting',value:520000,proof:3,status:'Converted',age:'Yesterday',city:'Nagpur',address:'Wardha Road, Nagpur'},
+  {id:'VV-250824-0168',customer:'Ishaan Sethi',mobile:'88••• 67041',partner:'Kabir Jain',partnerType:'Architect',studio:'Bareform Studio',vertical:'Multiple verticals',value:2200000,proof:3,status:'Verified',age:'Yesterday',city:'Nagpur',address:'Bajaj Nagar, Nagpur'},
+  {id:'VV-240824-0159',customer:'Sanya Agrawal',mobile:'91••• 78115',partner:'Aarav Mehta',partnerType:'Architect',studio:'Studio Arc',vertical:'Home automation',value:760000,proof:3,status:'Converted',age:'2 days',city:'Nagpur',address:'Pratap Nagar, Nagpur'},
+  {id:'VV-230824-0152',customer:'Neel Deshmukh',mobile:'96••• 35008',partner:'Vikram Lalwani',partnerType:'Customer advocate',studio:'Silver member',vertical:'Modular kitchen',value:1120000,proof:2,status:'Pending',age:'3 days',city:'Nagpur',address:'Manish Nagar, Nagpur'},
+  {id:'VV-220824-0146',customer:'Tanvi Wadhwa',mobile:'90••• 12884',partner:'Naina Shah',partnerType:'Interior designer',studio:'Form & Hue',vertical:'Architectural lighting',value:410000,proof:3,status:'Verified',age:'4 days',city:'Nagpur',address:'Shankar Nagar, Nagpur'}
 ];
-const scannerData=[...stocks,{symbol:'INFY',name:'Infosys',price:1485.2,change:2.18,volume:'9.7M',signal:'Breakout'},{symbol:'SUNPHARMA',name:'Sun Pharma',price:1698.4,change:1.43,volume:'5.1M',signal:'Bullish'},{symbol:'TATAMOTORS',name:'Tata Motors',price:712.8,change:.94,volume:'11.2M',signal:'Oversold'}].map((x,i)=>({...x,rsi:[64,49,71,57,68,62,35][i]||55}));
-const losers=[['COALINDIA','-2.14%'],['ONGC','-1.62%'],['SBILIFE','-1.21%'],['MARUTI','-0.89%']];
-const gainers=[['INFY','+2.18%'],['TCS','+1.84%'],['SUNPHARMA','+1.43%'],['RELIANCE','+1.12%']];
-const alerts=[['RELIANCE','Price crosses ₹1,425','₹1,417.80','Active'],['TCS','RSI moves above 70','RSI 68.4','Near trigger'],['NIFTY 50','Falls below 24,700','24,847.15','Active']];
-const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-function showToast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
-function renderIndices(target){$(target).innerHTML=indices.map(([n,p,c])=>`<article class="index-card"><header><span>${n}</span><span>INDIA</span></header><strong>${p.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong><footer class="${c>=0?'up':'down'}">${c>=0?'+':''}${c.toFixed(2)}% today</footer></article>`).join('')}
-function renderWatch(){
- $('#watchStocks').innerHTML=stocks.slice(0,4).map(s=>`<div class="stock-row"><div class="stock-name"><strong>${s.symbol}</strong><small>${s.name}</small></div><strong>₹${s.price.toLocaleString('en-IN')}</strong><span class="stock-change ${s.change<0?'down':'up'}">${s.change>0?'+':''}${s.change}%</span></div>`).join('');
- $('#watchTable').innerHTML=stocks.map((s,i)=>`<tr><td><strong>${s.symbol}</strong><small>${s.name}</small></td><td>₹${s.price.toLocaleString('en-IN')}</td><td class="${s.change>=0?'up':'down'}">${s.change>0?'+':''}${s.change}%</td><td>${s.volume}</td><td><span class="signal">${s.signal}</span></td><td><button class="text-button remove-stock" data-index="${i}">Remove</button></td></tr>`).join('');
- $$('.remove-stock').forEach(b=>b.onclick=()=>{stocks.splice(+b.dataset.index,1);localStorage.setItem('orbit-watchlist',JSON.stringify(stocks));renderWatch();showToast('Removed from watchlist')});
-}
-function renderMovers(type='gainers'){const data=type==='gainers'?gainers:losers;$('#moversList').innerHTML=data.map(([s,c],i)=>`<div class="mover-row"><div><strong>${s}</strong><small>NSE · Large cap</small></div><span>₹${[1485.2,3094.1,1698.4,1417.8,382.1,241.4,1842.6,12640][i+(type==='losers'?4:0)].toLocaleString('en-IN')}</span><span class="${type==='gainers'?'up':'down'}">${c}</span></div>`).join('')}
-function renderScanner(data=scannerData){$('#scannerTable').innerHTML=data.map(s=>`<tr><td><strong>${s.symbol}</strong><small>${s.name}</small></td><td>₹${s.price.toLocaleString('en-IN')}</td><td class="${s.change>=0?'up':'down'}">${s.change>0?'+':''}${s.change}%</td><td>${s.rsi}</td><td>${s.volume}</td><td><span class="signal">${s.signal}</span></td></tr>`).join('');$('#resultCount').textContent=`${data.length} matches`}
-function renderAlerts(){$('#alertList').innerHTML=alerts.map((a,i)=>`<article class="alert-card"><header><span class="signal">${a[0]}</span><button class="text-button delete-alert" data-index="${i}">×</button></header><h3>${a[1]}</h3><p>Current: ${a[2]}</p><footer><span class="alert-state">● ${a[3]}</span><span>In-app</span></footer></article>`).join('');$$('.delete-alert').forEach(b=>b.onclick=()=>{alerts.splice(+b.dataset.index,1);renderAlerts();$('#alertBadge').textContent=alerts.length})}
-function drawChart(){const c=$('#marketChart'),ctx=c.getContext('2d'),ratio=devicePixelRatio||1,w=c.clientWidth,h=230;c.width=w*ratio;c.height=h*ratio;ctx.scale(ratio,ratio);const points=[35,52,48,66,61,88,79,98,92,116,105,129,123,145,151,139,164,158,184,176,198];ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=1;for(let y=35;y<220;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}const step=w/(points.length-1);const grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,'rgba(78,181,139,.28)');grad.addColorStop(1,'rgba(78,181,139,0)');ctx.beginPath();points.forEach((p,i)=>{const x=i*step,y=220-p*.88;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=grad;ctx.fill();ctx.beginPath();points.forEach((p,i)=>{const x=i*step,y=220-p*.88;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle='#63c29b';ctx.lineWidth=2.2;ctx.stroke()}
-function showView(id){$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===id));$('#sidebar').classList.remove('open');document.body.classList.remove('nav-open');$('#menuButton').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'smooth'});if(id==='dashboard')requestAnimationFrame(drawChart)}
-renderIndices('#indexStrip');renderIndices('#marketIndices');renderWatch();renderMovers();renderScanner();renderAlerts();
-$('#sectorGrid').innerHTML=[['IT',2.14],['Pharma',1.47],['FMCG',.66],['Auto',.41],['Bank',-.18],['Metal',-.73],['Energy',.28],['Realty',1.06]].map(([n,c])=>`<div class="sector ${c<0?'down-sector':''}"><strong>NIFTY ${n}</strong><span class="${c>=0?'up':'down'}">${c>0?'+':''}${c}%</span></div>`).join('');
-$('#optionTable').innerHTML=[[184,62.4,24600,18.5,96],[226,41.8,24700,34.1,174],[318,25.6,24800,61.8,352],[176,13.2,24900,104.6,241],[138,7.1,25000,161.2,398]].map(r=>`<tr>${r.map((v,i)=>`<td>${i===2?'₹':''}${v}${i===0||i===4?'K':''}</td>`).join('')}</tr>`).join('');
-function closeNavigation(){document.body.classList.remove('nav-open');$('#sidebar').classList.remove('open');$('#menuButton').setAttribute('aria-expanded','false')}
-function toggleNavigation(){const open=!$('#sidebar').classList.contains('open');$('#sidebar').classList.toggle('open',open);document.body.classList.toggle('nav-open',open);$('#menuButton').setAttribute('aria-expanded',String(open))}
-$$('.nav-item').forEach(b=>b.onclick=()=>{showView(b.dataset.view);closeNavigation()});$$('[data-jump]').forEach(b=>b.onclick=()=>showView(b.dataset.jump));$('#menuButton').onclick=toggleNavigation;$('#navScrim').onclick=closeNavigation;
-$$('[data-movers]').forEach(b=>b.onclick=()=>{$$('[data-movers]').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMovers(b.dataset.movers)});
-$('#runScan').onclick=()=>{const p=+$('#minPrice').value,c=+$('#minChange').value,s=$('#signalFilter').value;const data=scannerData.filter(x=>x.price>=p&&x.change>=c&&(s==='Any'||x.signal===s));renderScanner(data);showToast(`Scanner complete: ${data.length} matches`)};
-$('#addStock').onclick=()=>$('#stockDialog').showModal();$('#saveStock').onclick=e=>{e.preventDefault();const symbol=$('#symbolInput').value.trim().toUpperCase(),name=$('#nameInput').value.trim();if(!symbol||!name)return showToast('Enter a symbol and company name');stocks.push({symbol,name,price:Math.round((300+Math.random()*2500)*10)/10,change:Math.round((Math.random()*4-1)*100)/100,volume:'1.2M',signal:'Watch'});localStorage.setItem('orbit-watchlist',JSON.stringify(stocks));renderWatch();$('#stockDialog').close();showToast(`${symbol} added to watchlist`)};
-$('#newAlert').onclick=()=>{alerts.unshift(['NEW','New custom alert','Awaiting condition','Active']);renderAlerts();$('#alertBadge').textContent=alerts.length;showToast('New alert created')};
-let currentPlan=localStorage.getItem('orbit-plan')||'Pro',billingCycle=localStorage.getItem('orbit-billing')||'monthly';
-function renderSubscription(){
-  $('#currentPlanName').textContent=currentPlan;
-  $('#profilePlan').textContent=`${currentPlan} workspace`;
-  $$('.price-card').forEach(card=>card.classList.toggle('current',card.dataset.plan===currentPlan));
-  $$('.choose-plan').forEach(button=>{
-    const active=button.dataset.plan===currentPlan;
-    button.textContent=active?'Current plan':button.dataset.plan==='Elite'?'Upgrade to Elite':`Choose ${button.dataset.plan}`;
-    button.className=active?'primary-button choose-plan':'secondary-button choose-plan';
-  });
-  $$('[data-billing]').forEach(button=>button.classList.toggle('active',button.dataset.billing===billingCycle));
-  $$('.price strong[data-monthly]').forEach(price=>{const value=price.dataset[billingCycle];price.textContent=`₹${Number(value).toLocaleString('en-IN')}`});
-  const selected=$(`.price-card[data-plan="${currentPlan}"] .price strong`),amount=selected?selected.dataset[billingCycle]:'0';
-  $('#renewalCopy').textContent=currentPlan==='Starter'?'Free plan · No renewal date':`Renews on September 11, 2026 · ₹${Number(amount).toLocaleString('en-IN')}/${billingCycle==='annual'?'month, billed annually':'month'}`;
-}
-$$('[data-billing]').forEach(button=>button.onclick=()=>{billingCycle=button.dataset.billing;localStorage.setItem('orbit-billing',billingCycle);renderSubscription()});
-$$('.choose-plan').forEach(button=>button.onclick=()=>{if(button.dataset.plan===currentPlan)return showToast(`${currentPlan} is already your active plan`);currentPlan=button.dataset.plan;localStorage.setItem('orbit-plan',currentPlan);renderSubscription();showToast(`${currentPlan} plan selected for this demo`)});
-$('#manageBilling').onclick=()=>showToast('Billing portal will connect to the payment gateway');
-$$('.download-invoice').forEach(button=>button.onclick=()=>showToast('Invoice download prepared'));
-renderSubscription();
-$$('.tour-trigger').forEach(button=>button.onclick=()=>$('#tourDialog').showModal());
-$('.start-tour').onclick=()=>{showView('dashboard');showToast('Tour started — explore the highlighted action centre')};
-$('#refreshMarket').onclick=()=>{indices.forEach(x=>{x[1]+=Math.random()*8-4;x[2]+=Math.random()*.04-.02});renderIndices('#indexStrip');renderIndices('#marketIndices');drawChart();showToast('Market snapshot refreshed')};
-$$('.range-tabs button').forEach(button=>button.onclick=()=>{$$('.range-tabs button').forEach(x=>x.classList.remove('active'));button.classList.add('active');drawChart();showToast(`${button.textContent} chart loaded`)});
-$('.notification-button').onclick=()=>showView('alerts');
-$('.top-actions button[aria-label="Settings"]').onclick=()=>showToast('Workspace settings are ready for backend connection');
-$('#globalSearch').addEventListener('input',e=>{const q=e.target.value.toUpperCase();if(q.length>1){const s=scannerData.find(x=>x.symbol.includes(q)||x.name.toUpperCase().includes(q));if(s)showToast(`${s.symbol} · ₹${s.price.toLocaleString('en-IN')} · ${s.change>0?'+':''}${s.change}%`)}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNavigation();if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();$('#globalSearch').focus()}});
-function tick(){const now=new Date(),hour=+now.toLocaleString('en-US',{timeZone:'Asia/Kolkata',hour:'numeric',hour12:false});$('#clock').textContent=now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:false})+' IST';$('#greeting').textContent=`Good ${hour<12?'morning':hour<17?'afternoon':'evening'}, Deepak.`}tick();setInterval(tick,1000);
-setInterval(()=>{indices.forEach(x=>{x[1]+=Math.random()*2.6-1.3;x[2]+=Math.random()*.012-.006});renderIndices('#indexStrip');renderIndices('#marketIndices')},2000);
-addEventListener('resize',drawChart);requestAnimationFrame(drawChart);
 
-let deferredInstallPrompt=null;
-const installButton=$('#installApp');
-addEventListener('beforeinstallprompt',event=>{
-  event.preventDefault();
-  deferredInstallPrompt=event;
-  installButton.hidden=false;
+const partners = [
+  {name:'Aarav Mehta',initials:'AM',type:'Architect',studio:'Studio Arc',tier:'Black',referrals:38,conversion:'56%',revenue:'₹42.8 L',points:86420,next:'Signature Retreat',progress:86,color:'#17362f'},
+  {name:'Naina Shah',initials:'NS',type:'Interior designer',studio:'Form & Hue',tier:'Gold',referrals:31,conversion:'48%',revenue:'₹31.4 L',points:54800,next:'Black at 75K',progress:73,color:'#c59b55'},
+  {name:'Devika Batra',initials:'DB',type:'Interior designer',studio:'Line & Loom',tier:'Gold',referrals:27,conversion:'44%',revenue:'₹24.1 L',points:46600,next:'Black at 75K',progress:62,color:'#a9844d'},
+  {name:'Kabir Jain',initials:'KJ',type:'Architect',studio:'Bareform Studio',tier:'Gold',referrals:22,conversion:'50%',revenue:'₹28.8 L',points:41750,next:'Black at 75K',progress:56,color:'#6d744f'},
+  {name:'Rhea Khanna',initials:'RK',type:'Customer advocate',studio:'Gold member',tier:'Gold',referrals:18,conversion:'39%',revenue:'₹18.6 L',points:38200,next:'Black at 75K',progress:51,color:'#824a4b'},
+  {name:'Vikram Lalwani',initials:'VL',type:'Customer advocate',studio:'Silver member',tier:'Silver',referrals:11,conversion:'36%',revenue:'₹9.4 L',points:18400,next:'Gold at 30K',progress:61,color:'#7c8883'},
+  {name:'Mira Kothari',initials:'MK',type:'Architect',studio:'Mira Kothari Studio',tier:'Silver',referrals:9,conversion:'33%',revenue:'₹8.7 L',points:14200,next:'Gold at 30K',progress:47,color:'#647b72'},
+  {name:'Anay Kulkarni',initials:'AK',type:'Interior designer',studio:'Object & Space',tier:'Member',referrals:4,conversion:'25%',revenue:'₹3.2 L',points:6800,next:'Silver at 10K',progress:68,color:'#b9734d'}
+];
+
+const rewards = [
+  {code:'AMC',tier:'Silver',title:'Annual care upgrade',copy:'One complimentary annual maintenance visit across eligible installations.',points:12000,mark:'12'},
+  {code:'MOD',tier:'Silver',title:'Modulinea service credit',copy:'₹5,000 service credit for the partner or a nominated client.',points:15000,mark:'M'},
+  {code:'DIN',tier:'Gold',title:'Chef’s table experience',copy:'A curated dining experience for two at a partner destination.',points:32000,mark:'✦'},
+  {code:'AV',tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated catalogue of premium audio accessories.',points:38000,mark:'AV'},
+  {code:'STY',tier:'Gold',title:'Design material library',copy:'An annual material and finish sample library for the studio.',points:45000,mark:'□'},
+  {code:'RET',tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V'},
+  {code:'PRV',tier:'Black',title:'Private preview evening',copy:'Host a private Visual Vibrations preview for clients and guests.',points:85000,mark:'◇'},
+  {code:'CON',tier:'Black',title:'Partner experience credit',copy:'₹25,000 credit across curated partner experiences.',points:90000,mark:'₹'}
+];
+
+const redemptionSeed = [
+  {id:'RD-260824-048',partner:'Naina Shah',tier:'Gold',reward:'Chef’s table experience',points:32000,status:'Pending',date:'24 Aug'},
+  {id:'RD-260824-047',partner:'Aarav Mehta',tier:'Black',reward:'Signature design retreat',points:80000,status:'Pending',date:'24 Aug'},
+  {id:'RD-230824-044',partner:'Rhea Khanna',tier:'Gold',reward:'Premium audio accessory',points:38000,status:'Approved',date:'23 Aug'},
+  {id:'RD-210824-039',partner:'Vikram Lalwani',tier:'Silver',reward:'Annual care upgrade',points:12000,status:'Issued',date:'21 Aug'},
+  {id:'RD-190824-036',partner:'Devika Batra',tier:'Gold',reward:'Design material library',points:45000,status:'Issued',date:'19 Aug'}
+];
+
+let customReferrals = JSON.parse(localStorage.getItem('vantage_custom_referrals') || '[]');
+let referralOverrides = JSON.parse(localStorage.getItem('vantage_referral_overrides') || '{}');
+let referrals = [...customReferrals, ...seedReferrals].map(item => ({...item, ...(referralOverrides[item.id] || {})}));
+let redemptions = JSON.parse(localStorage.getItem('vantage_redemptions') || 'null') || redemptionSeed;
+let activeReferralFilter = 'all';
+let activePartnerType = 'all';
+let activeRewardFilter = 'all';
+let activeRedemptionFilter = 'all';
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+const initials = name => name.split(/\s+/).slice(0,2).map(part => part[0]).join('').toUpperCase();
+const statusClass = status => status.toLowerCase().replace(/\s+/g,'-');
+const formatINR = value => value >= 100000 ? `₹${(value/100000).toFixed(value % 100000 ? 1 : 0)} L` : `₹${Number(value).toLocaleString('en-IN')}`;
+
+function showToast(title, message, symbol = '✓') {
+  const toast = $('#toast');
+  $('#toastTitle').textContent = title;
+  $('#toastMessage').textContent = message;
+  toast.querySelector(':scope > span').textContent = symbol;
+  toast.classList.add('show');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function switchView(viewId) {
+  const target = document.getElementById(viewId);
+  if (!target) return;
+  $$('.view').forEach(view => view.classList.toggle('active', view.id === viewId));
+  $$('.nav-link').forEach(link => link.classList.toggle('active', link.dataset.viewLink === viewId));
+  const activeLink = $(`.nav-link[data-view-link="${viewId}"]`);
+  $('#viewTitle').textContent = (activeLink?.textContent || 'Control centre').replace(/\d+/g,'').trim().toUpperCase();
+  document.body.classList.remove('menu-open');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function proofBars(count) {
+  return `<span class="mini-proof">${[1,2,3].map(n => `<i class="${n <= count ? 'on' : ''}"></i>`).join('')}</span><small>${count}/3 evidence checks</small>`;
+}
+
+function renderReferrals() {
+  const query = ($('#referralSearch')?.value || '').trim().toLowerCase();
+  const filtered = referrals.filter(item => {
+    const matchesFilter = activeReferralFilter === 'all' || item.status === activeReferralFilter;
+    const haystack = `${item.id} ${item.customer} ${item.partner} ${item.partnerType} ${item.vertical}`.toLowerCase();
+    return matchesFilter && haystack.includes(query);
+  });
+  $('#referralRows').innerHTML = filtered.length ? filtered.map(item => `
+    <div class="table-row">
+      <span><b>${escapeHtml(item.customer)}</b><small>${escapeHtml(item.id)} · ${escapeHtml(item.mobile)}</small></span>
+      <span><b>${escapeHtml(item.partner)}</b><small>${escapeHtml(item.partnerType)} · ${escapeHtml(item.studio || '')}</small></span>
+      <span><b>${escapeHtml(item.vertical)}</b><small>${formatINR(item.value)} estimated</small></span>
+      <span>${proofBars(item.proof)}</span>
+      <span><b class="status-badge ${statusClass(item.status)}">${escapeHtml(item.status).toUpperCase()}</b><small>${escapeHtml(item.age)}</small></span>
+      <button class="row-open" data-open-referral="${escapeHtml(item.id)}" aria-label="Open referral">→</button>
+    </div>`).join('') : '<div class="empty-state">No referrals match this view.</div>';
+  $('#referralCount').textContent = referrals.length;
+  $('#allReferralTotal').textContent = 240 + customReferrals.length + seedReferrals.length;
+}
+
+function renderVerification() {
+  const items = referrals.filter(item => item.status === 'Conflict').slice(0,7);
+  $('#verificationQueue').innerHTML = items.map(item => `
+    <article class="verification-card flagged">
+      <div class="verification-card-head"><div class="partner-avatar ${item.partnerType === 'Interior designer' ? 'ochre' : item.partnerType === 'Customer advocate' ? 'wine' : ''}">${initials(item.partner)}</div><div><h3>${escapeHtml(item.id)}</h3><p>${escapeHtml(item.vertical)} · ${formatINR(item.value)} · ${escapeHtml(item.city)}</p></div><time>${escapeHtml(item.age)}</time></div>
+      <div class="verification-route"><div><small>REFERRED BY</small><b>${escapeHtml(item.partner)}</b><small>${escapeHtml(item.partnerType)} · ${escapeHtml(item.studio || '')}</small></div><span>→</span><div><small>CUSTOMER</small><b>${escapeHtml(item.customer)}</b><small>${escapeHtml(item.mobile)} · ${escapeHtml(item.address)}</small></div></div>
+      <div class="verification-checks"><span>✓ Identity screened</span><span class="missing">! Automatic rule failed</span><span>◆ Points held safely</span></div>
+      <div class="verification-actions"><button data-open-referral="${escapeHtml(item.id)}">Review exception evidence</button></div>
+    </article>`).join('') || '<article class="panel empty-state">Automation cleared every referral. There are no exceptions for the director.</article>';
+  const badge = $('.nav-link[data-view-link="verification"] .alert-count');
+  if (badge) badge.textContent = String(items.length).padStart(2,'0');
+}
+
+function renderPartners() {
+  const query = ($('#partnerSearch')?.value || '').trim().toLowerCase();
+  const tier = $('#partnerTierFilter')?.value || 'all';
+  const filtered = partners.filter(partner => (activePartnerType === 'all' || partner.type === activePartnerType) && (tier === 'all' || partner.tier === tier) && `${partner.name} ${partner.studio}`.toLowerCase().includes(query));
+  $('#partnerGrid').innerHTML = filtered.map(partner => `
+    <article class="partner-card" style="--partner-color:${partner.color}">
+      <div class="partner-card-top"><div class="partner-avatar">${partner.initials}</div><div><h3>${escapeHtml(partner.name)}</h3><p>${escapeHtml(partner.studio)} · ${escapeHtml(partner.type)}</p></div><span class="tier-chip ${partner.tier.toLowerCase()}">${escapeHtml(partner.tier).toUpperCase()}</span></div>
+      <div class="partner-card-metrics"><div><small>REFERRALS</small><b>${partner.referrals}</b></div><div><small>CONVERSION</small><b>${partner.conversion}</b></div><div><small>REVENUE</small><b>${partner.revenue}</b></div></div>
+      <div class="partner-progress"><div><i style="width:${partner.progress}%"></i></div><span>${partner.points.toLocaleString('en-IN')} pts · ${escapeHtml(partner.next)}</span></div>
+      <button data-partner-profile="${escapeHtml(partner.name)}">Open verified profile →</button>
+    </article>`).join('') || '<div class="panel empty-state">No partners match this view.</div>';
+}
+
+function renderRewards() {
+  const filtered = rewards.filter(reward => activeRewardFilter === 'all' || reward.tier === activeRewardFilter);
+  $('#rewardGrid').innerHTML = filtered.map(reward => `<article class="reward-card"><div class="reward-visual">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${reward.points.toLocaleString('en-IN')} points</strong><button data-reward-info="${escapeHtml(reward.title)}">Eligibility →</button></footer></article>`).join('');
+}
+
+function renderRedemptions() {
+  const filtered = redemptions.filter(item => activeRedemptionFilter === 'all' || item.status === activeRedemptionFilter);
+  $('#redemptionRows').innerHTML = filtered.map(item => `<div class="table-row"><span><b>${escapeHtml(item.id)}</b><small>${escapeHtml(item.date)}</small></span><span><b>${escapeHtml(item.partner)}</b><small>${escapeHtml(item.tier)} tier</small></span><span><b>${escapeHtml(item.reward)}</b><small>Catalogue reward</small></span><span><b>${item.points.toLocaleString('en-IN')}</b><small>points</small></span><span><small class="eligibility">Tier & balance confirmed</small></span><span class="table-action">${item.status === 'Pending' ? `<button data-reject-redemption="${item.id}">Hold</button><button class="approve" data-approve-redemption="${item.id}">Approve</button>` : `<b class="status-badge ${statusClass(item.status)}">${item.status.toUpperCase()}</b>`}</span></div>`).join('');
+}
+
+function renderFraudCases() {
+  const cases = [
+    {icon:'!',title:'Duplicate ownership claim',copy:'Manan Joshi was registered by two partners within 46 minutes. The earlier claim has customer consent.',tags:['High confidence match','₹6.8 L opportunity'],id:'VV-260824-0179'},
+    {icon:'↔',title:'Project address overlap',copy:'Two customer records reference the same project site with different mobile numbers.',tags:['Address match 92%','Manual review'],id:'VV-250824-0174'},
+    {icon:'◎',title:'Potential self-referral',copy:'Partner and customer records share a PAN-linked household identifier.',tags:['Identity overlap','Points on hold'],id:'VV-240824-0161'}
+  ];
+  $('#fraudCases').innerHTML = cases.map(item => `<article class="fraud-case"><span class="risk-icon">${item.icon}</span><div><h3>${item.title}</h3><p>${item.copy}</p><div class="fraud-case-tags">${item.tags.map(tag => `<span>${tag}</span>`).join('')}</div></div><button data-resolve-case="${item.id}">Investigate →</button></article>`).join('');
+}
+
+function saveReferralOverride(id, changes) {
+  referralOverrides[id] = {...(referralOverrides[id] || {}), ...changes};
+  localStorage.setItem('vantage_referral_overrides', JSON.stringify(referralOverrides));
+}
+
+function openReferral(id) {
+  const item = referrals.find(referral => referral.id === id) || {id,customer:'Referral customer',partner:'Partner under review',partnerType:'Partner',studio:'',vertical:'Opportunity',value:0,proof:1,status:'Conflict',mobile:'—',address:'Evidence under review'};
+  $('#drawerReferralId').textContent = item.id;
+  $('#drawerContent').innerHTML = `
+    <div class="drawer-profile"><div class="partner-avatar">${initials(item.partner)}</div><div><h3>${escapeHtml(item.partner)}</h3><p>${escapeHtml(item.partnerType)} · ${escapeHtml(item.studio || 'Verified partner')}</p></div><span class="tier-chip ${item.status === 'Conflict' ? 'member' : 'gold'}">${escapeHtml(item.status).toUpperCase()}</span></div>
+    <div class="drawer-proof"><h3>${escapeHtml(item.partner)} → ${escapeHtml(item.customer)}</h3><div class="verification-checks"><span>✓ Partner identity</span><span class="${item.proof < 2 ? 'missing' : ''}">${item.proof >= 2 ? '✓' : '○'} Customer consent</span><span class="${item.proof < 3 ? 'missing' : ''}">${item.proof >= 3 ? '✓' : '○'} Opportunity match</span></div></div>
+    <div class="drawer-timeline"><div class="timeline-event"><span>✓</span><p><b>Referral registered</b><small>${escapeHtml(item.partner)} created this referral with customer and project details.</small></p></div><div class="timeline-event ${item.proof < 2 ? 'pending' : ''}"><span>${item.proof >= 2 ? '✓' : '02'}</span><p><b>Customer consent</b><small>${item.proof >= 2 ? `${escapeHtml(item.customer)} confirmed through secure OTP.` : `Verification sent to ${escapeHtml(item.mobile)}. Awaiting response.`}</small></p></div><div class="timeline-event ${item.proof < 3 ? 'pending' : ''}"><span>${item.proof >= 3 ? '✓' : '03'}</span><p><b>Opportunity ownership</b><small>${item.proof >= 3 ? `${escapeHtml(item.vertical)} opportunity linked at ${formatINR(item.value)}.` : 'Lead and project match pending review.'}</small></p></div><div class="timeline-event pending"><span>04</span><p><b>Invoice & points</b><small>Points release after payment clearance and the 15-day cooling period.</small></p></div></div>
+    <div class="drawer-actions"><button class="secondary-button" data-send-otp="${escapeHtml(item.id)}">Send verification</button>${item.proof >= 3 && item.status !== 'Verified' ? `<button class="primary-button" data-quick-verify="${escapeHtml(item.id)}">Approve & lock</button>` : `<button class="primary-button" data-view-link="referrals">Open registry</button>`}</div>`;
+  $('#referralDrawer').classList.add('open');
+  $('#referralDrawer').setAttribute('aria-hidden','false');
+}
+
+function openPartner(name) {
+  const partner = partners.find(item => item.name === name);
+  if (!partner) return;
+  $('#drawerReferralId').textContent = 'PARTNER PROFILE';
+  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${partner.initials}</div><div><h3>${escapeHtml(partner.name)}</h3><p>${escapeHtml(partner.studio)} · ${escapeHtml(partner.type)}</p></div><span class="tier-chip ${partner.tier.toLowerCase()}">${partner.tier.toUpperCase()}</span></div><div class="summary-strip" style="grid-template-columns:repeat(3,1fr)"><div><small>REFERRALS</small><strong>${partner.referrals}</strong></div><div><small>CONVERSION</small><strong>${partner.conversion}</strong></div><div><small>REVENUE</small><strong>${partner.revenue}</strong></div></div><div class="drawer-proof"><h3>${partner.points.toLocaleString('en-IN')} available points</h3><div class="partner-progress"><div><i style="width:${partner.progress}%"></i></div><span>${partner.next}</span></div></div><div class="drawer-timeline"><div class="timeline-event"><span>✓</span><p><b>Identity and KYC verified</b><small>Mobile, email and partner identity validated.</small></p></div><div class="timeline-event"><span>✓</span><p><b>Reward account active</b><small>Points ledger reconciled with converted referrals.</small></p></div><div class="timeline-event pending"><span>→</span><p><b>${partner.next}</b><small>${Math.max(0,75000-partner.points).toLocaleString('en-IN')} points to the next signature tier where applicable.</small></p></div></div><div class="drawer-actions"><button class="secondary-button" data-view-link="referrals">View referrals</button><button class="primary-button" data-view-link="rewards">View rewards</button></div>`;
+  $('#referralDrawer').classList.add('open');
+}
+
+function closeDrawer() { $('#referralDrawer').classList.remove('open'); }
+function openRegister() { $('#registerModal').classList.add('open'); $('#registerModal').setAttribute('aria-hidden','false'); setTimeout(() => $('#partnerName')?.focus(), 100); }
+function closeModal() { $('#registerModal').classList.remove('open'); $('#registerModal').setAttribute('aria-hidden','true'); }
+
+function downloadCsv(filename, rows) {
+  const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"','""')}"`).join(',')).join('\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+document.addEventListener('click', event => {
+  const viewLink = event.target.closest('[data-view-link]');
+  if (viewLink) { event.preventDefault(); switchView(viewLink.dataset.viewLink); closeDrawer(); return; }
+  if (event.target.closest('[data-open-register]')) { openRegister(); return; }
+  if (event.target.closest('[data-close-modal]')) { closeModal(); return; }
+  if (event.target.closest('[data-close-drawer]')) { closeDrawer(); return; }
+  if (event.target.closest('[data-close-menu]')) { document.body.classList.remove('menu-open'); return; }
+  const openButton = event.target.closest('[data-open-referral]');
+  if (openButton) { openReferral(openButton.dataset.openReferral); return; }
+  const partnerButton = event.target.closest('[data-partner-profile]');
+  if (partnerButton) { openPartner(partnerButton.dataset.partnerProfile); return; }
+  const verifyButton = event.target.closest('[data-quick-verify]');
+  if (verifyButton) {
+    const id = verifyButton.dataset.quickVerify;
+    const item = referrals.find(referral => referral.id === id);
+    if (item) { item.status = 'Verified'; item.proof = 3; saveReferralOverride(id,{status:'Verified',proof:3}); renderReferrals(); renderVerification(); closeDrawer(); showToast('Ownership verified', `${id} is now locked to ${item.partner}.`); }
+    return;
+  }
+  const otpButton = event.target.closest('[data-send-otp]');
+  if (otpButton) { showToast('Verification sent', `A secure OTP link was queued for ${otpButton.dataset.sendOtp}.`, '→'); return; }
+  const referralFilter = event.target.closest('[data-referral-filter]');
+  if (referralFilter) { activeReferralFilter = referralFilter.dataset.referralFilter; $$('[data-referral-filter]').forEach(button => button.classList.toggle('active', button === referralFilter)); renderReferrals(); return; }
+  const partnerFilter = event.target.closest('[data-partner-filter]');
+  if (partnerFilter) { activePartnerType = partnerFilter.dataset.partnerFilter; $$('[data-partner-filter]').forEach(button => button.classList.toggle('active', button === partnerFilter)); renderPartners(); return; }
+  const rewardFilter = event.target.closest('[data-reward-filter]');
+  if (rewardFilter) { activeRewardFilter = rewardFilter.dataset.rewardFilter; $$('[data-reward-filter]').forEach(button => button.classList.toggle('active', button === rewardFilter)); renderRewards(); return; }
+  const redemptionFilter = event.target.closest('[data-redemption-filter]');
+  if (redemptionFilter) { activeRedemptionFilter = redemptionFilter.dataset.redemptionFilter; $$('[data-redemption-filter]').forEach(button => button.classList.toggle('active', button === redemptionFilter)); renderRedemptions(); return; }
+  const approve = event.target.closest('[data-approve-redemption]');
+  if (approve) { const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';localStorage.setItem('vantage_redemptions',JSON.stringify(redemptions));renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
+  if (event.target.closest('[data-reject-redemption]')) { showToast('Request placed on hold','A reason is now required before points can be released.','!'); return; }
+  if (event.target.closest('[data-resolve-case]')) { showToast('Case opened','Evidence comparison and ownership history are ready for review.','!'); return; }
+  if (event.target.closest('[data-reward-info]')) { showToast('Eligibility rule','Current tier, point balance and cooling period are checked automatically.','◇'); return; }
+  if (event.target.closest('#invitePartner')) { showToast('Partner invitation ready','A secure KYC invitation link has been prepared.','→'); return; }
+  if (event.target.closest('#editRules') || event.target.closest('#editEarning')) { showToast('Programme rules protected','Rule changes require manager confirmation and create a new version.','◆'); return; }
+  if (event.target.closest('#exportReferrals')) { downloadCsv('vantage-referrals.csv',[['Referral ID','Customer','Partner','Partner type','Vertical','Value','Proof','Status'],...referrals.map(r=>[r.id,r.customer,r.partner,r.partnerType,r.vertical,r.value,`${r.proof}/3`,r.status])]); showToast('Referral register exported','The complete referral register is downloading.','⇩'); return; }
+  if (event.target.closest('#downloadSettlement') || event.target.closest('#downloadReport') || event.target.closest('#exportAudit')) { showToast('Report prepared','The verified report is ready for download.','⇩'); return; }
 });
-installButton.onclick=async()=>{
-  if(!deferredInstallPrompt)return;
-  deferredInstallPrompt.prompt();
-  const {outcome}=await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt=null;
-  installButton.hidden=true;
-  showToast(outcome==='accepted'?'Orbit Signal installed':'Installation cancelled');
-};
-addEventListener('appinstalled',()=>{deferredInstallPrompt=null;installButton.hidden=true;showToast('Orbit Signal is ready on your device')});
-if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+
+$('#menuButton').addEventListener('click', () => document.body.classList.toggle('menu-open'));
+$('#referralSearch').addEventListener('input', renderReferrals);
+$('#partnerSearch').addEventListener('input', renderPartners);
+$('#partnerTierFilter').addEventListener('change', renderPartners);
+$('#globalSearch').addEventListener('keydown', event => { if (event.key === 'Enter') { switchView('referrals'); $('#referralSearch').value = event.currentTarget.value; renderReferrals(); }});
+document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeDrawer(); document.body.classList.remove('menu-open'); }});
+
+$('#referralForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.currentTarget));
+  const rawPartner = data.partner.split('·').map(value => value.trim());
+  const sequence = String(Date.now()).slice(-4);
+  const now = new Date();
+  const id = `VV-${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getFullYear()).slice(-2)}-${sequence}`;
+  const referral = {id,customer:data.customer,mobile:data.mobile.replace(/(\d{2})\d+(\d{3})/,'$1••• $2'),partner:rawPartner[0],partnerType:data.partnerType,studio:rawPartner[1] || 'Verified partner',vertical:data.vertical,value:Number(data.value || 0),proof:1,status:'Pending',age:'Just now',city:data.city,address:data.address};
+  customReferrals.unshift(referral);
+  localStorage.setItem('vantage_custom_referrals', JSON.stringify(customReferrals));
+  referrals.unshift(referral);
+  event.currentTarget.reset();
+  closeModal();
+  renderReferrals();
+  renderVerification();
+  switchView('referrals');
+  showToast('Referral registered', `${id} created. Customer verification is now pending.`);
+  setTimeout(() => openReferral(id), 450);
+});
+
+const today = new Intl.DateTimeFormat('en-IN', {weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
+$('#todayLabel').textContent = today.toUpperCase();
+renderReferrals();
+renderVerification();
+renderPartners();
+renderRewards();
+renderRedemptions();
+renderFraudCases();

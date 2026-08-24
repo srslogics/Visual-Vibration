@@ -13,11 +13,16 @@ mkdirSync(clientDir, { recursive: true });
 const files = {
   '/styles.css': ['text/css; charset=utf-8', readFileSync(join(root, 'styles.css')).toString('base64')],
   '/app.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'app.js')).toString('base64')],
+  '/partner.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css')).toString('base64')],
+  '/partner-app.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css')).toString('base64')],
+  '/partner.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js')).toString('base64')],
   '/og.png': ['image/png', readFileSync(join(root, 'public/og.png')).toString('base64')],
 };
 const html = readFileSync(join(root, 'index.html'), 'utf8');
+const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');
 
 const worker = `const HTML = ${JSON.stringify(html)};
+const PARTNER_HTML = ${JSON.stringify(partnerHtml)};
 const ASSETS = ${JSON.stringify(files)};
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -45,6 +50,12 @@ export default {
         headers: { ...securityHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
       });
     }
+    if (url.pathname === '/partner' || url.pathname === '/partner.html') {
+      const body = PARTNER_HTML.replaceAll('__SITE_ORIGIN__', url.origin);
+      return new Response(request.method === 'HEAD' ? null : body, {
+        headers: { ...securityHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
+      });
+    }
     const asset = ASSETS[url.pathname];
     if (asset) {
       return new Response(request.method === 'HEAD' ? null : decode(asset[1]), {
@@ -57,6 +68,6 @@ export default {
 `;
 
 writeFileSync(join(serverDir, 'index.js'), worker);
-for (const file of ['index.html', 'styles.css', 'app.js']) cpSync(join(root, file), join(clientDir, file));
+for (const file of ['index.html', 'styles.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js']) cpSync(join(root, file), join(clientDir, file));
 cpSync(join(root, 'public/og.png'), join(clientDir, 'og.png'));
-console.log(`Built Visual Vibrations Customer Loyalty + CRM to ${dist}`);
+console.log(`Built Vantage Referral Intelligence to ${dist}`);
