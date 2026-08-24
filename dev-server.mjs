@@ -21,6 +21,7 @@ const assets = new Map([
   ['/icon-maskable-512.png', ['image/png', readFileSync(join(root, 'public/icon-maskable-512.png'))]],
   ['/apple-touch-icon.png', ['image/png', readFileSync(join(root, 'public/apple-touch-icon.png'))]],
   ['/og.png', ['image/png', readFileSync(join(root, 'public/og.png'))]],
+  ['/visual-vibrations-logo.jpg', ['image/jpeg', readFileSync(join(root, 'public/visual-vibrations-logo.jpg'))]],
 ]);
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');

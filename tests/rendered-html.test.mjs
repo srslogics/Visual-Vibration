@@ -17,6 +17,7 @@ test('serves the complete Vantage referral product shell', async () => {
   assert.match(html, /Every referral/);
   assert.match(html, /Automation handles the routine/);
   assert.match(html, /Tiers & rewards/);
+  assert.match(html, /visual-vibrations-logo\.jpg/);
   assert.match(html, /Fraud watch/);
   assert.match(html, /Create the first proof/);
   assert.match(html, /https:\/\/visual-vibrations\.example\/og\.png/);
@@ -36,15 +37,16 @@ test('serves the self-service partner registration and referral app', async () =
   assert.match(html, /Automatic verification/);
   assert.match(html, /SECURE REFERRAL CONFIRMATION/);
   assert.match(html, /Points wallet/);
+  assert.match(html, /visual-vibrations-logo\.jpg/);
   assert.match(html, /partner-app\.css/);
   assert.match(html, /href="\/partner\.webmanifest"/);
   assert.match(html, /apple-mobile-web-app-title" content="Vantage Circle"/);
 });
 
 test('serves application assets with correct content types', async () => {
-  const [css, premiumCss, js, partnerCss, partnerJs, pwa, serviceWorker, manifest, icon, image] = await Promise.all([
+  const [css, premiumCss, js, partnerCss, partnerJs, pwa, serviceWorker, manifest, icon, image, logo] = await Promise.all([
     request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'),
-    request('/pwa.js'), request('/sw.js'), request('/manifest.webmanifest'), request('/icon-192.png'), request('/og.png')
+    request('/pwa.js'), request('/sw.js'), request('/manifest.webmanifest'), request('/icon-192.png'), request('/og.png'), request('/visual-vibrations-logo.jpg')
   ]);
   assert.match(css.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(premiumCss.headers.get('content-type') ?? '', /^text\/css/);
@@ -59,6 +61,8 @@ test('serves application assets with correct content types', async () => {
   assert.ok((await icon.arrayBuffer()).byteLength > 1_000);
   assert.equal(image.headers.get('content-type'), 'image/png');
   assert.ok((await image.arrayBuffer()).byteLength > 50_000);
+  assert.equal(logo.headers.get('content-type'), 'image/jpeg');
+  assert.ok((await logo.arrayBuffer()).byteLength > 100_000);
 });
 
 test('provides installable director and partner PWA identities', async () => {

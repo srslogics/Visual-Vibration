@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vantage-shell-2026-08-24-6';
+const CACHE_NAME = 'vantage-shell-2026-08-25-1';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -16,6 +16,7 @@ const APP_SHELL = [
   '/icon-512.png',
   '/icon-maskable-512.png',
   '/apple-touch-icon.png',
+  '/visual-vibrations-logo.jpg',
   '/og.png'
 ];
 

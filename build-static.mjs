@@ -26,6 +26,7 @@ const files = {
   '/icon-maskable-512.png': ['image/png', readFileSync(join(root, 'public/icon-maskable-512.png')).toString('base64')],
   '/apple-touch-icon.png': ['image/png', readFileSync(join(root, 'public/apple-touch-icon.png')).toString('base64')],
   '/og.png': ['image/png', readFileSync(join(root, 'public/og.png')).toString('base64')],
+  '/visual-vibrations-logo.jpg': ['image/jpeg', readFileSync(join(root, 'public/visual-vibrations-logo.jpg')).toString('base64')],
 };
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');
@@ -78,5 +79,5 @@ export default {
 
 writeFileSync(join(serverDir, 'index.js'), worker);
 for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js', 'pwa.js', 'sw.js', 'manifest.webmanifest', 'partner.webmanifest']) cpSync(join(root, file), join(clientDir, file));
-for (const file of ['og.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png']) cpSync(join(root, 'public', file), join(clientDir, file));
+for (const file of ['og.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'visual-vibrations-logo.jpg']) cpSync(join(root, 'public', file), join(clientDir, file));
 console.log(`Built Vantage Referral Intelligence to ${dist}`);
