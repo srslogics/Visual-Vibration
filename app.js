@@ -27,15 +27,15 @@ const defaultFraudCases = [
   {icon:'◎',title:'Potential self-referral',copy:'Partner and customer records share a household identifier.',tags:['Identity overlap','Points on hold'],id:'VV-240824-0161',status:'Open',evidence:['Partner and customer identity data overlap','Reward points are held','No payout has been released']}
 ];
 
-const rewards = [
-  {code:'AMC',tier:'Silver',title:'Annual care upgrade',copy:'One complimentary annual maintenance visit across eligible installations.',points:12000,mark:'12'},
-  {code:'MOD',tier:'Silver',title:'Modulinea service credit',copy:'₹5,000 service credit for the partner or a nominated client.',points:15000,mark:'M'},
-  {code:'DIN',tier:'Gold',title:'Chef’s table experience',copy:'A curated dining experience for two at a partner destination.',points:32000,mark:'✦'},
-  {code:'AV',tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated catalogue of premium audio accessories.',points:38000,mark:'AV'},
-  {code:'STY',tier:'Gold',title:'Design material library',copy:'An annual material and finish sample library for the studio.',points:45000,mark:'□'},
-  {code:'RET',tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V'},
-  {code:'PRV',tier:'Black',title:'Private preview evening',copy:'Host a private Visual Vibrations preview for clients and guests.',points:85000,mark:'◇'},
-  {code:'CON',tier:'Black',title:'Partner experience credit',copy:'₹25,000 credit across curated partner experiences.',points:90000,mark:'₹'}
+const seedRewards = [
+  {id:'reward-amc',code:'AMC',type:'Service',tier:'Silver',title:'Annual care upgrade',copy:'One complimentary annual maintenance visit across eligible installations.',points:12000,mark:'12',status:'Published',stock:null,validUntil:''},
+  {id:'reward-mod',code:'MOD',type:'Voucher',tier:'Silver',title:'Modulinea service credit',copy:'₹5,000 service credit for the partner or a nominated client.',points:15000,mark:'M',status:'Published',stock:null,validUntil:''},
+  {id:'reward-din',code:'DIN',type:'Experience',tier:'Gold',title:'Chef’s table experience',copy:'A curated dining experience for two at a partner destination.',points:32000,mark:'✦',status:'Published',stock:null,validUntil:''},
+  {id:'reward-av',code:'AV',type:'Gadget',tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated catalogue of premium audio accessories.',points:38000,mark:'AV',status:'Published',stock:null,validUntil:''},
+  {id:'reward-sty',code:'STY',type:'Service',tier:'Gold',title:'Design material library',copy:'An annual material and finish sample library for the studio.',points:45000,mark:'□',status:'Published',stock:null,validUntil:''},
+  {id:'reward-ret',code:'RET',type:'Trip',tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V',status:'Published',stock:null,validUntil:''},
+  {id:'reward-prv',code:'PRV',type:'Experience',tier:'Black',title:'Private preview evening',copy:'Host a private Visual Vibrations preview for clients and guests.',points:85000,mark:'◇',status:'Published',stock:null,validUntil:''},
+  {id:'reward-con',code:'CON',type:'Voucher',tier:'Black',title:'Partner experience credit',copy:'₹25,000 credit across curated partner experiences.',points:90000,mark:'₹',status:'Published',stock:null,validUntil:''}
 ];
 
 const redemptionSeed = [
@@ -49,9 +49,12 @@ const redemptionSeed = [
 let customReferrals = JSON.parse(localStorage.getItem('vantage_custom_referrals') || '[]');
 let referralOverrides = JSON.parse(localStorage.getItem('vantage_referral_overrides') || '{}');
 let referrals = [...customReferrals, ...seedReferrals].map(item => ({...item, ...(referralOverrides[item.id] || {})}));
-let redemptions = JSON.parse(localStorage.getItem('vantage_redemptions') || 'null') || redemptionSeed;
+let programmeRedemptions = JSON.parse(localStorage.getItem('vantage_redemptions') || 'null') || redemptionSeed;
+let partnerRedemptions = JSON.parse(localStorage.getItem('vantage_partner_redemptions') || '[]');
+let redemptions = [...partnerRedemptions, ...programmeRedemptions];
 let customPartners = JSON.parse(localStorage.getItem('vantage_custom_partners') || '[]');
 let partners = [...customPartners, ...seedPartners];
+let customRewards = JSON.parse(localStorage.getItem('vantage_custom_rewards') || '[]').map(reward => ({type:'Other',status:'Published',stock:10,validUntil:'',mark:'V',...reward}));
 let programRules = {...defaultProgramRules, ...(JSON.parse(localStorage.getItem('vantage_program_rules') || 'null') || {})};
 let fraudCases = JSON.parse(localStorage.getItem('vantage_fraud_cases') || 'null') || defaultFraudCases;
 let activeReferralFilter = 'all';
@@ -65,6 +68,15 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&
 const initials = name => name.split(/\s+/).slice(0,2).map(part => part[0]).join('').toUpperCase();
 const statusClass = status => status.toLowerCase().replace(/\s+/g,'-');
 const formatINR = value => value >= 100000 ? `₹${(value/100000).toFixed(value % 100000 ? 1 : 0)} L` : `₹${Number(value).toLocaleString('en-IN')}`;
+const getRewards = () => [...customRewards, ...seedRewards];
+const rewardMark = type => ({Trip:'✦',Gadget:'G',Experience:'◇',Service:'S',Voucher:'₹',Other:'V'}[type] || 'V');
+
+function persistRedemptions() {
+  partnerRedemptions = redemptions.filter(item => item.source === 'partner-app');
+  programmeRedemptions = redemptions.filter(item => item.source !== 'partner-app');
+  localStorage.setItem('vantage_partner_redemptions', JSON.stringify(partnerRedemptions));
+  localStorage.setItem('vantage_redemptions', JSON.stringify(programmeRedemptions));
+}
 
 function showToast(title, message, symbol = '✓') {
   const toast = $('#toast');
@@ -168,8 +180,13 @@ function renderPartners() {
 }
 
 function renderRewards() {
-  const filtered = rewards.filter(reward => activeRewardFilter === 'all' || reward.tier === activeRewardFilter);
-  $('#rewardGrid').innerHTML = filtered.map(reward => `<article class="reward-card"><div class="reward-visual">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${reward.points.toLocaleString('en-IN')} points</strong><button data-reward-info="${escapeHtml(reward.title)}">View rule →</button></footer></article>`).join('');
+  const filtered = getRewards().filter(reward => activeRewardFilter === 'all' || reward.tier === activeRewardFilter);
+  $('#rewardGrid').innerHTML = filtered.map(reward => {
+    const inventory = reward.stock == null ? 'Open inventory' : `${Number(reward.stock).toLocaleString('en-IN')} available`;
+    const validity = reward.validUntil ? `Until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}` : 'No expiry';
+    const isCustom = customRewards.some(item => item.id === reward.id);
+    return `<article class="reward-card ${reward.status === 'Draft' ? 'draft' : ''}"><div class="reward-visual">${escapeHtml(reward.mark)}<span class="reward-publish-state ${reward.status.toLowerCase()}">${escapeHtml(reward.status)}</span></div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type)} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><div class="reward-card-meta"><span>${escapeHtml(inventory)}</span><span>${escapeHtml(validity)}</span></div><footer><strong>${Number(reward.points).toLocaleString('en-IN')} points</strong><div class="reward-card-actions"><button data-reward-info="${escapeHtml(reward.id)}">View rule</button>${isCustom ? `<button class="manage" data-manage-reward="${escapeHtml(reward.id)}">Manage</button>` : ''}</div></footer></article>`;
+  }).join('') || '<div class="panel empty-state">No rewards match this tier.</div>';
 }
 
 function renderRedemptions() {
@@ -224,12 +241,15 @@ function openNotifications() {
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
 
-function openRewardRule(title) {
-  const reward = rewards.find(item => item.title === title);
+function openRewardRule(id) {
+  const reward = getRewards().find(item => item.id === id);
   if (!reward) return;
   const eligible = partners.filter(partner => partner.points >= reward.points && ['Member','Silver','Gold','Black'].indexOf(partner.tier) >= ['Member','Silver','Gold','Black'].indexOf(reward.tier));
   $('#drawerReferralId').textContent = reward.code;
-  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${escapeHtml(reward.mark)}</div><div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.tier)} reward · ${reward.points.toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${reward.points.toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="primary-button" data-view-link="partners">View partner directory</button></div>`;
+  const inventory = reward.stock == null ? 'No inventory limit' : `${Number(reward.stock).toLocaleString('en-IN')} redemptions available`;
+  const validity = reward.validUntil ? `Available until ${new Date(`${reward.validUntil}T00:00:00`).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}` : 'No expiry date';
+  const isCustom = customRewards.some(item => item.id === reward.id);
+  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${escapeHtml(reward.mark)}</div><div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.type)} · ${escapeHtml(reward.tier)} · ${Number(reward.points).toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${Number(reward.points).toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span><span>◆ ${escapeHtml(inventory)}</span><span>◆ ${escapeHtml(validity)}</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="secondary-button" data-view-link="partners">View partners</button>${isCustom ? `<button class="primary-button" data-manage-reward="${escapeHtml(reward.id)}">Manage reward</button>` : ''}</div>`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
@@ -247,6 +267,45 @@ function openPartnerForm() {
     closeActionModal();
     switchView('partners');
     showToast('Partner added', `${partner.name} now appears in the partner directory.`);
+  });
+}
+
+function openRewardEditor(id = '') {
+  const existing = customRewards.find(item => item.id === id);
+  const type = existing?.type || 'Trip';
+  const tier = existing?.tier || 'Gold';
+  const status = existing?.status || 'Published';
+  const today = new Date().toISOString().slice(0,10);
+  const option = (value, selected) => `<option${value === selected ? ' selected' : ''}>${value}</option>`;
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">${existing ? 'MANAGE REWARD' : 'NEW REWARD'}</p><h2 id="actionModalTitle">${existing ? 'Update catalogue reward.' : 'Create a reward partners can earn.'}</h2></div><form id="rewardForm"><div class="form-grid"><label class="span-2">Reward name<input name="title" required maxlength="70" value="${escapeHtml(existing?.title || '')}" placeholder="Example: Dubai design experience"></label><label>Reward type<select name="type" required>${['Trip','Gadget','Experience','Service','Voucher','Other'].map(value => option(value,type)).join('')}</select></label><label>Eligible tier<select name="tier" required>${['Member','Silver','Gold','Black'].map(value => option(value,tier)).join('')}</select></label><label>Points required<input name="points" type="number" min="1" step="100" required value="${existing?.points || 30000}" placeholder="30,000"></label><label>Available quantity<input name="stock" type="number" min="1" step="1" required value="${existing?.stock || 10}" placeholder="10"></label><label>Available until<input name="validUntil" type="date" min="${today}" value="${escapeHtml(existing?.validUntil || '')}"></label><label>Catalogue status<select name="status" required>${['Published','Draft'].map(value => option(value,status)).join('')}</select></label><label class="span-2">What the partner receives<textarea name="copy" rows="4" maxlength="220" required placeholder="Describe the reward and fulfilment clearly.">${escapeHtml(existing?.copy || '')}</textarea></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">${existing ? 'Save reward' : 'Add to catalogue'}</button></div></form>`);
+  $('#rewardForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    if (data.validUntil && data.validUntil < today) return showToast('Check reward validity','The availability date cannot be in the past.','!');
+    const now = new Date().toISOString();
+    const reward = {
+      id: existing?.id || `reward-${Date.now()}`,
+      code: existing?.code || `${data.type.slice(0,3).toUpperCase()}-${String(Date.now()).slice(-3)}`,
+      type:data.type,
+      tier:data.tier,
+      title:data.title.trim(),
+      copy:data.copy.trim(),
+      points:Number(data.points),
+      stock:Number(data.stock),
+      validUntil:data.validUntil,
+      status:data.status,
+      mark:rewardMark(data.type),
+      createdAt:existing?.createdAt || now,
+      updatedAt:now
+    };
+    if (existing) Object.assign(existing,reward);
+    else customRewards.unshift(reward);
+    localStorage.setItem('vantage_custom_rewards', JSON.stringify(customRewards));
+    renderRewards();
+    closeActionModal();
+    closeDrawer();
+    switchView('rewards');
+    showToast(existing ? 'Reward updated' : 'Reward added', `${reward.title} is ${reward.status === 'Published' ? 'live in the partner catalogue' : 'saved as a draft'}.`, reward.status === 'Published' ? '✓' : '◇');
   });
 }
 
@@ -273,7 +332,7 @@ function openRedemptionHold(id) {
     item.status = 'On hold';
     item.holdReason = new FormData(event.currentTarget).get('reason').trim();
     item.heldAt = new Date().toISOString();
-    localStorage.setItem('vantage_redemptions',JSON.stringify(redemptions));
+    persistRedemptions();
     renderRedemptions();
     closeActionModal();
     showToast('Redemption held', `${item.id} is on hold with a recorded reason.`,'!');
@@ -363,16 +422,19 @@ document.addEventListener('click', event => {
   const redemptionFilter = event.target.closest('[data-redemption-filter]');
   if (redemptionFilter) { activeRedemptionFilter = redemptionFilter.dataset.redemptionFilter; $$('[data-redemption-filter]').forEach(button => button.classList.toggle('active', button === redemptionFilter)); renderRedemptions(); return; }
   const approve = event.target.closest('[data-approve-redemption]');
-  if (approve) { const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';localStorage.setItem('vantage_redemptions',JSON.stringify(redemptions));renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
+  if (approve) { const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';persistRedemptions();renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
   const hold = event.target.closest('[data-reject-redemption]');
   if (hold) { openRedemptionHold(hold.dataset.rejectRedemption); return; }
   const fraudCase = event.target.closest('[data-resolve-case]');
   if (fraudCase) { openFraudCase(fraudCase.dataset.resolveCase); return; }
   const caseAction = event.target.closest('[data-case-action]');
   if (caseAction) { resolveFraudCase(caseAction.dataset.caseId, caseAction.dataset.caseAction); return; }
+  const manageReward = event.target.closest('[data-manage-reward]');
+  if (manageReward) { openRewardEditor(manageReward.dataset.manageReward); return; }
   const rewardInfo = event.target.closest('[data-reward-info]');
   if (rewardInfo) { openRewardRule(rewardInfo.dataset.rewardInfo); return; }
   if (event.target.closest('#invitePartner')) { openPartnerForm(); return; }
+  if (event.target.closest('#addReward')) { openRewardEditor(); return; }
   if (event.target.closest('#editRules') || event.target.closest('#editEarning')) { openRuleEditor(); return; }
   if (event.target.closest('#openNotifications')) { openNotifications(); return; }
   if (event.target.closest('#exportReferrals')) { downloadCsv('vantage-referrals.csv',[['Referral ID','Customer','Partner','Partner type','Vertical','Value','Proof','Status'],...referrals.map(r=>[r.id,r.customer,r.partner,r.partnerType,r.vertical,r.value,`${r.proof}/3`,r.status])]); showToast('Referral register exported','The complete referral register is downloading.','⇩'); return; }
@@ -387,6 +449,17 @@ $('#partnerSearch').addEventListener('input', renderPartners);
 $('#partnerTierFilter').addEventListener('change', renderPartners);
 $('#globalSearch').addEventListener('keydown', event => { if (event.key === 'Enter') { switchView('referrals'); $('#referralSearch').value = event.currentTarget.value; renderReferrals(); }});
 document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeActionModal(); closeDrawer(); document.body.classList.remove('menu-open'); }});
+window.addEventListener('storage', event => {
+  if (event.key === 'vantage_custom_rewards') {
+    customRewards = JSON.parse(event.newValue || '[]').map(reward => ({type:'Other',status:'Published',stock:10,validUntil:'',mark:'V',...reward}));
+    renderRewards();
+  }
+  if (event.key === 'vantage_partner_redemptions') {
+    partnerRedemptions = JSON.parse(event.newValue || '[]');
+    redemptions = [...partnerRedemptions, ...programmeRedemptions];
+    renderRedemptions();
+  }
+});
 
 $('#referralForm').addEventListener('submit', event => {
   event.preventDefault();

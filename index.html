@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="premium.css?v=20260824-4" />
+  <link rel="stylesheet" href="premium.css?v=20260824-5" />
 </head>
 <body>
   <div class="app-shell">
@@ -128,13 +128,13 @@
         </section>
 
         <section class="view" id="rewards">
-          <div class="page-heading"><div><p class="eyebrow">TIER & REWARD ENGINE</p><h1>Recognition that follows value.</h1></div><button class="secondary-button" id="editRules">⚙ Edit programme rules</button></div>
+          <div class="page-heading"><div><p class="eyebrow">TIER & REWARD ENGINE</p><h1>Recognition that follows value.</h1></div><div class="heading-actions"><button class="secondary-button" id="editRules">⚙ Edit programme rules</button><button class="primary-button" id="addReward">＋ Add reward</button></div></div>
           <section class="tier-ladder"><article class="tier-card member"><span>01 · MEMBER</span><strong>0</strong><p>Starting points</p><div>Welcome catalogue</div></article><article class="tier-card silver"><span>02 · SILVER</span><strong data-tier-threshold="Silver">10,000</strong><p>Points required</p><div>Service & product rewards</div></article><article class="tier-card gold"><span>03 · GOLD</span><strong data-tier-threshold="Gold">30,000</strong><p>Points required</p><div>Premium catalogue</div></article><article class="tier-card black"><span>04 · BLACK</span><strong data-tier-threshold="Black">75,000</strong><p>Points required</p><div>Signature privileges</div></article></section>
           <section class="reward-layout">
             <article class="panel"><div class="panel-heading"><div><p class="eyebrow">EARNING LOGIC</p><h2>Points by verified outcome</h2></div><button class="text-button" id="editEarning">Edit rules</button></div><div class="earning-rule"><span class="rule-icon">K</span><p><b>Modular kitchen conversion</b><small>After final payment clearance</small></p><strong data-rule-output="base">1 pt / ₹100</strong></div><div class="earning-rule"><span class="rule-icon">A</span><p><b>Home automation conversion</b><small>After installation sign-off</small></p><strong data-rule-output="automation">1.2× points</strong></div><div class="earning-rule"><span class="rule-icon">AV</span><p><b>Audio / video conversion</b><small>After final payment clearance</small></p><strong data-rule-output="base">1 pt / ₹100</strong></div><div class="earning-rule"><span class="rule-icon">＋</span><p><b>Cross-vertical bonus</b><small>Second vertical within 12 months</small></p><strong data-rule-output="bonus">+5,000 pts</strong></div></article>
             <article class="panel points-liability"><div class="panel-heading"><div><p class="eyebrow">POINTS POSITION</p><h2>Programme liability</h2></div><span>FY 2026</span></div><div class="liability-number"><strong>18.42 L</strong><span>points outstanding</span></div><div class="liability-bars"><div><span>Available</span><i><b style="width:68%"></b></i><strong>12.52 L</strong></div><div><span>Pending</span><i><b style="width:22%"></b></i><strong>4.06 L</strong></div><div><span>Expiring</span><i><b style="width:10%"></b></i><strong>1.84 L</strong></div></div><p>₹9.21 L estimated redemption value</p></article>
           </section>
-          <div class="section-heading"><div><p class="eyebrow">REWARD CATALOGUE</p><h2>Eligible by tier</h2></div><div class="filter-pills"><button class="active" data-reward-filter="all">All</button><button data-reward-filter="Silver">Silver</button><button data-reward-filter="Gold">Gold</button><button data-reward-filter="Black">Black</button></div></div>
+          <div class="section-heading"><div><p class="eyebrow">REWARD CATALOGUE</p><h2>Eligible by tier</h2></div><div class="filter-pills"><button class="active" data-reward-filter="all">All</button><button data-reward-filter="Member">Member</button><button data-reward-filter="Silver">Silver</button><button data-reward-filter="Gold">Gold</button><button data-reward-filter="Black">Black</button></div></div>
           <div class="reward-grid" id="rewardGrid"></div>
         </section>
 
@@ -186,7 +186,7 @@
 
   <aside class="detail-drawer" id="referralDrawer" aria-hidden="true"><div class="drawer-head"><div><p class="eyebrow">REFERRAL RECORD</p><h2 id="drawerReferralId">VV-260824-0184</h2></div><button data-close-drawer>×</button></div><div id="drawerContent"></div></aside><div class="drawer-scrim" data-close-drawer></div>
   <div class="toast" id="toast"><span>✓</span><p><b id="toastTitle">Saved</b><small id="toastMessage">Your change has been recorded.</small></p></div>
-  <script src="app.js?v=20260824-4"></script>
+  <script src="app.js?v=20260824-5"></script>
   <script src="pwa.js" defer></script>
 </body>
 </html>

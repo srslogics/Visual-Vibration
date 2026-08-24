@@ -92,6 +92,23 @@ test('does not use explanatory popups as substitute actions', async () => {
   assert.match(partnerJs, /activeLedgerFilter/);
 });
 
+test('lets the owner create and publish rewards to the partner catalogue', async () => {
+  const [directorHtml, directorJs, partnerJs] = await Promise.all([
+    (await request('/')).text(),
+    (await request('/app.js')).text(),
+    (await request('/partner.js')).text()
+  ]);
+  assert.match(directorHtml, /id="addReward"/);
+  assert.match(directorHtml, /data-reward-filter="Member"/);
+  assert.match(directorJs, /function openRewardEditor/);
+  assert.match(directorJs, /vantage_custom_rewards/);
+  assert.match(directorJs, /Available quantity/);
+  assert.match(directorJs, /Catalogue status/);
+  assert.match(partnerJs, /CUSTOM_REWARD_KEY/);
+  assert.match(partnerJs, /availableRewards\(\)/);
+  assert.match(partnerJs, /vantage_partner_redemptions/);
+});
+
 test('returns safe responses for unsupported routes and methods', async () => {
   assert.equal((await request('/missing')).status, 404);
   assert.equal((await request('/', 'POST')).status, 405);

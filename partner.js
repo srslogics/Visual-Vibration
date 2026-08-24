@@ -6,15 +6,17 @@ const REFERRAL_KEY = 'vantage_custom_referrals';
 const PARTNER_REFERRAL_KEY = 'vantage_partner_referrals';
 const OVERRIDE_KEY = 'vantage_referral_overrides';
 const LEDGER_KEY = 'vantage_partner_ledger';
+const CUSTOM_REWARD_KEY = 'vantage_custom_rewards';
+const PARTNER_REDEMPTION_KEY = 'vantage_partner_redemptions';
 const PREVIEW_OTP = '246810';
 
-const rewards = [
-  {tier:'Member',title:'Design consultation credit',copy:'A private consultation for you or a nominated customer.',points:5000,mark:'DC'},
-  {tier:'Silver',title:'Annual care upgrade',copy:'One complimentary annual maintenance visit on an eligible installation.',points:12000,mark:'12'},
-  {tier:'Silver',title:'Modulinea service credit',copy:'₹5,000 service credit for you or a nominated client.',points:15000,mark:'M'},
-  {tier:'Gold',title:'Chef’s table experience',copy:'A curated dining experience for two at a partner destination.',points:32000,mark:'✦'},
-  {tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated premium audio accessory catalogue.',points:38000,mark:'AV'},
-  {tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V'}
+const seedRewards = [
+  {id:'partner-design-credit',type:'Service',tier:'Member',title:'Design consultation credit',copy:'A private consultation for you or a nominated customer.',points:5000,mark:'DC'},
+  {id:'reward-amc',type:'Service',tier:'Silver',title:'Annual care upgrade',copy:'One complimentary annual maintenance visit on an eligible installation.',points:12000,mark:'12'},
+  {id:'reward-mod',type:'Voucher',tier:'Silver',title:'Modulinea service credit',copy:'₹5,000 service credit for you or a nominated client.',points:15000,mark:'M'},
+  {id:'reward-din',type:'Experience',tier:'Gold',title:'Chef’s table experience',copy:'A curated dining experience for two at a partner destination.',points:32000,mark:'✦'},
+  {id:'reward-av',type:'Gadget',tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated premium audio accessory catalogue.',points:38000,mark:'AV'},
+  {id:'reward-ret',type:'Trip',tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V'}
 ];
 const savedProgramRules = readJson('vantage_program_rules', {});
 const tierThresholds = {Member:0,Silver:Number(savedProgramRules.Silver || 10000),Gold:Number(savedProgramRules.Gold || 30000),Black:Number(savedProgramRules.Black || 75000)};
@@ -40,6 +42,11 @@ function initials(name) { return String(name || 'Partner').split(/\s+/).slice(0,
 function maskMobile(mobile) { const value = digits(mobile).slice(-10); return value.length === 10 ? `${value.slice(0,2)}••• ${value.slice(-5)}` : 'Mobile protected'; }
 function displayMobile(mobile) { const value = digits(mobile).slice(-10); return value.length === 10 ? `+91 ••••• ${value.slice(-5)}` : 'Verified'; }
 function formatPoints(value) { return Number(value || 0).toLocaleString('en-IN'); }
+function availableRewards() {
+  const today = new Date().toISOString().slice(0,10);
+  const custom = readJson(CUSTOM_REWARD_KEY, []).map(reward => ({type:'Other',status:'Published',stock:10,validUntil:'',mark:'V',...reward})).filter(reward => reward.status === 'Published' && (!reward.validUntil || reward.validUntil >= today) && Number(reward.stock || 0) > 0);
+  return [...custom, ...seedRewards];
+}
 function formatINR(value) {
   const number = Number(value || 0);
   return number >= 100000 ? `₹${(number / 100000).toFixed(number % 100000 ? 1 : 0)} L` : `₹${number.toLocaleString('en-IN')}`;
@@ -152,10 +159,10 @@ function renderRewards() {
   const tier = currentTier(points);
   $('#rewardBalance').textContent = `${formatPoints(points)} pts`;
   $('#rewardTier').textContent = `${tier.toUpperCase()} PARTNER`;
-  $('#portalRewardGrid').innerHTML = rewards.map(reward => {
+  $('#portalRewardGrid').innerHTML = availableRewards().map(reward => {
     const unlocked = points >= reward.points && tierRank(tier) >= tierRank(reward.tier);
-    const action = unlocked ? `<button data-redeem-reward="${escapeHtml(reward.title)}">Redeem</button>` : `<span class="reward-lock">Need ${formatPoints(Math.max(0,reward.points - points))} pts</span>`;
-    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong>${action}</footer></article>`;
+    const action = unlocked ? `<button data-redeem-reward="${escapeHtml(reward.id)}">Redeem</button>` : `<span class="reward-lock">Need ${formatPoints(Math.max(0,reward.points - points))} pts</span>`;
+    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.type || 'Reward')} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong>${action}</footer></article>`;
   }).join('');
 }
 function renderLedger() {
@@ -338,13 +345,23 @@ document.addEventListener('click', event => {
   }
   const redeem = event.target.closest('[data-redeem-reward]');
   if (redeem) {
-    const reward = rewards.find(item => item.title === redeem.dataset.redeemReward);
+    const reward = availableRewards().find(item => item.id === redeem.dataset.redeemReward);
     const tier = currentTier(profile.points);
     if (!reward || profile.points < reward.points || tierRank(tier) < tierRank(reward.tier)) return;
     profile.points -= reward.points;
     writeJson(PROFILE_KEY, profile);
     ledger.unshift({type:'debit',title:reward.title,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),source:'Reward redemption',points:reward.points});
     writeJson(LEDGER_KEY, ledger);
+    const customRewards = readJson(CUSTOM_REWARD_KEY, []);
+    const customReward = customRewards.find(item => item.id === reward.id);
+    if (customReward) {
+      customReward.stock = Math.max(0, Number(customReward.stock || 0) - 1);
+      writeJson(CUSTOM_REWARD_KEY, customRewards);
+    }
+    const now = new Date();
+    const redemptionQueue = readJson(PARTNER_REDEMPTION_KEY, []);
+    redemptionQueue.unshift({id:`RD-${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getFullYear()).slice(-2)}-${String(Date.now()).slice(-4)}`,partner:profile.name,tier,reward:reward.title,rewardId:reward.id,points:reward.points,status:'Pending',date:now.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}),source:'partner-app'});
+    writeJson(PARTNER_REDEMPTION_KEY, redemptionQueue);
     renderPortal();
     showToast('Redemption requested','Points are reserved and fulfilment is now visible to the programme team.','◇');
   }
@@ -352,6 +369,9 @@ document.addEventListener('click', event => {
 $('#partnerMenu').addEventListener('click', () => {
   const isOpen = $('#partnerApp').classList.toggle('menu-open');
   $('#partnerMenu').setAttribute('aria-expanded', String(isOpen));
+});
+window.addEventListener('storage', event => {
+  if (event.key === CUSTOM_REWARD_KEY && profile) renderRewards();
 });
 $('#partnerReferralForm').addEventListener('submit', event => {
   event.preventDefault();
