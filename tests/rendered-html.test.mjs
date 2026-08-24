@@ -33,7 +33,7 @@ test('serves the self-service partner registration and referral app', async () =
   assert.match(response.headers.get('content-type') ?? '', /^text\/html/);
   const html = await response.text();
   assert.match(html, /Your introductions/);
-  assert.match(html, /CREATE YOUR PARTNER PROFILE/);
+  assert.match(html, /Choose your role\./);
   assert.match(html, /Automatic verification/);
   assert.match(html, /SECURE REFERRAL CONFIRMATION/);
   assert.match(html, /Points wallet/);

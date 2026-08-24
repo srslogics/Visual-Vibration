@@ -1113,3 +1113,75 @@ body, .app-shell, .partner-app, .entry-shell, .flow-screen, .confirm-screen {
   .my-referral-card>.my-referral-actions { grid-column: 2; }
   .my-referral-actions { justify-content: space-between; }
 }
+
+/* Compact registration experience */
+.entry-card {
+  max-width: 520px;
+  padding: 34px 36px 30px;
+  border-radius: 16px;
+}
+.entry-card .step-kicker { margin-bottom: 25px; }
+.entry-card h2 {
+  margin: 0 0 22px;
+  font-size: 34px;
+  line-height: 1.05;
+}
+.entry-card .role-grid { gap: 8px; margin-bottom: 20px; }
+.entry-card .role-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 88px;
+  padding: 12px 11px;
+  border-radius: 11px;
+}
+.entry-card .role-card>span {
+  width: 31px;
+  height: 31px;
+  margin: 0 0 10px;
+}
+.entry-card .role-card b { font-size: 12px; line-height: 1.25; }
+.entry-card .phone-input { min-height: 48px; }
+.entry-card .consent { margin: 12px 0; }
+.entry-card .continue-button { min-height: 48px; }
+.entry-card .sign-in { margin: 15px 0 0; }
+
+@media (min-width: 621px) and (max-width: 900px) {
+  .entry-story { min-height: 275px; padding: 28px 40px; }
+  .entry-story .story-copy { margin: auto 0; }
+  .entry-story .story-copy h1 { margin-block: 12px 0; font-size: 48px; }
+  .entry-story .story-note { display: none; }
+  .entry-panel { padding: 24px 18px 34px; }
+  .entry-card { width: min(520px,100%); }
+}
+
+@media (max-width: 620px) {
+  .entry-story { min-height: 260px; padding: 22px 20px 36px; }
+  .entry-story .partner-brand { margin-bottom: 0; }
+  .entry-story .story-copy { margin: auto 0; }
+  .entry-story .story-copy h1 { margin-block: 12px 0; font-size: clamp(38px,11.5vw,46px); }
+  .entry-story .story-note { display: none; }
+  .entry-panel {
+    padding: 0 13px 28px;
+    background: linear-gradient(var(--green) 0 28px,var(--cream) 28px);
+  }
+  .entry-card { padding: 25px 20px 22px; border-radius: 16px; }
+  .entry-card .step-kicker { margin-bottom: 22px; }
+  .entry-card h2 { margin-bottom: 18px; font-size: 30px; }
+  .entry-card .role-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+  .entry-card .role-card {
+    display: flex;
+    grid-template-columns: none;
+    min-height: 82px;
+    padding: 10px 8px;
+  }
+  .entry-card .role-card>span {
+    grid-row: auto;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 8px;
+  }
+  .entry-card .role-card b { font-size: 11px; }
+  .entry-card .consent span { font-size: 11px!important; line-height: 1.5; }
+  .entry-card .sign-in { font-size: 11px!important; }
+}
