@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vantage-shell-2026-08-24-1';
+const CACHE_NAME = 'vantage-shell-2026-08-24-2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -39,6 +39,17 @@ self.addEventListener('fetch', event => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() => caches.match(url.pathname.startsWith('/partner') ? '/partner.html' : '/'))
+    );
+    return;
+  }
+
+  const shouldRefresh = ['script', 'style', 'manifest'].includes(request.destination);
+  if (shouldRefresh) {
+    event.respondWith(
+      fetch(request).then(response => {
+        if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+        return response;
+      }).catch(() => caches.match(request))
     );
     return;
   }

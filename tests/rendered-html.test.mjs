@@ -74,6 +74,24 @@ test('provides installable director and partner PWA identities', async () => {
   assert.match(serviceWorker, /request\.mode === 'navigate'/);
 });
 
+test('does not use explanatory popups as substitute actions', async () => {
+  const [directorHtml, partnerHtml, directorJs, partnerJs] = await Promise.all([
+    (await request('/')).text(),
+    (await request('/partner')).text(),
+    (await request('/app.js')).text(),
+    (await request('/partner.js')).text()
+  ]);
+  const source = [directorHtml, partnerHtml, directorJs, partnerJs].join('\n');
+  assert.doesNotMatch(source, /Eligibility rule|Partner invitation ready|Programme rules protected|Case opened|Report prepared|Protected change requested|View eligibility/);
+  assert.match(directorJs, /openPartnerForm\(\)/);
+  assert.match(directorJs, /openRedemptionHold/);
+  assert.match(directorJs, /resolveFraudCase/);
+  assert.match(directorJs, /vantage-programme-report\.csv/);
+  assert.match(partnerHtml, /id="profileEditForm"/);
+  assert.match(partnerHtml, /id="ledgerFilter"/);
+  assert.match(partnerJs, /activeLedgerFilter/);
+});
+
 test('returns safe responses for unsupported routes and methods', async () => {
   assert.equal((await request('/missing')).status, 404);
   assert.equal((await request('/', 'POST')).status, 405);

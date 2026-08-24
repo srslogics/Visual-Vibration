@@ -322,6 +322,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .portal-toast b { font-size: 10px; }
 .portal-toast small { font-size: 9px; }
 
+.action-modal-card { width: min(690px, calc(100vw - 32px)); }
+.action-modal-card .modal-intro { margin-bottom: 26px; }
+.action-modal-card form > label, .case-note { display: grid; gap: 8px; color: #6f756e; font: 600 9px DM Mono,monospace; letter-spacing: .06em; text-transform: uppercase; }
+.action-modal-card textarea, .case-note textarea { width: 100%; resize: vertical; border: 1px solid #d8d3c9; border-radius: 10px; background: #fff; padding: 13px; color: #152d27; font: 500 12px Manrope,sans-serif; text-transform: none; letter-spacing: 0; }
+.notification-list button { width: 100%; border: 0; background: transparent; text-align: left; }
+.notification-list button:hover { background: rgba(16,42,36,.045); }
+.evidence-list { display: grid; gap: 9px; }
+.case-note { margin: 25px 0 4px; }
+.status-badge.on-hold { color: #9d6428; background: #f6e8d3; }
+.portal-reward-card .reward-lock { color: #817b70; font: 600 9px DM Mono,monospace; letter-spacing: .04em; }
+.user-chip { cursor: default; }
+
 @media (hover:hover) {
   .partner-metrics article:hover, .portal-reward-card:hover, .my-referral-card:hover { transform: translateY(-2px); box-shadow: var(--premium-shadow-hover); }
 }

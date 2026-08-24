@@ -9,7 +9,7 @@ const seedReferrals = [
   {id:'VV-220824-0146',customer:'Tanvi Wadhwa',mobile:'90••• 12884',partner:'Naina Shah',partnerType:'Interior designer',studio:'Form & Hue',vertical:'Architectural lighting',value:410000,proof:3,status:'Verified',age:'4 days',city:'Nagpur',address:'Shankar Nagar, Nagpur'}
 ];
 
-const partners = [
+const seedPartners = [
   {name:'Aarav Mehta',initials:'AM',type:'Architect',studio:'Studio Arc',tier:'Black',referrals:38,conversion:'56%',revenue:'₹42.8 L',points:86420,next:'Signature Retreat',progress:86,color:'#17362f'},
   {name:'Naina Shah',initials:'NS',type:'Interior designer',studio:'Form & Hue',tier:'Gold',referrals:31,conversion:'48%',revenue:'₹31.4 L',points:54800,next:'Black at 75K',progress:73,color:'#c59b55'},
   {name:'Devika Batra',initials:'DB',type:'Interior designer',studio:'Line & Loom',tier:'Gold',referrals:27,conversion:'44%',revenue:'₹24.1 L',points:46600,next:'Black at 75K',progress:62,color:'#a9844d'},
@@ -18,6 +18,13 @@ const partners = [
   {name:'Vikram Lalwani',initials:'VL',type:'Customer advocate',studio:'Silver member',tier:'Silver',referrals:11,conversion:'36%',revenue:'₹9.4 L',points:18400,next:'Gold at 30K',progress:61,color:'#7c8883'},
   {name:'Mira Kothari',initials:'MK',type:'Architect',studio:'Mira Kothari Studio',tier:'Silver',referrals:9,conversion:'33%',revenue:'₹8.7 L',points:14200,next:'Gold at 30K',progress:47,color:'#647b72'},
   {name:'Anay Kulkarni',initials:'AK',type:'Interior designer',studio:'Object & Space',tier:'Member',referrals:4,conversion:'25%',revenue:'₹3.2 L',points:6800,next:'Silver at 10K',progress:68,color:'#b9734d'}
+];
+
+const defaultProgramRules = {Silver:10000,Gold:30000,Black:75000,baseRate:1,automationMultiplier:1.2,crossBonus:5000};
+const defaultFraudCases = [
+  {icon:'!',title:'Duplicate ownership claim',copy:'Manan Joshi was registered by two partners within 46 minutes. The earlier claim has customer consent.',tags:['High confidence match','₹6.8 L opportunity'],id:'VV-260824-0179',status:'Open',evidence:['Customer mobile matched an earlier record','First claim timestamp: 24 Aug, 10:32','Customer consent recorded on the earlier claim']},
+  {icon:'↔',title:'Project address overlap',copy:'Two customer records reference the same project site with different mobile numbers.',tags:['Address match 92%','Needs decision'],id:'VV-250824-0174',status:'Open',evidence:['Project address similarity: 92%','Customer mobile numbers are different','No consent received on the later claim']},
+  {icon:'◎',title:'Potential self-referral',copy:'Partner and customer records share a household identifier.',tags:['Identity overlap','Points on hold'],id:'VV-240824-0161',status:'Open',evidence:['Partner and customer identity data overlap','Reward points are held','No payout has been released']}
 ];
 
 const rewards = [
@@ -43,6 +50,10 @@ let customReferrals = JSON.parse(localStorage.getItem('vantage_custom_referrals'
 let referralOverrides = JSON.parse(localStorage.getItem('vantage_referral_overrides') || '{}');
 let referrals = [...customReferrals, ...seedReferrals].map(item => ({...item, ...(referralOverrides[item.id] || {})}));
 let redemptions = JSON.parse(localStorage.getItem('vantage_redemptions') || 'null') || redemptionSeed;
+let customPartners = JSON.parse(localStorage.getItem('vantage_custom_partners') || '[]');
+let partners = [...customPartners, ...seedPartners];
+let programRules = {...defaultProgramRules, ...(JSON.parse(localStorage.getItem('vantage_program_rules') || 'null') || {})};
+let fraudCases = JSON.parse(localStorage.getItem('vantage_fraud_cases') || 'null') || defaultFraudCases;
 let activeReferralFilter = 'all';
 let activePartnerType = 'all';
 let activeRewardFilter = 'all';
@@ -63,6 +74,36 @@ function showToast(title, message, symbol = '✓') {
   toast.classList.add('show');
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+async function copyText(value) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+  const input = document.createElement('textarea');
+  input.value = value;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  input.remove();
+}
+
+function openActionModal(content) {
+  $('#actionModalContent').innerHTML = content;
+  $('#actionModal').classList.add('open');
+  $('#actionModal').setAttribute('aria-hidden','false');
+  setTimeout(() => $('#actionModalContent input, #actionModalContent textarea, #actionModalContent select')?.focus(), 80);
+}
+
+function closeActionModal() {
+  $('#actionModal').classList.remove('open');
+  $('#actionModal').setAttribute('aria-hidden','true');
+  $('#actionModalContent').innerHTML = '';
+}
+
+function applyProgramRules() {
+  $$('[data-tier-threshold]').forEach(node => { node.textContent = Number(programRules[node.dataset.tierThreshold]).toLocaleString('en-IN'); });
+  $$('[data-rule-output="base"]').forEach(node => { node.textContent = `${programRules.baseRate} pt / ₹100`; });
+  $('[data-rule-output="automation"]').textContent = `${programRules.automationMultiplier}× points`;
+  $('[data-rule-output="bonus"]').textContent = `+${Number(programRules.crossBonus).toLocaleString('en-IN')} pts`;
 }
 
 function switchView(viewId) {
@@ -128,7 +169,7 @@ function renderPartners() {
 
 function renderRewards() {
   const filtered = rewards.filter(reward => activeRewardFilter === 'all' || reward.tier === activeRewardFilter);
-  $('#rewardGrid').innerHTML = filtered.map(reward => `<article class="reward-card"><div class="reward-visual">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${reward.points.toLocaleString('en-IN')} points</strong><button data-reward-info="${escapeHtml(reward.title)}">Eligibility →</button></footer></article>`).join('');
+  $('#rewardGrid').innerHTML = filtered.map(reward => `<article class="reward-card"><div class="reward-visual">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} · ${escapeHtml(reward.code)}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${reward.points.toLocaleString('en-IN')} points</strong><button data-reward-info="${escapeHtml(reward.title)}">View rule →</button></footer></article>`).join('');
 }
 
 function renderRedemptions() {
@@ -137,12 +178,12 @@ function renderRedemptions() {
 }
 
 function renderFraudCases() {
-  const cases = [
-    {icon:'!',title:'Duplicate ownership claim',copy:'Manan Joshi was registered by two partners within 46 minutes. The earlier claim has customer consent.',tags:['High confidence match','₹6.8 L opportunity'],id:'VV-260824-0179'},
-    {icon:'↔',title:'Project address overlap',copy:'Two customer records reference the same project site with different mobile numbers.',tags:['Address match 92%','Manual review'],id:'VV-250824-0174'},
-    {icon:'◎',title:'Potential self-referral',copy:'Partner and customer records share a PAN-linked household identifier.',tags:['Identity overlap','Points on hold'],id:'VV-240824-0161'}
-  ];
-  $('#fraudCases').innerHTML = cases.map(item => `<article class="fraud-case"><span class="risk-icon">${item.icon}</span><div><h3>${item.title}</h3><p>${item.copy}</p><div class="fraud-case-tags">${item.tags.map(tag => `<span>${tag}</span>`).join('')}</div></div><button data-resolve-case="${item.id}">Investigate →</button></article>`).join('');
+  const openCases = fraudCases.filter(item => item.status === 'Open');
+  $('#fraudCases').innerHTML = openCases.length ? openCases.map(item => `<article class="fraud-case"><span class="risk-icon">${item.icon}</span><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p><div class="fraud-case-tags">${item.tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}</div></div><button data-resolve-case="${escapeHtml(item.id)}">Investigate →</button></article>`).join('') : '<article class="panel empty-state">No unresolved fraud cases.</article>';
+  const fraudBadge = $('.nav-link[data-view-link="fraud"] .alert-count');
+  if (fraudBadge) fraudBadge.textContent = String(openCases.length).padStart(2,'0');
+  const riskPill = $('#fraud .risk-pill');
+  if (riskPill) riskPill.textContent = `${openCases.length} OPEN`;
 }
 
 function saveReferralOverride(id, changes) {
@@ -157,7 +198,7 @@ function openReferral(id) {
     <div class="drawer-profile"><div class="partner-avatar">${initials(item.partner)}</div><div><h3>${escapeHtml(item.partner)}</h3><p>${escapeHtml(item.partnerType)} · ${escapeHtml(item.studio || 'Verified partner')}</p></div><span class="tier-chip ${item.status === 'Conflict' ? 'member' : 'gold'}">${escapeHtml(item.status).toUpperCase()}</span></div>
     <div class="drawer-proof"><h3>${escapeHtml(item.partner)} → ${escapeHtml(item.customer)}</h3><div class="verification-checks"><span>✓ Partner identity</span><span class="${item.proof < 2 ? 'missing' : ''}">${item.proof >= 2 ? '✓' : '○'} Customer consent</span><span class="${item.proof < 3 ? 'missing' : ''}">${item.proof >= 3 ? '✓' : '○'} Opportunity match</span></div></div>
     <div class="drawer-timeline"><div class="timeline-event"><span>✓</span><p><b>Referral registered</b><small>${escapeHtml(item.partner)} created this referral with customer and project details.</small></p></div><div class="timeline-event ${item.proof < 2 ? 'pending' : ''}"><span>${item.proof >= 2 ? '✓' : '02'}</span><p><b>Customer consent</b><small>${item.proof >= 2 ? `${escapeHtml(item.customer)} confirmed through secure OTP.` : `Verification sent to ${escapeHtml(item.mobile)}. Awaiting response.`}</small></p></div><div class="timeline-event ${item.proof < 3 ? 'pending' : ''}"><span>${item.proof >= 3 ? '✓' : '03'}</span><p><b>Opportunity ownership</b><small>${item.proof >= 3 ? `${escapeHtml(item.vertical)} opportunity linked at ${formatINR(item.value)}.` : 'Lead and project match pending review.'}</small></p></div><div class="timeline-event pending"><span>04</span><p><b>Invoice & points</b><small>Points release after payment clearance and the 15-day cooling period.</small></p></div></div>
-    <div class="drawer-actions"><button class="secondary-button" data-send-otp="${escapeHtml(item.id)}">Send verification</button>${item.proof >= 3 && item.status !== 'Verified' ? `<button class="primary-button" data-quick-verify="${escapeHtml(item.id)}">Approve & lock</button>` : `<button class="primary-button" data-view-link="referrals">Open registry</button>`}</div>`;
+    <div class="drawer-actions"><button class="secondary-button" data-send-otp="${escapeHtml(item.id)}">Copy verification link</button>${item.proof >= 3 && item.status !== 'Verified' ? `<button class="primary-button" data-quick-verify="${escapeHtml(item.id)}">Approve & lock</button>` : `<button class="primary-button" data-view-link="referrals">Open registry</button>`}</div>`;
   $('#referralDrawer').classList.add('open');
   $('#referralDrawer').setAttribute('aria-hidden','false');
 }
@@ -168,9 +209,107 @@ function openPartner(name) {
   $('#drawerReferralId').textContent = 'PARTNER PROFILE';
   $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${partner.initials}</div><div><h3>${escapeHtml(partner.name)}</h3><p>${escapeHtml(partner.studio)} · ${escapeHtml(partner.type)}</p></div><span class="tier-chip ${partner.tier.toLowerCase()}">${partner.tier.toUpperCase()}</span></div><div class="summary-strip" style="grid-template-columns:repeat(3,1fr)"><div><small>REFERRALS</small><strong>${partner.referrals}</strong></div><div><small>CONVERSION</small><strong>${partner.conversion}</strong></div><div><small>REVENUE</small><strong>${partner.revenue}</strong></div></div><div class="drawer-proof"><h3>${partner.points.toLocaleString('en-IN')} available points</h3><div class="partner-progress"><div><i style="width:${partner.progress}%"></i></div><span>${partner.next}</span></div></div><div class="drawer-timeline"><div class="timeline-event"><span>✓</span><p><b>Identity and KYC verified</b><small>Mobile, email and partner identity validated.</small></p></div><div class="timeline-event"><span>✓</span><p><b>Reward account active</b><small>Points ledger reconciled with converted referrals.</small></p></div><div class="timeline-event pending"><span>→</span><p><b>${partner.next}</b><small>${Math.max(0,75000-partner.points).toLocaleString('en-IN')} points to the next signature tier where applicable.</small></p></div></div><div class="drawer-actions"><button class="secondary-button" data-view-link="referrals">View referrals</button><button class="primary-button" data-view-link="rewards">View rewards</button></div>`;
   $('#referralDrawer').classList.add('open');
+  $('#referralDrawer').setAttribute('aria-hidden','false');
 }
 
-function closeDrawer() { $('#referralDrawer').classList.remove('open'); }
+function openNotifications() {
+  const conflicts = referrals.filter(item => item.status === 'Conflict').slice(0, 3);
+  const pending = redemptions.filter(item => item.status === 'Pending').slice(0, 2);
+  $('#drawerReferralId').textContent = 'NOTIFICATIONS';
+  $('#drawerContent').innerHTML = `<div class="drawer-timeline notification-list">
+    ${conflicts.map(item => `<button class="timeline-event" data-open-referral="${escapeHtml(item.id)}"><span>!</span><p><b>${escapeHtml(item.id)} needs review</b><small>${escapeHtml(item.customer)} · ${escapeHtml(item.exceptionReason || 'Ownership conflict')}</small></p></button>`).join('')}
+    ${pending.map(item => `<button class="timeline-event" data-view-link="redemptions"><span>◇</span><p><b>${escapeHtml(item.id)} awaits approval</b><small>${escapeHtml(item.partner)} · ${escapeHtml(item.reward)}</small></p></button>`).join('')}
+  </div>${conflicts.length + pending.length ? '' : '<div class="empty-state">You are all caught up.</div>'}`;
+  $('#referralDrawer').classList.add('open');
+  $('#referralDrawer').setAttribute('aria-hidden','false');
+}
+
+function openRewardRule(title) {
+  const reward = rewards.find(item => item.title === title);
+  if (!reward) return;
+  const eligible = partners.filter(partner => partner.points >= reward.points && ['Member','Silver','Gold','Black'].indexOf(partner.tier) >= ['Member','Silver','Gold','Black'].indexOf(reward.tier));
+  $('#drawerReferralId').textContent = reward.code;
+  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${escapeHtml(reward.mark)}</div><div><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.tier)} reward · ${reward.points.toLocaleString('en-IN')} points</p></div><span class="tier-chip ${reward.tier.toLowerCase()}">${reward.tier.toUpperCase()}</span></div><div class="drawer-proof"><h3>Redemption rule</h3><div class="verification-checks"><span>✓ ${escapeHtml(reward.tier)} tier or above</span><span>✓ ${reward.points.toLocaleString('en-IN')} available points</span><span>✓ No active account hold</span></div></div><div class="drawer-proof"><h3>${eligible.length} eligible partners</h3><p>${eligible.length ? eligible.map(item => escapeHtml(item.name)).join(' · ') : 'No partner currently meets both requirements.'}</p></div><div class="drawer-actions"><button class="primary-button" data-view-link="partners">View partner directory</button></div>`;
+  $('#referralDrawer').classList.add('open');
+  $('#referralDrawer').setAttribute('aria-hidden','false');
+}
+
+function openPartnerForm() {
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">NEW PARTNER</p><h2 id="actionModalTitle">Add a verified partner.</h2></div><form id="partnerForm"><div class="form-grid"><label>Full name<input name="name" required placeholder="Partner name"></label><label>Partner type<select name="type" required><option>Architect</option><option>Interior designer</option><option>Customer advocate</option></select></label><label>Studio / organisation<input name="studio" required placeholder="Studio or organisation"></label><label>Mobile number<input name="mobile" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required placeholder="10-digit mobile"></label><label class="span-2">Email address<input name="email" type="email" required placeholder="name@studio.com"></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Add partner</button></div></form>`);
+  $('#partnerForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const partner = {name:data.name,initials:initials(data.name),type:data.type,studio:data.studio,mobile:data.mobile,email:data.email,tier:'Member',referrals:0,conversion:'0%',revenue:'₹0',points:0,next:`Silver at ${Number(programRules.Silver).toLocaleString('en-IN')}`,progress:0,color:'#647b72'};
+    customPartners.unshift(partner);
+    partners.unshift(partner);
+    localStorage.setItem('vantage_custom_partners', JSON.stringify(customPartners));
+    renderPartners();
+    closeActionModal();
+    switchView('partners');
+    showToast('Partner added', `${partner.name} now appears in the partner directory.`);
+  });
+}
+
+function openRuleEditor() {
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">PROGRAMME RULES</p><h2 id="actionModalTitle">Edit tiers and earning logic.</h2></div><form id="programRulesForm"><div class="form-grid"><label>Silver threshold<input name="Silver" type="number" min="1" step="1000" value="${programRules.Silver}" required></label><label>Gold threshold<input name="Gold" type="number" min="1" step="1000" value="${programRules.Gold}" required></label><label>Black threshold<input name="Black" type="number" min="1" step="1000" value="${programRules.Black}" required></label><label>Base points per ₹100<input name="baseRate" type="number" min="0.1" step="0.1" value="${programRules.baseRate}" required></label><label>Automation multiplier<input name="automationMultiplier" type="number" min="1" step="0.1" value="${programRules.automationMultiplier}" required></label><label>Cross-vertical bonus<input name="crossBonus" type="number" min="0" step="500" value="${programRules.crossBonus}" required></label></div><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Save rules</button></div></form>`);
+  $('#programRulesForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const values = Object.fromEntries([...new FormData(event.currentTarget)].map(([key,value]) => [key, Number(value)]));
+    if (!(values.Silver < values.Gold && values.Gold < values.Black)) return showToast('Check tier thresholds','Silver, Gold and Black must increase in that order.','!');
+    programRules = values;
+    localStorage.setItem('vantage_program_rules', JSON.stringify(programRules));
+    applyProgramRules();
+    closeActionModal();
+    showToast('Programme rules saved','Updated thresholds now apply across the director and partner apps.');
+  });
+}
+
+function openRedemptionHold(id) {
+  const item = redemptions.find(row => row.id === id);
+  if (!item) return;
+  openActionModal(`<div class="modal-intro"><p class="eyebrow">HOLD REDEMPTION</p><h2 id="actionModalTitle">Record the reason.</h2><p>${escapeHtml(item.id)} · ${escapeHtml(item.partner)} · ${escapeHtml(item.reward)}</p></div><form id="redemptionHoldForm"><label>Reason for hold<textarea name="reason" rows="4" required placeholder="Enter the specific reason"></textarea></label><div class="form-footer"><button type="button" class="secondary-button" data-close-action-modal>Cancel</button><button class="primary-button" type="submit">Place on hold</button></div></form>`);
+  $('#redemptionHoldForm').addEventListener('submit', event => {
+    event.preventDefault();
+    item.status = 'On hold';
+    item.holdReason = new FormData(event.currentTarget).get('reason').trim();
+    item.heldAt = new Date().toISOString();
+    localStorage.setItem('vantage_redemptions',JSON.stringify(redemptions));
+    renderRedemptions();
+    closeActionModal();
+    showToast('Redemption held', `${item.id} is on hold with a recorded reason.`,'!');
+  });
+}
+
+function openFraudCase(id) {
+  const item = fraudCases.find(row => row.id === id);
+  if (!item) return;
+  $('#drawerReferralId').textContent = item.id;
+  $('#drawerContent').innerHTML = `<div class="drawer-profile"><div class="partner-avatar">${item.icon}</div><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.copy)}</p></div><span class="tier-chip member">OPEN</span></div><div class="drawer-proof"><h3>Recorded evidence</h3><div class="verification-checks evidence-list">${item.evidence.map(value => `<span>◆ ${escapeHtml(value)}</span>`).join('')}</div></div><label class="case-note">Decision note<textarea id="caseDecisionNote" rows="3" placeholder="Optional internal note"></textarea></label><div class="drawer-actions"><button class="secondary-button" data-case-action="clear" data-case-id="${escapeHtml(item.id)}">Clear claim</button><button class="primary-button" data-case-action="block" data-case-id="${escapeHtml(item.id)}">Block claim</button></div>`;
+  $('#referralDrawer').classList.add('open');
+  $('#referralDrawer').setAttribute('aria-hidden','false');
+}
+
+function resolveFraudCase(id, action) {
+  const item = fraudCases.find(row => row.id === id);
+  if (!item) return;
+  item.status = action === 'block' ? 'Blocked' : 'Cleared';
+  item.decisionNote = $('#caseDecisionNote')?.value.trim() || '';
+  item.resolvedAt = new Date().toISOString();
+  localStorage.setItem('vantage_fraud_cases', JSON.stringify(fraudCases));
+  const referral = referrals.find(row => row.id === id);
+  if (referral) {
+    const changes = action === 'block' ? {status:'Rejected',proof:1} : {status:'Verified',proof:3};
+    Object.assign(referral, changes);
+    saveReferralOverride(id, changes);
+  }
+  renderReferrals();
+  renderVerification();
+  renderFraudCases();
+  closeDrawer();
+  showToast(action === 'block' ? 'Claim blocked' : 'Claim cleared', `${id} was resolved and added to the audit history.`, action === 'block' ? '!' : '✓');
+}
+
+function closeDrawer() { $('#referralDrawer').classList.remove('open'); $('#referralDrawer').setAttribute('aria-hidden','true'); }
 function openRegister() { $('#registerModal').classList.add('open'); $('#registerModal').setAttribute('aria-hidden','false'); setTimeout(() => $('#partnerName')?.focus(), 100); }
 function closeModal() { $('#registerModal').classList.remove('open'); $('#registerModal').setAttribute('aria-hidden','true'); }
 
@@ -188,6 +327,7 @@ document.addEventListener('click', event => {
   if (viewLink) { event.preventDefault(); switchView(viewLink.dataset.viewLink); closeDrawer(); return; }
   if (event.target.closest('[data-open-register]')) { openRegister(); return; }
   if (event.target.closest('[data-close-modal]')) { closeModal(); return; }
+  if (event.target.closest('[data-close-action-modal]')) { closeActionModal(); return; }
   if (event.target.closest('[data-close-drawer]')) { closeDrawer(); return; }
   if (event.target.closest('[data-close-menu]')) { document.body.classList.remove('menu-open'); return; }
   const openButton = event.target.closest('[data-open-referral]');
@@ -202,7 +342,18 @@ document.addEventListener('click', event => {
     return;
   }
   const otpButton = event.target.closest('[data-send-otp]');
-  if (otpButton) { showToast('Verification sent', `A secure OTP link was queued for ${otpButton.dataset.sendOtp}.`, '→'); return; }
+  if (otpButton) {
+    const id = otpButton.dataset.sendOtp;
+    const item = referrals.find(referral => referral.id === id);
+    if (!item) return;
+    if (!customReferrals.some(referral => referral.id === id)) {
+      customReferrals.unshift(item);
+      localStorage.setItem('vantage_custom_referrals', JSON.stringify(customReferrals));
+    }
+    const link = `${location.origin}/partner.html?confirm=${encodeURIComponent(id)}`;
+    copyText(link).then(() => showToast('Verification link copied', `Share the link with ${item.customer}.`, '↗'));
+    return;
+  }
   const referralFilter = event.target.closest('[data-referral-filter]');
   if (referralFilter) { activeReferralFilter = referralFilter.dataset.referralFilter; $$('[data-referral-filter]').forEach(button => button.classList.toggle('active', button === referralFilter)); renderReferrals(); return; }
   const partnerFilter = event.target.closest('[data-partner-filter]');
@@ -213,13 +364,21 @@ document.addEventListener('click', event => {
   if (redemptionFilter) { activeRedemptionFilter = redemptionFilter.dataset.redemptionFilter; $$('[data-redemption-filter]').forEach(button => button.classList.toggle('active', button === redemptionFilter)); renderRedemptions(); return; }
   const approve = event.target.closest('[data-approve-redemption]');
   if (approve) { const item = redemptions.find(row => row.id === approve.dataset.approveRedemption); if(item){item.status='Approved';localStorage.setItem('vantage_redemptions',JSON.stringify(redemptions));renderRedemptions();showToast('Redemption approved',`${item.reward} is ready for fulfilment.`);} return; }
-  if (event.target.closest('[data-reject-redemption]')) { showToast('Request placed on hold','A reason is now required before points can be released.','!'); return; }
-  if (event.target.closest('[data-resolve-case]')) { showToast('Case opened','Evidence comparison and ownership history are ready for review.','!'); return; }
-  if (event.target.closest('[data-reward-info]')) { showToast('Eligibility rule','Current tier, point balance and cooling period are checked automatically.','◇'); return; }
-  if (event.target.closest('#invitePartner')) { showToast('Partner invitation ready','A secure KYC invitation link has been prepared.','→'); return; }
-  if (event.target.closest('#editRules') || event.target.closest('#editEarning')) { showToast('Programme rules protected','Rule changes require manager confirmation and create a new version.','◆'); return; }
+  const hold = event.target.closest('[data-reject-redemption]');
+  if (hold) { openRedemptionHold(hold.dataset.rejectRedemption); return; }
+  const fraudCase = event.target.closest('[data-resolve-case]');
+  if (fraudCase) { openFraudCase(fraudCase.dataset.resolveCase); return; }
+  const caseAction = event.target.closest('[data-case-action]');
+  if (caseAction) { resolveFraudCase(caseAction.dataset.caseId, caseAction.dataset.caseAction); return; }
+  const rewardInfo = event.target.closest('[data-reward-info]');
+  if (rewardInfo) { openRewardRule(rewardInfo.dataset.rewardInfo); return; }
+  if (event.target.closest('#invitePartner')) { openPartnerForm(); return; }
+  if (event.target.closest('#editRules') || event.target.closest('#editEarning')) { openRuleEditor(); return; }
+  if (event.target.closest('#openNotifications')) { openNotifications(); return; }
   if (event.target.closest('#exportReferrals')) { downloadCsv('vantage-referrals.csv',[['Referral ID','Customer','Partner','Partner type','Vertical','Value','Proof','Status'],...referrals.map(r=>[r.id,r.customer,r.partner,r.partnerType,r.vertical,r.value,`${r.proof}/3`,r.status])]); showToast('Referral register exported','The complete referral register is downloading.','⇩'); return; }
-  if (event.target.closest('#downloadSettlement') || event.target.closest('#downloadReport') || event.target.closest('#exportAudit')) { showToast('Report prepared','The verified report is ready for download.','⇩'); return; }
+  if (event.target.closest('#downloadSettlement')) { downloadCsv('vantage-settlement-report.csv',[['Request','Date','Partner','Tier','Reward','Points','Status','Hold reason'],...redemptions.map(r=>[r.id,r.date,r.partner,r.tier,r.reward,r.points,r.status,r.holdReason || ''])]); showToast('Settlement report downloaded','The current redemption register is in the CSV file.','⇩'); return; }
+  if (event.target.closest('#downloadReport')) { const period = $('#reportPeriod').value; downloadCsv('vantage-programme-report.csv',[['Period','Metric','Value'],[period,'Referral-attributed revenue','₹4.82 Cr'],[period,'Partner ROI','8.4×'],[period,'Average referred project','₹9.6 L'],[period,'Fraud loss rate','0.18%'],[period,'Referral records',referrals.length],...partners.map(p=>[period,`${p.name} attributed revenue`,p.revenue])]); showToast('Programme report downloaded',`${period} report is in the CSV file.`,'⇩'); return; }
+  if (event.target.closest('#exportAudit')) { downloadCsv('vantage-ownership-audit.csv',[['Time','Event','Record','Status'],['11:42','Customer confirmation and opportunity match','VV-260824-0183','Verified'],['11:18','Duplicate customer mobile detected','VV-260824-0179','Blocked'],['10:56','Customer confirmation received','VV-260824-0184','Locked'],...fraudCases.filter(item=>item.resolvedAt).map(item=>[new Date(item.resolvedAt).toLocaleString('en-IN'),item.decisionNote || item.title,item.id,item.status])]); showToast('Audit exported','The ownership history is in the CSV file.','⇩'); return; }
 });
 
 $('#menuButton').addEventListener('click', () => document.body.classList.toggle('menu-open'));
@@ -227,7 +386,7 @@ $('#referralSearch').addEventListener('input', renderReferrals);
 $('#partnerSearch').addEventListener('input', renderPartners);
 $('#partnerTierFilter').addEventListener('change', renderPartners);
 $('#globalSearch').addEventListener('keydown', event => { if (event.key === 'Enter') { switchView('referrals'); $('#referralSearch').value = event.currentTarget.value; renderReferrals(); }});
-document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeDrawer(); document.body.classList.remove('menu-open'); }});
+document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal(); closeActionModal(); closeDrawer(); document.body.classList.remove('menu-open'); }});
 
 $('#referralForm').addEventListener('submit', event => {
   event.preventDefault();
@@ -257,3 +416,4 @@ renderPartners();
 renderRewards();
 renderRedemptions();
 renderFraudCases();
+applyProgramRules();

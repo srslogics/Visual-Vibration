@@ -16,7 +16,8 @@ const rewards = [
   {tier:'Gold',title:'Premium audio accessory',copy:'Choose from a curated premium audio accessory catalogue.',points:38000,mark:'AV'},
   {tier:'Black',title:'Signature design retreat',copy:'Two-day invitation-only architecture and design experience.',points:80000,mark:'V'}
 ];
-const tierThresholds = {Member:0,Silver:10000,Gold:30000,Black:75000};
+const savedProgramRules = readJson('vantage_program_rules', {});
+const tierThresholds = {Member:0,Silver:Number(savedProgramRules.Silver || 10000),Gold:Number(savedProgramRules.Gold || 30000),Black:Number(savedProgramRules.Black || 75000)};
 const viewTitles = {home:'HOME',referrals:'MY REFERRALS',rewards:'REWARDS',wallet:'POINTS WALLET',profile:'MY PROFILE'};
 
 let selectedRole = 'Architect';
@@ -24,6 +25,7 @@ let profile = readJson(PROFILE_KEY, null);
 let partnerReferrals = readJson(PARTNER_REFERRAL_KEY, []);
 let ledger = readJson(LEDGER_KEY, []);
 let activeReferralFilter = 'all';
+let activeLedgerFilter = 'all';
 let latestConfirmationId = '';
 let otpTimerHandle;
 
@@ -152,12 +154,14 @@ function renderRewards() {
   $('#rewardTier').textContent = `${tier.toUpperCase()} PARTNER`;
   $('#portalRewardGrid').innerHTML = rewards.map(reward => {
     const unlocked = points >= reward.points && tierRank(tier) >= tierRank(reward.tier);
-    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong><button data-redeem-reward="${escapeHtml(reward.title)}" ${unlocked ? '' : 'aria-disabled="true"'}>${unlocked ? 'Redeem' : 'View eligibility'}</button></footer></article>`;
+    const action = unlocked ? `<button data-redeem-reward="${escapeHtml(reward.title)}">Redeem</button>` : `<span class="reward-lock">Need ${formatPoints(Math.max(0,reward.points - points))} pts</span>`;
+    return `<article class="portal-reward-card ${unlocked ? '' : 'locked'}"><div class="portal-reward-art">${escapeHtml(reward.mark)}</div><span>${escapeHtml(reward.tier).toUpperCase()} ${unlocked ? '· AVAILABLE' : '· LOCKED'}</span><h3>${escapeHtml(reward.title)}</h3><p>${escapeHtml(reward.copy)}</p><footer><strong>${formatPoints(reward.points)} points</strong>${action}</footer></article>`;
   }).join('');
 }
 function renderLedger() {
   $('#walletPoints').textContent = formatPoints(profile.points || 0);
-  $('#pointsLedger').innerHTML = ledger.length ? ledger.map(item => `<div class="ledger-row ${item.type === 'debit' ? 'debit' : ''}"><span>${item.type === 'debit' ? '−' : '+'}</span><p><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.date)} · ${escapeHtml(item.source)}</small></p><strong>${item.type === 'debit' ? '−' : '+'}${formatPoints(item.points)} pts</strong></div>`).join('') : '<div class="portal-empty compact"><h3>Your ledger is ready.</h3><p>Points appear here after a verified referral converts and its payment clears.</p></div>';
+  const visible = ledger.filter(item => activeLedgerFilter === 'all' || item.type === activeLedgerFilter);
+  $('#pointsLedger').innerHTML = visible.length ? visible.map(item => `<div class="ledger-row ${item.type === 'debit' ? 'debit' : ''}"><span>${item.type === 'debit' ? '−' : '+'}</span><p><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.date)} · ${escapeHtml(item.source)}</small></p><strong>${item.type === 'debit' ? '−' : '+'}${formatPoints(item.points)} pts</strong></div>`).join('') : '<div class="portal-empty compact"><h3>No matching activity.</h3><p>Choose another activity type to view your ledger.</p></div>';
 }
 function renderPortal() {
   profile.points = Number(profile.points || 0);
@@ -271,9 +275,10 @@ $('#entryForm').addEventListener('submit', event => {
 });
 $('#signInButton').addEventListener('click', () => {
   const mobileInput = $('input[name="mobile"]');
-  if (profile) mobileInput.value = digits(profile.mobile).slice(-10);
-  mobileInput.focus();
-  showToast(profile ? 'Registered profile found' : 'Enter your registered mobile','We will verify it with a one-time password.','→');
+  const mobile = digits(mobileInput.value || profile?.mobile).slice(-10);
+  if (mobile.length !== 10) { mobileInput.focus(); return showToast('Check mobile number','Enter your registered 10-digit mobile number.','!'); }
+  mobileInput.value = mobile;
+  beginOtp(mobile, true);
 });
 $$('[data-back-entry]').forEach(button => button.addEventListener('click', () => showScreen('entryScreen')));
 $$('.otp-boxes input').forEach((input,index,inputs) => {
@@ -322,6 +327,7 @@ document.addEventListener('click', event => {
   if (event.target.closest('[data-open-partner-referral]')) { modalState($('#partnerReferralModal'), true); setTimeout(() => $('#partnerReferralForm input')?.focus(), 80); return; }
   if (event.target.closest('[data-close-partner-modal]')) { modalState($('#partnerReferralModal'), false); return; }
   if (event.target.closest('[data-close-result]')) { modalState($('#resultModal'), false); return; }
+  if (event.target.closest('[data-close-profile-edit]')) { modalState($('#profileEditModal'), false); return; }
   const filter = event.target.closest('[data-my-filter]');
   if (filter) { activeReferralFilter = filter.dataset.myFilter; $$('[data-my-filter]').forEach(button => button.classList.toggle('active', button === filter)); renderReferrals(); return; }
   const share = event.target.closest('[data-copy-confirmation]');
@@ -334,7 +340,7 @@ document.addEventListener('click', event => {
   if (redeem) {
     const reward = rewards.find(item => item.title === redeem.dataset.redeemReward);
     const tier = currentTier(profile.points);
-    if (!reward || profile.points < reward.points || tierRank(tier) < tierRank(reward.tier)) return showToast('Reward still locked',`${reward?.tier || 'Required'} tier and ${formatPoints(reward?.points || 0)} points are required.`,'◇');
+    if (!reward || profile.points < reward.points || tierRank(tier) < tierRank(reward.tier)) return;
     profile.points -= reward.points;
     writeJson(PROFILE_KEY, profile);
     ledger.unshift({type:'debit',title:reward.title,date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),source:'Reward redemption',points:reward.points});
@@ -373,7 +379,24 @@ $('#rejectReferral').addEventListener('click', () => {
   showToast('Referral paused','No points or ownership will be released.','!');
 });
 $('#signOut').addEventListener('click', () => { sessionStorage.removeItem(SESSION_KEY); showScreen('entryScreen'); showToast('Signed out','Your verified profile remains ready for the next sign-in.','→'); });
-$('#editProfile').addEventListener('click', () => showToast('Protected change requested','Sensitive edits require a new OTP and automated identity re-check.','◆'));
+$('#editProfile').addEventListener('click', () => {
+  const form = $('#profileEditForm');
+  form.elements.studio.value = profile.studio || '';
+  form.elements.city.value = profile.city || '';
+  form.elements.email.value = profile.email || '';
+  modalState($('#profileEditModal'), true);
+  setTimeout(() => form.elements.studio.focus(), 80);
+});
+$('#profileEditForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.currentTarget));
+  profile = {...profile,studio:data.studio.trim(),city:data.city.trim(),email:data.email.trim()};
+  writeJson(PROFILE_KEY, profile);
+  modalState($('#profileEditModal'), false);
+  renderPortal();
+  showToast('Profile updated','Your studio, city and email were saved.');
+});
+$('#ledgerFilter').addEventListener('change', event => { activeLedgerFilter = event.currentTarget.value; renderLedger(); });
 $('#downloadStatement').addEventListener('click', () => {
   const rows = [['Date','Activity','Source','Points'],...ledger.map(item => [item.date,item.title,item.source,`${item.type === 'debit' ? '-' : '+'}${item.points}`])];
   const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"','""')}"`).join(',')).join('\n');
@@ -388,6 +411,7 @@ document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
   modalState($('#partnerReferralModal'), false);
   modalState($('#resultModal'), false);
+  modalState($('#profileEditModal'), false);
   $('#partnerApp').classList.remove('menu-open');
   $('#partnerMenu')?.setAttribute('aria-expanded', 'false');
 });
