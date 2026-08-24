@@ -1,19 +1,24 @@
 /* Vantage premium experience layer
    Calm hierarchy, tactile controls and restrained Visual Vibrations detailing. */
 :root {
-  --ink: #14211d;
-  --green: #102a24;
-  --green-2: #1c4339;
-  --cream: #f1ede3;
-  --paper: #fbf9f4;
-  --line: #d9d4c8;
-  --muted: #68736e;
-  --wine: #7b4847;
-  --ochre: #bc9458;
-  --gold: #d0b477;
-  --mint: #c9d8cf;
-  --premium-shadow: 0 1px 0 rgba(255,255,255,.78) inset, 0 18px 48px rgba(15,39,32,.07);
-  --premium-shadow-hover: 0 1px 0 rgba(255,255,255,.84) inset, 0 24px 62px rgba(15,39,32,.11);
+  --ink: #171a2e;
+  --green: #171b3d;
+  --green-2: #29265f;
+  --cream: #f4f6f6;
+  --paper: #fcfdfd;
+  --line: #d7e1e7;
+  --muted: #657482;
+  --wine: #4d4f94;
+  --ochre: #079fd3;
+  --gold: #c6aa70;
+  --mint: #dcecf2;
+  --cyan: #079fd3;
+  --cyan-action: #087ea4;
+  --cyan-deep: #066987;
+  --indigo: #29265f;
+  --danger: #a64f5b;
+  --premium-shadow: 0 1px 0 rgba(255,255,255,.82) inset, 0 18px 48px rgba(23,27,61,.08);
+  --premium-shadow-hover: 0 1px 0 rgba(255,255,255,.88) inset, 0 24px 62px rgba(23,27,61,.13);
 }
 
 html { scroll-behavior: smooth; }
@@ -29,7 +34,7 @@ button, a, input, select, .panel, .partner-panel, .metric-card, .role-card {
   transition: border-color .22s ease, background-color .22s ease, color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--cyan);
   outline-offset: 3px;
 }
 .eyebrow { font-size: 10px; line-height: 1.45; letter-spacing: .16em; }
@@ -706,4 +711,155 @@ body { font-size: 16px; }
   .table-row small, .status-badge { font-size: 12px!important; }
   .reward-image-uploader { grid-template-columns: 1fr; }
   .reward-image-preview { max-height: 180px; }
+}
+
+/* Visual Vibrations identity
+   Midnight structure, signature cyan interaction, pearl surfaces and quiet champagne detail. */
+body, .app-shell, .partner-app, .entry-shell, .flow-screen, .confirm-screen {
+  color: var(--ink);
+  background: var(--cream);
+}
+.sidebar, .partner-sidebar, .entry-story, .fraud-hero, .tier-hero, .mobile-tier-card,
+.metric-card.dark, .wallet-balance {
+  background:
+    radial-gradient(circle at 0 0, rgba(7,159,211,.18), transparent 36%),
+    linear-gradient(145deg, var(--green), var(--green-2));
+}
+.sidebar, .partner-sidebar { box-shadow: 18px 0 60px rgba(23,27,61,.12); }
+.brand small, .partner-brand small, .story-copy>p:last-child, .story-note,
+.partner-help small, .sidebar-profile small, .tier-hero p, .tier-hero small,
+.mobile-tier-card p, .fraud-hero>div:first-child>p:last-child, .shield-stats span,
+.shield-score small { color: #aebbd0; }
+.experience-seal.light, .story-note span, .story-copy h1 em, .fraud-hero h1 em,
+.tier-orb, .mobile-tier-card span, .shield-score>span { color: #d8c28f; }
+.brand-mark, .partner-brand>span, .flow-brand>span {
+  border-color: rgba(7,159,211,.55);
+  box-shadow: 0 0 0 5px rgba(7,159,211,.08);
+}
+.primary-nav p, .partner-sidebar nav button { color: #9eacc2; }
+.nav-link span, .nav-link i, .partner-sidebar nav button>i { color: #7fd2ee; }
+.nav-link:not(.active):hover, .partner-sidebar nav button:not(.active):hover {
+  color: #fff;
+  background: rgba(7,159,211,.12);
+}
+.nav-link.active, .partner-sidebar nav button.active {
+  color: var(--green);
+  background: #eef7fa;
+  box-shadow: 0 10px 28px rgba(5,14,42,.2);
+}
+.nav-link.active span, .nav-link.active i, .partner-sidebar nav button.active>i {
+  color: var(--cyan-deep);
+  background: #d9eff6;
+}
+.integrity-card, .partner-help { border-color: rgba(7,159,211,.24); }
+.integrity-card>span, .integrity-card i { color: #70d0ef; }
+.sidebar-profile>span { color: var(--green); background: #d9eff6; }
+
+.topbar, .partner-topbar {
+  border-color: rgba(166,184,196,.48);
+  background: rgba(244,246,246,.9);
+}
+.panel, .partner-panel, .metric-card, .entry-card, .flow-card, .confirm-card,
+.partner-metrics article, .reward-card, .portal-reward-card, .my-referral-card,
+.points-chip, .report-kpis article, .partner-card, .modal-card, .detail-drawer {
+  border-color: var(--line);
+  background: var(--paper);
+}
+.metric-card:hover, .panel:hover, .partner-panel:hover, .partner-card:hover,
+.reward-card:hover, .portal-reward-card:hover { border-color: #b8d4df; }
+.global-search, .table-search, .phone-input, .entry-card input:not([type="checkbox"]),
+.profile-form input, .portal-modal-card input:not([type="checkbox"]),
+.portal-modal-card select, .form-grid input:not([type="checkbox"]), .form-grid select {
+  border-color: var(--line);
+  background: rgba(255,255,255,.82);
+}
+.phone-input:focus-within, .profile-form input:focus, .portal-modal-card input:focus,
+.portal-modal-card select:focus, .form-grid input:focus, .form-grid select:focus,
+.otp-boxes input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 4px rgba(7,159,211,.13);
+}
+
+.primary-button, .new-referral-button, .continue-button, .reward-image-button,
+.table-action button.approve, .reward-card footer button.manage {
+  color: #fff;
+  border-color: var(--cyan-action);
+  background: var(--cyan-action);
+  box-shadow: 0 11px 26px rgba(8,126,164,.2);
+}
+.primary-button:hover, .new-referral-button:hover, .continue-button:hover,
+.reward-image-button:hover, .table-action button.approve:hover,
+.reward-card footer button.manage:hover {
+  border-color: var(--cyan-deep);
+  background: var(--cyan-deep);
+  box-shadow: 0 14px 32px rgba(6,105,135,.26);
+}
+.secondary-button:hover, .icon-button:hover, .my-referral-actions button:hover,
+.reward-card footer button:not(.manage):hover, .portal-reward-card footer button:hover {
+  color: var(--cyan-deep);
+  border-color: #91cddd;
+  background: #eef8fb;
+}
+.text-button, .sign-in button, .resend-button, .partner-panel-head button,
+.next-reward>div:last-child button, .portal-referral-row>button,
+.portal-reward-card footer button, .reward-image-remove { color: var(--cyan-deep); }
+.role-card.active, .partner-types button.active, .filter-pills button.active,
+.referral-filter-row button.active {
+  color: #fff;
+  border-color: var(--cyan-action);
+  background: var(--cyan-action);
+}
+.role-card.active>span, .partner-types button.active>span {
+  color: var(--cyan-deep);
+  background: #e8f5f9;
+}
+.role-card.active small, .partner-types button.active small { color: #d8f2fa; }
+.step-kicker>span.active, .referral-journey span.on, .liability-bars b,
+.tier-progress>i b { background: var(--cyan); }
+
+.secure-note, .confirm-record, .drawer-proof, .consent-label,
+.reward-card.draft, .reward-image-uploader { background: #f0f5f6; }
+.secure-note>span, .flow-symbol, .timeline-event>span, .portal-referral-row>span:first-child,
+.my-referral-card>span:first-child, .toast>span, .form-section>span {
+  color: #fff;
+  background: var(--indigo);
+}
+.confirm-symbol, .auto-checks span, .portal-status.verified {
+  color: #126783;
+  background: #dceff5;
+}
+.earning-rule .rule-icon, .reward-visual, .portal-reward-art, .reward-art,
+.reward-image-preview {
+  color: var(--indigo);
+  background: linear-gradient(135deg,#dceff5,#f5f4ef);
+}
+.reward-visual.has-image, .portal-reward-art.has-image { background: #dce8ee; }
+.reward-card-meta span { color: #5c6e7a; background: #edf3f5; }
+.reward-publish-state { background: var(--indigo); }
+.tier-progress>i, .referral-journey span, .liability-bars i { background: #34406d; }
+.referral-journey span, .liability-bars i { background: #dce5e9; }
+.partner-card:before, .partner-progress i { background: var(--partner-color,var(--cyan)); }
+
+.report-chart>div { background: var(--cyan-action); box-shadow: inset 0 var(--p) #c6aa70; }
+.legend i, .mix-legend i { background: var(--cyan-action); }
+.legend span:last-child i { background: var(--gold); }
+.mix-donut { background: conic-gradient(var(--cyan-action) 0 44%,var(--indigo) 44% 82%,var(--gold) 82% 100%); }
+.mix-legend i.designer { background: var(--indigo); }
+.mix-legend i.customer { background: var(--gold); }
+
+.notification span, .alert-count, .status-badge.urgent, .risk-pill,
+.portal-status.conflict, .audit-dot.alert {
+  color: var(--danger);
+  border-color: #e2b8bf;
+  background: #f4e1e4;
+}
+.audit-dot.alert { background: var(--danger); }
+.risk-icon { color: var(--danger); background: #f4e1e4; }
+.modal-backdrop, .drawer-scrim { background: rgba(12,15,43,.62); }
+.toast { border-color: #b5dce7; background: #f6fbfc; box-shadow: 0 20px 55px rgba(23,27,61,.18); }
+
+@media (max-width: 760px) {
+  .sidebar-scrim { background: rgba(12,15,43,.58); }
+  .partner-bottom-nav { border-color: #d4e0e6; background: rgba(252,253,253,.96); }
+  .partner-bottom-nav button.active { color: var(--cyan-deep); }
 }
