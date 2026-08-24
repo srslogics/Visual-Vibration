@@ -184,17 +184,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .partner-brand small { font-size: 8px; letter-spacing: .15em; }
 .story-copy h1 { max-width: 680px; font-size: clamp(48px,5.3vw,76px); line-height: .98; }
 .story-copy>p:last-child { max-width: 680px; font-size: 14px; line-height: 1.85; }
-.proof-promise>div { padding: 17px 0; }
-.proof-promise>div>span { font-size: 10px; }
-.proof-promise b { font-size: 12px; }
-.proof-promise small { margin-top: 4px; font-size: 10px; line-height: 1.5; }
 .story-note {
-  display: grid;
-  gap: 4px;
-  font-size: 11px;
-  letter-spacing: .01em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 620px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,.12);
+  color: #aeb9cc;
+  font: 500 12px/1.6 Manrope,sans-serif;
+  letter-spacing: 0;
 }
-.story-note span { color: #d4c39b; font: 600 8px DM Mono,monospace; letter-spacing: .16em; text-transform: uppercase; }
+.story-note span {
+  flex: 0 0 auto;
+  color: #d4c39b;
+  font: 600 8px DM Mono,monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
 .entry-panel { padding: 40px; }
 .entry-card, .flow-card, .confirm-card {
   border: 1px solid rgba(214,207,194,.9);
@@ -392,9 +399,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .entry-story .partner-brand { margin-bottom: 64px; }
   .story-copy h1 { font-size: 49px; }
   .story-copy>p:last-child { font-size: 13px; }
-  .proof-promise { margin-top: 40px; }
-  .proof-promise>div:last-child { border-bottom: 0; }
-  .story-note { margin-top: 22px; }
+  .story-note { align-items: flex-start; margin-top: 22px; }
   .entry-panel { padding: 0 12px 28px; background: var(--green); }
   .entry-card { max-width: none; padding: 30px 20px; border-radius: 18px; }
   .entry-card h2, .flow-card h1, .confirm-card h1 { font-size: 34px; }
