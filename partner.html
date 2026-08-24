@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#17362f" />
-  <meta name="description" content="Join the Visual Vibrations partner programme, register verified referrals and unlock rewards." />
-  <title>Vantage Circle · Partner App</title>
+  <meta name="theme-color" content="#102a24" />
+  <meta name="description" content="A private recognition and rewards experience for the Visual Vibrations partner circle." />
+  <title>Vantage Circle · Private Partner Experience</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="partner.css" />
   <link rel="stylesheet" href="partner-app.css" />
+  <link rel="stylesheet" href="premium.css" />
 </head>
 <body>
   <main class="entry-shell" id="entryScreen">
     <section class="entry-story">
       <a class="partner-brand" href="partner.html"><span>VV</span><div><b>Vantage Circle</b><small>VISUAL VIBRATIONS PARTNER PROGRAMME</small></div></a>
-      <div class="story-copy"><p class="eyebrow light">ARCHITECTS · DESIGNERS · CUSTOMERS</p><h1>Your introductions<br>deserve <em>recognition.</em></h1><p>Register your referral in under a minute. Vantage verifies ownership automatically, keeps every milestone visible and releases rewards when the project qualifies.</p></div>
+      <div class="story-copy"><div class="experience-seal light"><span></span> THE PRIVATE PARTNER CIRCLE</div><p class="eyebrow light">ARCHITECTS · DESIGNERS · CUSTOMERS</p><h1>Your introductions<br>deserve <em>recognition.</em></h1><p>Register your referral in under a minute. Vantage verifies ownership automatically, keeps every milestone visible and releases rewards when the project qualifies.</p></div>
       <div class="proof-promise"><div><span>01</span><p><b>Register first</b><small>Your referral receives an immediate timestamp.</small></p></div><div><span>02</span><p><b>Customer confirms</b><small>A secure OTP locks attribution automatically.</small></p></div><div><span>03</span><p><b>Track and earn</b><small>Follow the project and unlock tier rewards.</small></p></div></div>
-      <p class="story-note">No calls to claim ownership. No paperwork. No ambiguity.</p>
+      <p class="story-note"><span>Visual Vibrations promise</span>No calls to claim ownership. No paperwork. No ambiguity.</p>
     </section>
     <section class="entry-panel">
       <div class="entry-card">
@@ -38,7 +39,7 @@
       <button class="back-link" data-back-entry>← Back</button><div class="step-kicker"><span class="active"></span><span class="active"></span><span></span><small>STEP 2 OF 3</small></div>
       <div class="flow-symbol">•••</div><p class="eyebrow">MOBILE VERIFICATION</p><h1>Confirm it’s you.</h1><p>Enter the six-digit code sent to <strong id="otpMobile">+91 ••••• ••490</strong>.</p>
       <form id="otpForm"><label>One-time password<div class="otp-boxes"><input inputmode="numeric" maxlength="1" required /><input inputmode="numeric" maxlength="1" required /><input inputmode="numeric" maxlength="1" required /><input inputmode="numeric" maxlength="1" required /><input inputmode="numeric" maxlength="1" required /><input inputmode="numeric" maxlength="1" required /></div></label><button class="continue-button" type="submit">Verify automatically <span>→</span></button></form>
-      <button class="resend-button" id="resendOtp">Resend code in <span id="otpTimer">00:28</span></button><p class="demo-hint">Product preview code · <b>246810</b></p>
+      <button class="resend-button" id="resendOtp">Resend code in <span id="otpTimer">00:28</span></button><p class="demo-hint">Secure preview access · <b>246810</b></p>
     </section>
   </main>
 
@@ -62,11 +63,11 @@
       <div class="partner-help"><span>?</span><p><b>Need help?</b><small>Talk to the partner desk</small></p></div><button class="sidebar-profile" data-partner-view="profile"><span id="sidebarInitials">AM</span><p><b id="sidebarName">Aarav Mehta</b><small id="sidebarRole">Architect · Black</small></p><i>•••</i></button>
     </aside>
     <section class="partner-main">
-      <header class="partner-topbar"><button class="partner-menu" id="partnerMenu">☰</button><p><span>VANTAGE CIRCLE</span><b>/</b> <i id="partnerViewTitle">HOME</i></p><div><button class="notification">◌<span></span></button><button class="new-referral-button" data-open-partner-referral>＋ New referral</button></div></header>
+      <header class="partner-topbar"><button class="partner-menu" id="partnerMenu" aria-label="Open navigation" aria-expanded="false">☰</button><p><span>VANTAGE CIRCLE</span><b>/</b> <i id="partnerViewTitle">HOME</i></p><div><span class="member-service"><i></i> MEMBER SERVICE</span><button class="notification" aria-label="Notifications">◌<span></span></button><button class="new-referral-button" data-open-partner-referral>＋ New referral</button></div></header>
       <div class="partner-content">
         <section class="partner-view active" id="partner-home">
           <div class="partner-greeting"><div><p class="eyebrow" id="partnerDate">MONDAY · 24 AUGUST</p><h1>Good morning, <em id="greetingName">Aarav.</em></h1><p>Your referrals are protected. Here is what moved since your last visit.</p></div><button class="new-referral-button large" data-open-partner-referral>Register a referral <span>→</span></button></div>
-          <section class="tier-hero"><div><span class="tier-orb" id="tierOrb">B</span><div><p>YOUR CURRENT TIER</p><h2 id="homeTier">Black Partner</h2><small id="homePartnerType">Architect · Vantage Circle</small></div></div><div class="tier-balance"><p>AVAILABLE POINTS</p><strong id="homePoints">86,420</strong><small>Worth ₹43,210 in eligible rewards</small></div><div class="tier-progress"><div><span>2026 tier progress</span><b id="tierProgressText">11,420 pts above Black</b></div><i><b id="tierProgressBar" style="width:86%"></b></i><small>Tier protected until 31 March 2027</small></div></section>
+          <section class="tier-hero"><div class="tier-hero-intro"><span class="tier-orb" id="tierOrb">B</span><div><p>YOUR CURRENT TIER</p><h2 id="homeTier">Black Partner</h2><small id="homePartnerType">Architect · Vantage Circle</small></div></div><div class="tier-balance"><p>AVAILABLE POINTS</p><strong id="homePoints">86,420</strong><small>Worth ₹43,210 in eligible rewards</small></div><div class="tier-progress"><div><span>2026 tier progress</span><b id="tierProgressText">11,420 pts above Black</b></div><i><b id="tierProgressBar" style="width:86%"></b></i><small>Tier protected until 31 March 2027</small></div><span class="tier-watermark">VV</span></section>
           <section class="partner-metrics"><article><span>ACTIVE REFERRALS</span><strong id="activeReferralMetric">3</strong><p>2 awaiting customer action</p></article><article><span>VERIFIED CONVERSIONS</span><strong id="conversionMetric">12</strong><p>₹42.8 L attributed revenue</p></article><article><span>POINTS PENDING</span><strong>12,500</strong><p>Release after payment clearance</p></article><article><span>REWARDS REDEEMED</span><strong>04</strong><p>₹28,400 value received</p></article></section>
           <section class="partner-dashboard-grid"><article class="partner-panel"><div class="partner-panel-head"><div><p class="eyebrow">LIVE JOURNEY</p><h2>Latest referrals</h2></div><button data-partner-view="referrals">View all →</button></div><div id="homeReferralList"></div></article><article class="partner-panel next-reward"><p class="eyebrow">NEXT BEST REWARD</p><div class="reward-art">V</div><span>BLACK EXCLUSIVE</span><h2>Signature design retreat</h2><p>Two-day invitation-only architecture and design experience.</p><div><strong>80,000 points</strong><button data-partner-view="rewards">View reward →</button></div></article></section>
         </section>
@@ -87,7 +88,7 @@
 
   <div class="result-modal" id="resultModal" aria-hidden="true"><div class="portal-modal-backdrop" data-close-result></div><section class="result-card"><button class="portal-modal-close" data-close-result>×</button><div class="result-icon" id="resultIcon">✓</div><p class="eyebrow" id="resultEyebrow">AUTOMATIC CHECKS PASSED</p><h2 id="resultTitle">Your timestamp is protected.</h2><p id="resultCopy">The customer confirmation has been prepared. Ownership locks automatically when they confirm.</p><div class="auto-result-list" id="autoResultList"><span>✓ Partner identity verified</span><span>✓ No duplicate customer found</span><span>✓ No self-referral match</span><span>✓ Attribution timestamp created</span></div><label class="verification-link"><span>CUSTOMER CONFIRMATION LINK</span><div><input id="verificationLink" readonly /><button id="copyVerificationLink">Copy</button></div></label><button class="continue-button" id="openConfirmation">Preview customer confirmation <span>→</span></button></section></div>
 
-  <div class="portal-toast" id="portalToast"><span>✓</span><p><b id="portalToastTitle">Done</b><small id="portalToastMessage">Your update is saved.</small></p></div>
+  <div class="portal-toast" id="portalToast" role="status" aria-live="polite"><span>✓</span><p><b id="portalToastTitle">Done</b><small id="portalToastMessage">Your update is saved.</small></p></div>
   <script src="partner.js"></script>
 </body>
 </html>

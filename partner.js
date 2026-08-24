@@ -125,6 +125,7 @@ function switchPartnerView(view) {
   $$('[data-partner-view]').forEach(button => button.classList.toggle('active', button.dataset.partnerView === view));
   $('#partnerViewTitle').textContent = viewTitles[view];
   $('#partnerApp').classList.remove('menu-open');
+  $('#partnerMenu')?.setAttribute('aria-expanded', 'false');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function referralJourney(referral) {
@@ -342,7 +343,10 @@ document.addEventListener('click', event => {
     showToast('Redemption requested','Points are reserved and fulfilment is now visible to the programme team.','◇');
   }
 });
-$('#partnerMenu').addEventListener('click', () => $('#partnerApp').classList.toggle('menu-open'));
+$('#partnerMenu').addEventListener('click', () => {
+  const isOpen = $('#partnerApp').classList.toggle('menu-open');
+  $('#partnerMenu').setAttribute('aria-expanded', String(isOpen));
+});
 $('#partnerReferralForm').addEventListener('submit', event => {
   event.preventDefault();
   const referral = createReferral(event.currentTarget);
@@ -385,6 +389,7 @@ document.addEventListener('keydown', event => {
   modalState($('#partnerReferralModal'), false);
   modalState($('#resultModal'), false);
   $('#partnerApp').classList.remove('menu-open');
+  $('#partnerMenu')?.setAttribute('aria-expanded', 'false');
 });
 
 const confirmationId = new URLSearchParams(location.search).get('confirm');

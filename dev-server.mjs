@@ -7,6 +7,7 @@ const requestedPort = Number(process.env.PORT || 8020);
 let activePort = requestedPort;
 const assets = new Map([
   ['/styles.css', ['text/css; charset=utf-8', readFileSync(join(root, 'styles.css'))]],
+  ['/premium.css', ['text/css; charset=utf-8', readFileSync(join(root, 'premium.css'))]],
   ['/app.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'app.js'))]],
   ['/partner.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css'))]],
   ['/partner-app.css', ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css'))]],

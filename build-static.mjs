@@ -12,6 +12,7 @@ mkdirSync(clientDir, { recursive: true });
 
 const files = {
   '/styles.css': ['text/css; charset=utf-8', readFileSync(join(root, 'styles.css')).toString('base64')],
+  '/premium.css': ['text/css; charset=utf-8', readFileSync(join(root, 'premium.css')).toString('base64')],
   '/app.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'app.js')).toString('base64')],
   '/partner.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner.css')).toString('base64')],
   '/partner-app.css': ['text/css; charset=utf-8', readFileSync(join(root, 'partner-app.css')).toString('base64')],
@@ -68,6 +69,6 @@ export default {
 `;
 
 writeFileSync(join(serverDir, 'index.js'), worker);
-for (const file of ['index.html', 'styles.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js']) cpSync(join(root, file), join(clientDir, file));
+for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js']) cpSync(join(root, file), join(clientDir, file));
 cpSync(join(root, 'public/og.png'), join(clientDir, 'og.png'));
 console.log(`Built Vantage Referral Intelligence to ${dist}`);

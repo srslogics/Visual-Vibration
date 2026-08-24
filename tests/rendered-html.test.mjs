@@ -13,7 +13,7 @@ test('serves the complete Vantage referral product shell', async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type') ?? '', /^text\/html/);
   const html = await response.text();
-  assert.match(html, /Vantage · Referral Control Centre/);
+  assert.match(html, /Vantage · Private Referral Intelligence/);
   assert.match(html, /Every referral/);
   assert.match(html, /Automation handles the routine/);
   assert.match(html, /Tiers & rewards/);
@@ -37,8 +37,9 @@ test('serves the self-service partner registration and referral app', async () =
 });
 
 test('serves application assets with correct content types', async () => {
-  const [css, js, partnerCss, partnerJs, image] = await Promise.all([request('/styles.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'), request('/og.png')]);
+  const [css, premiumCss, js, partnerCss, partnerJs, image] = await Promise.all([request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'), request('/og.png')]);
   assert.match(css.headers.get('content-type') ?? '', /^text\/css/);
+  assert.match(premiumCss.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(js.headers.get('content-type') ?? '', /^text\/javascript/);
   assert.match(partnerCss.headers.get('content-type') ?? '', /^text\/css/);
   assert.match(partnerJs.headers.get('content-type') ?? '', /^text\/javascript/);
