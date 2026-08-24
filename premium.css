@@ -526,6 +526,22 @@ body { font-size: 16px; }
 .portal-reward-card footer strong { font-size: 12px!important; }
 .portal-reward-card footer button { min-height: 38px; padding-inline: 12px; }
 
+.section-heading {
+  align-items: flex-end;
+  gap: 18px 28px;
+  flex-wrap: wrap;
+}
+.section-heading>div:first-child { flex: 1 1 280px; min-width: 0; }
+.section-heading h2 { white-space: normal; }
+.section-heading .filter-pills {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: max-content;
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 @media (max-width: 1180px) {
   .reward-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .portal-reward-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -537,6 +553,14 @@ body { font-size: 16px; }
   .partner-bottom-nav button { font-size: 11px!important; }
   .reward-card, .portal-reward-card { min-height: 300px; }
   .reward-card h3, .portal-reward-card h3 { font-size: 20px; }
+  .section-heading { align-items: flex-start; }
+  .section-heading>div:first-child { flex-basis: 100%; }
+  .section-heading .filter-pills {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 520px) {
