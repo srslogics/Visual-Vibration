@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#171b3d" />
+  <meta name="description" content="How Vantage verifies referral ownership and prevents reward leakage for Visual Vibrations." />
+  <meta property="og:title" content="Vantage Assurance · Every reward earns its proof" />
+  <meta property="og:description" content="The evidence chain behind verified referral ownership." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://visual-vibration.onrender.com/assurance" />
+  <meta property="og:image" content="https://visual-vibration.onrender.com/og.png" />
+  <title>Vantage Assurance · How Referral Protection Works</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assurance.css?v=20260825-1" />
+</head>
+<body>
+  <header class="assurance-nav">
+    <a class="assurance-brand" href="/assurance" aria-label="Vantage Assurance home"><span><img src="/visual-vibrations-logo.jpg" alt="" /></span><div><b>Vantage Assurance</b><small>BY VISUAL VIBRATIONS</small></div></a>
+    <nav aria-label="Application links"><a href="/">Director dashboard</a><a class="nav-primary" href="/partner.html">Partner app ↗</a></nav>
+  </header>
+
+  <main>
+    <section class="assurance-hero">
+      <div class="hero-copy">
+        <p class="eyebrow light"><span></span> REFERRAL OWNERSHIP PROTOCOL</p>
+        <h1>Every reward<br />must earn <em>its proof.</em></h1>
+        <p class="hero-intro">Vantage does not reward a claim. It rewards a verified chain connecting the right referrer, the customer’s confirmation and a completed transaction.</p>
+        <div class="hero-signals"><span><i>01</i>Identity</span><span><i>02</i>Consent</span><span><i>03</i>Conversion</span></div>
+      </div>
+      <aside class="release-card">
+        <div class="release-card-head"><p><small>SYSTEM RELEASE RULE</small><b>4 proofs required</b></p><span>LIVE</span></div>
+        <div class="release-score"><div><strong>4/4</strong><small>EVIDENCE GATES</small></div><p><b>Reward eligible</b><span>Ownership verified</span></p></div>
+        <ol><li class="done"><span>01</span><p><b>Partner identity</b><small>Verified account and mobile</small></p><i>✓</i></li><li class="done"><span>02</span><p><b>First valid claim</b><small>Server timestamp protected</small></p><i>✓</i></li><li class="done"><span>03</span><p><b>Customer confirmation</b><small>Direct OTP consent</small></p><i>✓</i></li><li class="done"><span>04</span><p><b>Paid conversion</b><small>Invoice and cooling period</small></p><i>✓</i></li></ol>
+      </aside>
+    </section>
+
+    <section class="promise-section section-wrap">
+      <div><p class="eyebrow">THE ASSURANCE PROMISE</p><h2>We do not guess fraud.<br />We test the claim.</h2></div>
+      <div class="promise-copy"><strong>100%</strong><p><b>traceability for every reward decision</b><span>Every release, hold, block and override is connected to recorded evidence.</span></p></div>
+    </section>
+
+    <section class="proof-section section-wrap">
+      <div class="section-heading"><div><p class="eyebrow">THE EVIDENCE CHAIN</p><h2>Four gates. One protected owner.</h2></div><p>A reward cannot skip a gate.</p></div>
+      <div class="proof-chain">
+        <article><span class="step-number">01</span><i>IDENTIFY</i><h3>Verified referrer</h3><p>Mobile ownership and approved professional or customer identity establish who is making the introduction.</p><div><b>Mobile OTP</b><b>Profile identity</b></div></article>
+        <article><span class="step-number">02</span><i>REGISTER</i><h3>First valid timestamp</h3><p>The claim is checked against existing CRM leads, referrals, customer details and the project address.</p><div><b>Duplicate scan</b><b>Ownership time</b></div></article>
+        <article><span class="step-number">03</span><i>CONFIRM</i><h3>Customer says yes</h3><p>Visual Vibrations contacts the customer directly. The referrer cannot confirm the relationship for them.</p><div><b>Direct OTP</b><b>Consent record</b></div></article>
+        <article><span class="step-number">04</span><i>RELEASE</i><h3>Real sale, real points</h3><p>Points release only after the opportunity, cleared payment and cooling period are all verified.</p><div><b>Paid invoice</b><b>Cooling period</b></div></article>
+      </div>
+    </section>
+
+    <section class="decision-section">
+      <div class="section-wrap decision-wrap">
+        <div class="decision-intro"><p class="eyebrow light">INTERACTIVE DECISION ENGINE</p><h2>See how a referral is treated.</h2><p>Change the evidence signals. The system will release, hold or block the reward automatically.</p><button id="resetScenario" type="button">Reset verified scenario ↺</button></div>
+        <div class="decision-console">
+          <div class="signal-list" aria-label="Referral evidence signals">
+            <label><span><b>Partner identity verified</b><small>Mobile and approved identity match</small></span><input type="checkbox" data-assurance-signal="partner" checked /><i></i></label>
+            <label><span><b>Customer already in CRM</b><small>Lead existed before referral timestamp</small></span><input type="checkbox" data-assurance-signal="existing" /><i></i></label>
+            <label><span><b>Another ownership claim found</b><small>Same customer or project is already claimed</small></span><input type="checkbox" data-assurance-signal="duplicate" /><i></i></label>
+            <label><span><b>Customer confirms referrer</b><small>Confirmed through direct verification</small></span><input type="checkbox" data-assurance-signal="customer" checked /><i></i></label>
+            <label><span><b>Payment and cooling cleared</b><small>Commercial evidence is complete</small></span><input type="checkbox" data-assurance-signal="payment" checked /><i></i></label>
+          </div>
+          <aside class="decision-result verified" id="decisionResult" aria-live="polite">
+            <div class="result-top"><span id="decisionCode">VERIFIED</span><small id="riskScore">08 RISK</small></div>
+            <div class="result-mark" id="resultMark">✓</div>
+            <h3 id="decisionTitle">Ownership verified.</h3>
+            <p id="decisionCopy">All mandatory evidence is complete. The reward can enter the release queue.</p>
+            <div class="result-reasons" id="decisionReasons"><span>✓ Identity verified</span><span>✓ Customer confirmed</span><span>✓ Commercial evidence cleared</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="outcomes-section section-wrap">
+      <div class="section-heading"><div><p class="eyebrow">AUTOMATIC OUTCOMES</p><h2>Clear decisions, not black-box scores.</h2></div><p>Rules determine payout. Risk signals determine attention.</p></div>
+      <div class="outcome-grid">
+        <article class="green"><span>✓</span><p><small>GREEN · VERIFIED</small><b>Release after clearance</b><em>Identity, ownership, customer consent and transaction evidence are complete.</em></p></article>
+        <article class="amber"><span>!</span><p><small>AMBER · HOLD</small><b>Freeze and investigate</b><em>A duplicate claim, incomplete identity or pending commercial proof needs attention.</em></p></article>
+        <article class="red"><span>×</span><p><small>RED · BLOCKED</small><b>No ownership or points</b><em>Customer denial, prior CRM ownership, self-referral or falsified evidence stops the claim.</em></p></article>
+      </div>
+    </section>
+
+    <section class="control-section section-wrap">
+      <article class="never-card"><p class="eyebrow light">NON-NEGOTIABLE CONTROLS</p><h2>What the system never allows.</h2><div><span>01</span><p><b>A partner confirming for the customer</b><small>Customer verification comes directly from Visual Vibrations.</small></p></div><div><span>02</span><p><b>An employee silently changing ownership</b><small>Overrides need director permission, a reason and evidence.</small></p></div><div><span>03</span><p><b>Points before cleared payment</b><small>Cancellation and cooling checks run before release.</small></p></div><div><span>04</span><p><b>Deleting the decision history</b><small>Every action remains attributable in the audit record.</small></p></div></article>
+      <article class="audit-card"><p class="eyebrow">EVIDENCE RETAINED</p><h2>One claim. A complete history.</h2><div class="audit-line"><time>10:32:14</time><span></span><p><b>Referral registered</b><small>Partner, customer and project details timestamped</small></p><i>LOCKED</i></div><div class="audit-line"><time>10:34:02</time><span></span><p><b>Automatic checks passed</b><small>No earlier customer, project or ownership match</small></p><i>PASSED</i></div><div class="audit-line"><time>10:41:26</time><span></span><p><b>Customer confirmation received</b><small>Direct consent recorded against the claim</small></p><i>CONFIRMED</i></div><div class="audit-line"><time>18 DAYS</time><span></span><p><b>Reward released</b><small>Payment and cooling period verified</small></p><i>RELEASED</i></div></article>
+    </section>
+
+    <section class="final-rule">
+      <p class="eyebrow light">THE FINAL RULE</p><h2>No proof.<br /><em>No ownership. No reward.</em></h2><p>Vantage creates defensible referral decisions—not an impossible promise that every dishonest intention can be detected.</p><div><a href="/">Open director dashboard →</a><a href="/partner.html">Open partner experience ↗</a></div>
+    </section>
+  </main>
+
+  <footer><a class="assurance-brand" href="/assurance"><span><img src="/visual-vibrations-logo.jpg" alt="" /></span><div><b>Vantage Assurance</b><small>VISUAL VIBRATIONS · NAGPUR</small></div></a><p>Evidence-led referral ownership and reward protection.</p></footer>
+  <script src="/assurance.js?v=20260825-1"></script>
+</body>
+</html>

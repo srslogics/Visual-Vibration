@@ -43,6 +43,24 @@ test('serves the self-service partner registration and referral app', async () =
   assert.match(html, /apple-mobile-web-app-title" content="Vantage Circle"/);
 });
 
+test('explains the complete referral assurance decision model', async () => {
+  const response = await request('/assurance');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type') ?? '', /^text\/html/);
+  const html = await response.text();
+  assert.match(html, /Every reward/);
+  assert.match(html, /100%/);
+  assert.match(html, /Four gates\. One protected owner/);
+  assert.match(html, /INTERACTIVE DECISION ENGINE/);
+  assert.match(html, /data-assurance-signal="duplicate"/);
+  assert.match(html, /No proof/);
+  assert.doesNotMatch(html, /__SITE_ORIGIN__/);
+  const [css, js] = await Promise.all([request('/assurance.css'), request('/assurance.js')]);
+  assert.match(css.headers.get('content-type') ?? '', /^text\/css/);
+  assert.match(js.headers.get('content-type') ?? '', /^text\/javascript/);
+  assert.match(await js.text(), /function renderDecision/);
+});
+
 test('serves application assets with correct content types', async () => {
   const [css, premiumCss, js, partnerCss, partnerJs, pwa, serviceWorker, manifest, icon, image, logo] = await Promise.all([
     request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'),
@@ -149,4 +167,6 @@ test('includes a Render static-site blueprint', async () => {
   assert.match(blueprint, /staticPublishPath:\s*\.\/dist\/client/);
   assert.match(blueprint, /source:\s*\/partner/);
   assert.match(blueprint, /destination:\s*\/partner\.html/);
+  assert.match(blueprint, /source:\s*\/assurance/);
+  assert.match(blueprint, /destination:\s*\/assurance\.html/);
 });

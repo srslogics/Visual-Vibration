@@ -9,6 +9,9 @@ services:
       - type: rewrite
         source: /partner
         destination: /partner.html
+      - type: rewrite
+        source: /assurance
+        destination: /assurance.html
     headers:
       - path: /*
         name: X-Content-Type-Options

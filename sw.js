@@ -1,14 +1,17 @@
-const CACHE_NAME = 'vantage-shell-2026-08-25-12';
+const CACHE_NAME = 'vantage-shell-2026-08-25-13';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/partner.html',
+  '/assurance.html',
   '/styles.css',
   '/premium.css',
   '/partner.css',
   '/partner-app.css',
   '/app.js',
   '/partner.js',
+  '/assurance.css',
+  '/assurance.js',
   '/pwa.js',
   '/manifest.webmanifest',
   '/partner.webmanifest',
