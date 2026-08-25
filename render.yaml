@@ -12,6 +12,9 @@ services:
       - type: rewrite
         source: /assurance
         destination: /assurance.html
+      - type: rewrite
+        source: /compliance
+        destination: /compliance.html
     headers:
       - path: /*
         name: X-Content-Type-Options

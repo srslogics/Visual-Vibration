@@ -14,6 +14,8 @@ const assets = new Map([
   ['/partner.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js'))]],
   ['/assurance.css', ['text/css; charset=utf-8', readFileSync(join(root, 'assurance.css'))]],
   ['/assurance.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'assurance.js'))]],
+  ['/compliance.css', ['text/css; charset=utf-8', readFileSync(join(root, 'compliance.css'))]],
+  ['/compliance.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'compliance.js'))]],
   ['/pwa.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'pwa.js'))]],
   ['/sw.js', ['text/javascript; charset=utf-8', readFileSync(join(root, 'sw.js'))]],
   ['/manifest.webmanifest', ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'manifest.webmanifest'))]],
@@ -28,6 +30,7 @@ const assets = new Map([
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');
 const assuranceHtml = readFileSync(join(root, 'assurance.html'), 'utf8');
+const complianceHtml = readFileSync(join(root, 'compliance.html'), 'utf8');
 
 const server = createServer((request, response) => {
   const origin = `http://${request.headers.host || `localhost:${activePort}`}`;
@@ -52,6 +55,13 @@ const server = createServer((request, response) => {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.setHeader('Cache-Control', 'no-cache');
     response.end(assuranceHtml.replaceAll('__SITE_ORIGIN__', origin));
+    return;
+  }
+
+  if (path === '/compliance' || path === '/compliance.html') {
+    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.setHeader('Cache-Control', 'no-cache');
+    response.end(complianceHtml.replaceAll('__SITE_ORIGIN__', origin));
     return;
   }
 

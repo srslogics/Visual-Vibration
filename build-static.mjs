@@ -19,6 +19,8 @@ const files = {
   '/partner.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'partner.js')).toString('base64')],
   '/assurance.css': ['text/css; charset=utf-8', readFileSync(join(root, 'assurance.css')).toString('base64')],
   '/assurance.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'assurance.js')).toString('base64')],
+  '/compliance.css': ['text/css; charset=utf-8', readFileSync(join(root, 'compliance.css')).toString('base64')],
+  '/compliance.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'compliance.js')).toString('base64')],
   '/pwa.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'pwa.js')).toString('base64')],
   '/sw.js': ['text/javascript; charset=utf-8', readFileSync(join(root, 'sw.js')).toString('base64')],
   '/manifest.webmanifest': ['application/manifest+json; charset=utf-8', readFileSync(join(root, 'manifest.webmanifest')).toString('base64')],
@@ -33,10 +35,12 @@ const files = {
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const partnerHtml = readFileSync(join(root, 'partner.html'), 'utf8');
 const assuranceHtml = readFileSync(join(root, 'assurance.html'), 'utf8');
+const complianceHtml = readFileSync(join(root, 'compliance.html'), 'utf8');
 
 const worker = `const HTML = ${JSON.stringify(html)};
 const PARTNER_HTML = ${JSON.stringify(partnerHtml)};
 const ASSURANCE_HTML = ${JSON.stringify(assuranceHtml)};
+const COMPLIANCE_HTML = ${JSON.stringify(complianceHtml)};
 const ASSETS = ${JSON.stringify(files)};
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -76,6 +80,12 @@ export default {
         headers: { ...securityHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
       });
     }
+    if (url.pathname === '/compliance' || url.pathname === '/compliance.html') {
+      const body = COMPLIANCE_HTML.replaceAll('__SITE_ORIGIN__', url.origin);
+      return new Response(request.method === 'HEAD' ? null : body, {
+        headers: { ...securityHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
+      });
+    }
     const asset = ASSETS[url.pathname];
     if (asset) {
       return new Response(request.method === 'HEAD' ? null : decode(asset[1]), {
@@ -88,6 +98,6 @@ export default {
 `;
 
 writeFileSync(join(serverDir, 'index.js'), worker);
-for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js', 'assurance.html', 'assurance.css', 'assurance.js', 'pwa.js', 'sw.js', 'manifest.webmanifest', 'partner.webmanifest']) cpSync(join(root, file), join(clientDir, file));
+for (const file of ['index.html', 'styles.css', 'premium.css', 'app.js', 'partner.html', 'partner.css', 'partner-app.css', 'partner.js', 'assurance.html', 'assurance.css', 'assurance.js', 'compliance.html', 'compliance.css', 'compliance.js', 'pwa.js', 'sw.js', 'manifest.webmanifest', 'partner.webmanifest']) cpSync(join(root, file), join(clientDir, file));
 for (const file of ['og.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'visual-vibrations-logo.jpg']) cpSync(join(root, 'public', file), join(clientDir, file));
 console.log(`Built Vantage Referral Intelligence to ${dist}`);

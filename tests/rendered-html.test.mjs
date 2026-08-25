@@ -61,6 +61,28 @@ test('explains the complete referral assurance decision model', async () => {
   assert.match(await js.text(), /function renderDecision/);
 });
 
+test('provides an India legal and compliance readiness centre', async () => {
+  const response = await request('/compliance');
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type') ?? '', /^text\/html/);
+  const html = await response.text();
+  assert.match(html, /India · Legal Readiness Centre/i);
+  assert.match(html, /Do not launch referral-linked rewards for registered architects/);
+  assert.match(html, /DPDP ACT 2023 \+ DPDP RULES 2025/);
+  assert.match(html, /TRAI TCCCPR/);
+  assert.match(html, /INCOME-TAX ACT §194R/);
+  assert.match(html, /RBI PPI/);
+  assert.match(html, /ANTI-BRIBERY \+ PUBLIC-OFFICIAL CONTROLS/);
+  assert.match(html, /COPYRIGHT \+ TRADE MARKS \+ MEDIA RIGHTS/);
+  assert.match(html, /All controls <i>14<\/i>/);
+  assert.match(html, /Launch document register/);
+  assert.match(html, /data-law-filter="incident"/);
+  const [css, js] = await Promise.all([request('/compliance.css'), request('/compliance.js')]);
+  assert.match(css.headers.get('content-type') ?? '', /^text\/css/);
+  assert.match(js.headers.get('content-type') ?? '', /^text\/javascript/);
+  assert.match(await js.text(), /window\.print/);
+});
+
 test('serves application assets with correct content types', async () => {
   const [css, premiumCss, js, partnerCss, partnerJs, pwa, serviceWorker, manifest, icon, image, logo] = await Promise.all([
     request('/styles.css'), request('/premium.css'), request('/app.js'), request('/partner-app.css'), request('/partner.js'),
@@ -169,4 +191,6 @@ test('includes a Render static-site blueprint', async () => {
   assert.match(blueprint, /destination:\s*\/partner\.html/);
   assert.match(blueprint, /source:\s*\/assurance/);
   assert.match(blueprint, /destination:\s*\/assurance\.html/);
+  assert.match(blueprint, /source:\s*\/compliance/);
+  assert.match(blueprint, /destination:\s*\/compliance\.html/);
 });
