@@ -1445,20 +1445,47 @@ body, .app-shell, .partner-app, .entry-shell, .flow-screen, .confirm-screen {
 .staff-access-card {
   position: relative;
   width: min(440px,100%);
+  max-height: calc(100vh - 40px);
   padding: 34px;
   border: 1px solid #dad6cc;
   border-radius: 18px;
   background: var(--paper);
   box-shadow: 0 34px 100px rgba(10,14,35,.28);
+  overflow-y: auto;
 }
-.staff-access-card .flow-brand { margin-bottom: 42px; color: var(--ink); }
+.staff-access-card .flow-brand {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 28px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.staff-access-card .flow-brand>span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(7,159,211,.45);
+  border-radius: 50%;
+  background: #fff;
+  overflow: hidden;
+}
+.staff-access-card .flow-brand img { width: 100%; height: 100%; object-fit: cover; }
+.staff-access-card .flow-brand b { font: 600 20px/1 "Playfair Display",serif; }
 .staff-access-card h2 { margin: 8px 0 24px; font: 600 34px/1.08 "Playfair Display",serif; }
 .staff-access-card form { display: grid; gap: 14px; }
 .staff-access-card form>label { display: grid; gap: 7px; color: #6e7772; font-size: 11px; font-weight: 700; }
-.staff-access-card input { min-height: 50px; padding: 0 13px; border: 1px solid #d6d2c8; border-radius: 10px; background: #fff; font: 500 13px Manrope,sans-serif; }
+.staff-access-card input { min-height: 50px; padding: 0 13px; border: 1px solid #d6d2c8; border-radius: 10px; outline: 0; background: #fff; font: 500 13px Manrope,sans-serif; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; }
+.staff-access-card input:focus { border-color: #079fd3; box-shadow: 0 0 0 4px rgba(7,159,211,.12); }
+.staff-access-card input.is-invalid { border-color: #a3565b; background: #fffafa; box-shadow: 0 0 0 4px rgba(163,86,91,.1); }
 .staff-access-card form>.primary-button { width: 100%; min-height: 50px; }
 .staff-access-card>small { display: block; margin-top: 17px; color: var(--muted); font-size: 10px; text-align: center; }
-.staff-login-error { min-height: 17px; margin: -3px 0; color: #9b504d; font-size: 11px; }
+.staff-login-error { display: none; margin: 0; color: #8e4248; font-size: 11px; line-height: 1.45; }
+.staff-login-error:not(:empty) { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; border: 1px solid #e2c5c5; border-radius: 9px; background: #f8eceb; }
+.staff-login-error:not(:empty)::before { content: "!"; display: grid; place-items: center; flex: 0 0 20px; width: 20px; height: 20px; border-radius: 50%; color: #fff; background: #9b504d; font: 700 10px/1 DM Mono,monospace; }
 
 @media (max-width: 980px) {
   .team-access-layout { grid-template-columns: 1fr; }
@@ -1481,7 +1508,7 @@ body, .app-shell, .partner-app, .entry-shell, .flow-screen, .confirm-screen {
   .permission-row { grid-template-columns: minmax(110px,1fr) repeat(3,52px); }
   .permission-row>span { padding-left: 10px; font-size: 10px; }
   .staff-access-card { padding: 28px 20px; }
-  .staff-access-card .flow-brand { margin-bottom: 34px; }
+  .staff-access-card .flow-brand { margin-bottom: 25px; }
   .staff-access-card h2 { font-size: 30px; }
 }
 
@@ -1490,3 +1517,108 @@ body, .app-shell, .partner-app, .entry-shell, .flow-screen, .confirm-screen {
 .assurance-explainer-link:hover { background: rgba(255,255,255,.08); }
 .assurance-link { display: flex; align-items: center; justify-content: space-between; min-height: 42px; margin-top: 16px; padding: 0 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--green); background: #fff; text-decoration: none; font-size: 11px; font-weight: 700; }
 .compliance-page-link { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; white-space: nowrap; }
+
+/* Fraud-watch hero integrity
+   Give the explainer, score and evidence totals their own layout space. */
+.fraud-hero {
+  grid-template-columns: minmax(0,1fr) 164px;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "fraud-copy fraud-score"
+    "fraud-stats fraud-score";
+  align-items: center;
+  column-gap: 48px;
+  row-gap: 28px;
+  min-height: 0;
+  padding: 40px 42px;
+}
+.fraud-hero>div:first-child {
+  position: relative;
+  z-index: 1;
+  grid-area: fraud-copy;
+  min-width: 0;
+}
+.fraud-hero-copy { margin-bottom: 0!important; }
+.assurance-explainer-link {
+  min-height: 42px;
+  padding-inline: 16px;
+  white-space: nowrap;
+}
+.shield-score {
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: 1;
+  grid-area: fraud-score;
+  justify-self: end;
+  width: 148px;
+  height: 148px;
+  margin: 0;
+  border-color: rgba(255,255,255,.2);
+  background: rgba(255,255,255,.035);
+  box-shadow: inset 0 0 0 10px rgba(255,255,255,.018);
+}
+.shield-score strong { margin: 8px 0 3px; font-size: 36px; line-height: 1; }
+.shield-score small { font-size: 10px!important; letter-spacing: .08em; }
+.shield-stats {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  z-index: 1;
+  grid-area: fraud-stats;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 0;
+  width: min(100%,620px);
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.shield-stats span {
+  min-width: 0;
+  padding: 0 22px;
+  color: #aebbd0;
+  font-size: 11px!important;
+  line-height: 1.35;
+}
+.shield-stats span:first-child { padding-left: 0; }
+.shield-stats span+span { border-left: 1px solid rgba(255,255,255,.1); }
+.shield-stats b {
+  margin-bottom: 6px;
+  color: #fff;
+  font: 600 18px/1.1 Manrope,sans-serif;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .fraud-hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "fraud-copy"
+      "fraud-score"
+      "fraud-stats";
+    gap: 24px;
+    min-height: 0;
+    padding: 30px 24px;
+  }
+  .shield-score {
+    justify-self: start;
+    width: 124px;
+    height: 124px;
+  }
+  .shield-score strong { font-size: 31px; }
+  .shield-stats { width: 100%; padding-top: 20px; }
+  .shield-stats span { padding-inline: 14px; }
+  .shield-stats b { font-size: 16px; }
+}
+
+@media (max-width: 420px) {
+  .fraud-hero { padding: 28px 20px; }
+  .fraud-hero h1 { font-size: 32px; }
+  .assurance-explainer-link { width: 100%; justify-content: space-between; }
+  .shield-score { width: 112px; height: 112px; }
+  .shield-score strong { font-size: 29px; }
+  .shield-stats span { padding-inline: 10px; font-size: 10px!important; }
+  .shield-stats b { font-size: 15px; }
+}

@@ -164,7 +164,9 @@ test('provides director-managed employee access control', async () => {
   ]);
   assert.match(directorHtml, /data-view-link="team"/);
   assert.match(directorHtml, /Create employee account/);
-  assert.match(directorHtml, /id="staffLoginForm"/);
+  assert.match(directorHtml, /id="staffLoginForm" novalidate/);
+  assert.match(directorHtml, /class="flow-brand staff-access-brand"/);
+  assert.match(directorHtml, /aria-describedby="staffLoginError"/);
   assert.match(directorHtml, /View, add and edit are granted separately/);
   assert.match(directorJs, /const accessModules =/);
   assert.match(directorJs, /function canAccess/);
@@ -173,6 +175,8 @@ test('provides director-managed employee access control', async () => {
   assert.match(directorJs, /async function hashAccessCode/);
   assert.match(directorJs, /STAFF_STORAGE_KEY/);
   assert.match(directorJs, /currentStaffUser\.isDirector/);
+  assert.match(directorJs, /function setStaffLoginError/);
+  assert.match(directorJs, /The access code must contain exactly six digits/);
 });
 
 test('returns safe responses for unsupported routes and methods', async () => {

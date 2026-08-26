@@ -252,10 +252,30 @@ function openAccountMenu() {
   openActionModal(`<div class="modal-intro"><p class="eyebrow">CURRENT ACCOUNT</p><h2 id="actionModalTitle">Your Vantage access.</h2></div><div class="account-sheet"><div class="account-sheet-profile"><span class="staff-avatar">${initials(currentStaffUser.name)}</span><div><b>${escapeHtml(currentStaffUser.name)}</b><small>${escapeHtml(currentStaffUser.title)} · ${director ? 'Full director access' : 'Custom employee access'}</small></div></div>${director ? '<button class="primary-button" id="manageTeamAccess">Manage team access</button><button class="secondary-button" id="openStaffSignIn">Employee sign-in</button>' : '<button class="primary-button" id="returnDirectorAccess">Return to director account</button>'}</div>`);
 }
 
+function clearStaffLoginError() {
+  const form = $('#staffLoginForm');
+  $('#staffLoginError').textContent = '';
+  $$('input', form).forEach(input => {
+    input.classList.remove('is-invalid');
+    input.removeAttribute('aria-invalid');
+  });
+}
+
+function setStaffLoginError(message, fields = []) {
+  const affectedFields = Array.isArray(fields) ? fields.filter(Boolean) : [fields].filter(Boolean);
+  clearStaffLoginError();
+  $('#staffLoginError').textContent = message;
+  affectedFields.forEach(input => {
+    input.classList.add('is-invalid');
+    input.setAttribute('aria-invalid', 'true');
+  });
+  affectedFields[0]?.focus();
+}
+
 function showStaffLogin() {
   closeActionModal();
-  $('#staffLoginError').textContent = '';
   $('#staffLoginForm').reset();
+  clearStaffLoginError();
   $('#staffAccessGate').classList.add('open');
   $('#staffAccessGate').setAttribute('aria-hidden','false');
   setTimeout(() => $('#staffLoginForm [name="email"]')?.focus(), 80);
@@ -794,23 +814,34 @@ $('#referralForm').addEventListener('submit', event => {
 
 $('#staffLoginForm').addEventListener('submit', async event => {
   event.preventDefault();
-  const data = Object.fromEntries(new FormData(event.currentTarget));
-  const email = String(data.email || '').trim().toLowerCase();
-  const codeHash = await hashAccessCode(String(data.code || ''));
+  const form = event.currentTarget;
+  const emailInput = form.elements.email;
+  const codeInput = form.elements.code;
+  const email = emailInput.value.trim().toLowerCase();
+  const code = codeInput.value.trim();
+
+  if (!email) return setStaffLoginError('Enter your work email to continue.', emailInput);
+  if (!emailInput.validity.valid) return setStaffLoginError('Enter a valid work email address.', emailInput);
+  if (!code) return setStaffLoginError('Enter your six-digit access code.', codeInput);
+  if (!/^\d{6}$/.test(code)) return setStaffLoginError('The access code must contain exactly six digits.', codeInput);
+
+  const codeHash = await hashAccessCode(code);
   const account = staffAccounts.find(item => item.email.toLowerCase() === email && item.pinHash === codeHash);
   if (!account) {
-    $('#staffLoginError').textContent = 'Email or access code is incorrect.';
-    return;
+    return setStaffLoginError('Email or access code is incorrect. Check both and try again.', [emailInput, codeInput]);
   }
   if (account.status !== 'Active') {
-    $('#staffLoginError').textContent = 'This account has been suspended. Contact the director.';
-    return;
+    return setStaffLoginError('This account has been suspended. Contact the director.');
   }
   account.lastActive = 'Just now';
   persistStaffAccounts();
   hideStaffLogin();
   setCurrentStaff(account);
   showToast('Signed in', `Welcome, ${account.name}. Your assigned workspace is ready.`);
+});
+
+$('#staffLoginForm').addEventListener('input', event => {
+  if (event.target.matches('input')) clearStaffLoginError();
 });
 
 const today = new Intl.DateTimeFormat('en-IN', {weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date());
